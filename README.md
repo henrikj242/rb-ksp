@@ -56,11 +56,13 @@ Let's take an example... The pitch-knob is turned on the HH1 main panel.
 
 The code for this should end up something like the following:
 
+```
 on ui_control(hh1_pitch)
     set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_0, -1, -1)
     set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_1, -1, -1)
     set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_2, -1, -1)
 end on
+```
 
 So, for this to work, we need to know which groups to change the pitch for, so that we may loop over them in the ruby code.
 
