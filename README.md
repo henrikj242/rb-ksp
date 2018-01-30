@@ -1,3 +1,9 @@
+# Status #
+
+Definitely work in progress - not mature at all!
+
+I hope for this project to mature over the next couple of months, at least so that it can support the development of the Beaotic sample libraries that I'm working on. By that time it would be cool if anybody else would like to contribute.
+
 # Background #
 
 Our instruments are bult around the same template, with a few variations.
@@ -88,7 +94,7 @@ key_groups:
 ```
 
 So, in other words, I want all the pitch knobs to have the same range and default value, but different targets and correspondingly different labels. The yaml extract above show how to do this, I think...
-
+    
 
 
 
