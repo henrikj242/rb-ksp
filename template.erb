@@ -1,0 +1,15 @@
+{{ built by <%= developer_name %> on <%= Time.now %> }}
+
+{{
+    configuration:
+    <%= @conf.pretty_inspect %>
+}}
+
+on init
+    default pitch: <%= @conf[:pitch][:default] %>
+
+    <% @conf[:key_groups].each do |key_group| %>
+        {{ keygroup_<%= key_group[:name] %> }}
+        <% key_group[:knobs].each do |knob| %>
+    <% end %>
+end on

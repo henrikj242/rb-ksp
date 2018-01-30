@@ -1,0 +1,37 @@
+buttons: &default_buttons
+  osc1drift:
+    label: 'OSC1 Drift'
+    function: set_osc1_drift
+  velstart:
+    function: velstart
+
+pitch: &default_pitch
+  default: 500000
+  min: -300000
+  max: 700000
+  label: Pitch
+
+
+key_groups:
+  - name: bass_drums
+    keys:
+      [36, 37, 38, 39, 40, 41]
+    mainpanel:
+      knobs:
+        pitch: *default_pitch
+        function: set_pitch_bd
+  - name: snare_drums_1
+    keys:
+      [42, 43, 44, 45, 46, 47]
+    mainpanel:
+      knobs:
+        <<: *default_pitch
+        function: set_pitch_sd_1
+unused:
+  name: snare_drums_2
+  keys:
+    [48, 49, 50, 51, 52, 53]
+  mainpanel:
+    knobs:
+      <<: *default_pitch
+      function: set_pitch_sd_2
