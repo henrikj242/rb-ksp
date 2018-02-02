@@ -6,10 +6,12 @@
 }}
 
 on init
-    default pitch: <%= @conf[:pitch][:default] %>
+    default pitch: <%= @conf[:default_pitch][:default_val] %>
 
     <% @conf[:key_groups].each do |key_group| %>
         {{ keygroup_<%= key_group[:name] %> }}
-        <% key_group[:knobs].each do |knob| %>
+        <%# key_group[:knobs].each do |knob| %>
+            <%# knob[:name] %>
+        <%# end %>
     <% end %>
 end on

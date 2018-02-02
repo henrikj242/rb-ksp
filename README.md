@@ -54,38 +54,89 @@ But how do I determine what actions to take on which targets?
 
 Let's take an example... The pitch-knob is turned on the HH1 main panel.
 
-The code for this should end up something like the following:
+The code for this could end up something like the following:
 
 ```
-on ui_control(hh1_pitch)
-    set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_0, -1, -1)
-    set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_1, -1, -1)
-    set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_2, -1, -1)
+on ui_control(knob_hh1_main_pitch)
+  set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_0, -1, -1)
+  set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_1, -1, -1)
+  set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_2, -1, -1)
+  ...
 end on
 ```
 
-So, for this to work, we need to know which groups to change the pitch for, so that we may loop over them in the ruby code.
+But... Since several knobs or sliders may affect the same parameter, we should let a function handle the actual setting of the value. Also, we need to support these additional ui controls. The following example shows how we want the callbacks of the 4 knobs that ultimately control the pitch of any key in the hh1 key group to look, 
+including functions.
 
-Luckily, we follow a strict system when it comes to the number of groups, and their order, so I feel confident about that part.
-
-But what, then, about other cases, such as congas and toms, where we have independent pitches for each note as a standard feature of the main panel?
-
-Well, these should simply not have the generic pitch function... 
-
-So, to imagine how this would look in the yaml configuration, I would like to be able to specifiy a function per knob.
-
-Snippet...
 ```
+function set_hh1_0_pitch
+  $hh1_0_pitch_val := $knob_hh1_0_pitch + $knob_hh1_main_pitch
+  set_engine_par($ENGINE_PAR_TUNE, hh1_0_pitch_val, $grp_idx_hh1_0, -1, -1)
+end function
+
+function set_hh1_1_pitch
+  $hh1_1_pitch_val := $knob_hh1_1_pitch + $knob_hh1_main_pitch
+  set_engine_par($ENGINE_PAR_TUNE, $hh1_0_pitch_val, $grp_idx_hh1_0, -1, -1)
+end function
+
+function set_hh1_2_pitch
+  $hh1_2_pitch_val := $knob_hh1_2_pitch + $knob_hh1_main_pitch
+  set_engine_par($ENGINE_PAR_TUNE, $hh1_0_pitch_val, $grp_idx_hh1_0, -1, -1)
+end function
+
+function set_hh1_main_pitch
+  set_hh1_0_pitch
+  set_hh1_1_pitch
+  set_hh1_2_pitch
+end function
+
+on ui_control($knob_hh1_main_pitch)
+  set_hh1_main_pitch
+end on
+
+on ui_control($knob_hh1_0_pitch)
+  set_hh1_0_pitch
+end on
+
+on ui_control($knob_hh1_1_pitch)
+  set_hh1_0_pitch
+end on
+
+on ui_control($knob_hh1_2_pitch)
+  set_hh1_0_pitch
+end on
+```
+
+
+Configuration snippet required to support the above:
+
+```
+# define some default blocks, such as pitch:
 default_pitch: &default_pitch
+  name: pitch
   default_value: 500000
   max_value: 700000
-  min_value: 300000
+  min_value: 300000  
   label: Pitch
 
 key_groups:
-  - name: hh1
-    knobs:
-      pitch: *default_pitch
+  - short_name: hh1
+    long_name: "XT-808 High-hats 1"
+    panels:
+      main:
+        knobs:
+          - pitch: *default_pitch
+            notes: [0..2]            
+          - name: cl_hh_decay
+            notes: [0, 1]
+          - name: o_hh_hold
+            notes: [2]
+          - name: o hh decay
+            notes: [2]
+        buttons:
+          - name: osc_drift
+
+
   - name: toms
     knobs:
       tom_1_pitch: *default_pitch
@@ -95,7 +146,17 @@ key_groups:
       ...  
 ```
 
+
+
 So, in other words, I want all the pitch knobs to have the same range and default value, but different targets and correspondingly different labels. The yaml extract above show how to do this, I think...
+
+
+For this to work, we need to know which groups to change the pitch for, so that we may loop over them in the ruby code. Since we follow a strict system when it comes to the number of groups, and their order (with/without accent, RR-vairants, color-variants etc), so I feel confident about that part.
+
+
+
+So, to imagine how this would look in the yaml configuration, I would like to be able to specifiy a function per knob.
+
     
 
 

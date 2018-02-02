@@ -1,37 +1,71 @@
-buttons: &default_buttons
-  osc1drift:
-    label: 'OSC1 Drift'
-    function: set_osc1_drift
-  velstart:
-    function: velstart
-
-pitch: &default_pitch
-  default: 500000
-  min: -300000
-  max: 700000
+default_pitch: &default_pitch
+  name: pitch
+  default_val: 500000
+  max_val: 700000
+  min_val: 300000  
   label: Pitch
 
-
 key_groups:
-  - name: bass_drums
-    keys:
-      [36, 37, 38, 39, 40, 41]
-    mainpanel:
-      knobs:
-        pitch: *default_pitch
-        function: set_pitch_bd
-  - name: snare_drums_1
-    keys:
-      [42, 43, 44, 45, 46, 47]
-    mainpanel:
-      knobs:
-        <<: *default_pitch
-        function: set_pitch_sd_1
-unused:
-  name: snare_drums_2
-  keys:
-    [48, 49, 50, 51, 52, 53]
-  mainpanel:
-    knobs:
-      <<: *default_pitch
-      function: set_pitch_sd_2
+  - name: hh1
+    label: "XT-808 High-hats 1"
+    panels:
+      - name: main
+        knobs:
+          - <<: *default_pitch
+            notes: [0..2]
+          - name: cl_hh_decay
+            notes: [0, 1]
+            min_val: 8000
+            default_val: 50000
+            max_val: 300000
+          - name: o_hh_hold
+            notes: [2]
+            min_val: 8000
+            default_val: 50000
+            max_val: 300000
+          - name: o_hh_decay
+            notes: [2]
+            min_val: 8000
+            default_val: 50000
+            max_val: 300000
+        buttons:
+          - name: osc_drift
+
+
+# buttons: &default_buttons
+#   osc1drift:
+#     label: 'OSC1 Drift'
+#     function: set_osc1_drift
+#   velstart:
+#     function: velstart
+
+# pitch: &default_pitch
+#   default: 500000
+#   min: -300000
+#   max: 700000
+#   label: Pitch
+
+
+# key_groups:
+#   - name: bass_drums
+#     keys:
+#       [36, 37, 38, 39, 40, 41]
+#     mainpanel:
+#       knobs:
+#         pitch: *default_pitch
+#         function: set_pitch_bd
+#   - name: snare_drums_1
+#     keys:
+#       [42, 43, 44, 45, 46, 47]
+#     mainpanel:
+#       knobs:
+#         <<: *default_pitch
+#         function: set_pitch_sd_1
+# unused:
+#   name: snare_drums_2
+#   keys:
+#     [48, 49, 50, 51, 52, 53]
+#   mainpanel:
+#     knobs:
+#       <<: *default_pitch
+#       function: set_pitch_sd_2
