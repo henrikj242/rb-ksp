@@ -15,39 +15,6 @@ debug = true
 # template = ERB.new(File.new("template.erb").read)
 # puts template.result(binding)
 
-class KeyGroup    
-    attr_writer :panels
-
-    def initialize
-        @panels = []
-    end
-    def panels
-        @panels
-    end
-end
-
-class UiPanel
-    attr_writer :knobs
-
-    def initialize
-        @knobs = []
-    end
-    def knobs
-        @knobs
-    end
-end
-
-class UiKnob
-    attr_reader :options
-
-    def initialize(options = {})
-        @options = options
-    end
-        
-    def declare
-        "declare ui_slider #{options[:name]} (#{options[:min_val]}, #{options[:max_val]})"
-    end
-end
 
 key_groups = []
 # declare variables functions and callbacks
@@ -55,25 +22,46 @@ key_groups = []
     key_groups << KeyGroup.new
     key_group[:panels].each do |panel|
         key_groups.last.panels << UiPanel.new
-        panel[:knobs].each do |knob|
+        panel[:knobs].each_with_index do |knob, idx|
             knob_options = {
-                name: "$knob_#{key_group[:name]}_#{panel[:name]}_#{knob[:name]}",
-                min_val: knob[:min_val],
-                max_val: knob[:max_val],
-                default_val: knob[:default_val]
+                key_group_name: key_group[:name],
+                panel_name: panel[:name],
+                knob_idx: idx
             }
-            key_groups.last.panels.last.knobs << UiKnob.new(knob_options)
+            key_groups.last.panels.last.knobs << UiKnob.new(knob.merge(knob_options))
         end
     end
 end
 
+puts "on init"
+puts "  declare $mod_idx := 0"
 key_groups.each do |key_group|
     key_group.panels.each do |panel|
         panel.knobs.each do |knob|
-            puts knob.declare
+            puts "  " + knob.declare
         end
     end
 end
+puts "end on"
+
+key_groups.each do |key_group|
+    key_group.panels.each do |panel|
+        panel.knobs.each do |knob|
+            puts knob.function
+        end
+    end
+end
+
+
+key_groups.each do |key_group|
+    key_group.panels.each do |panel|
+        panel.knobs.each do |knob|
+            puts knob.callback
+        end
+    end
+end
+
+
 
 
 

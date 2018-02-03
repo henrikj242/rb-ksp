@@ -8,28 +8,52 @@ default_pitch: &default_pitch
 key_groups:
   - name: hh1
     label: "XT-808 High-hats 1"
+    midi_notes: [54, 56, 58]
     panels:
       - name: main
         knobs:
           - <<: *default_pitch
-            notes: [0..2]
+            affected_keys: [0,1,2]
           - name: cl_hh_decay
-            notes: [0, 1]
+            affected_keys: [0, 1]
             min_val: 8000
             default_val: 50000
             max_val: 300000
+            modulator: "ENV_AHDSR"
+            parameter: "$ENGINE_PAR_DECAY"
+            function: bypass
           - name: o_hh_hold
-            notes: [2]
+            affected_keys: [2]
             min_val: 8000
             default_val: 50000
             max_val: 300000
+            modulator: "ENV_AHDSR"
+            parameter: "$ENGINE_PAR_HOLD"
+            function: bypass
           - name: o_hh_decay
-            notes: [2]
+            affected_keys: [2]
             min_val: 8000
             default_val: 50000
             max_val: 300000
+            modulator: "ENV_AHDSR"
+            parameter: "$ENGINE_PAR_DECAY"
+            function: bypass            
         buttons:
           - name: osc_drift
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # buttons: &default_buttons
