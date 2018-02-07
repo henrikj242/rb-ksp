@@ -65,8 +65,7 @@ on ui_control(knob_hh1_main_pitch)
 end on
 ```
 
-But... Since several knobs or sliders may affect the same parameter, we should let a function handle the actual setting of the value. Also, we need to support these additional ui controls. The following example shows how we want the callbacks of the 4 knobs that ultimately control the pitch of any key in the hh1 key group to look, 
-including functions.
+But... Since several knobs or sliders may affect the same parameter, we should let a function handle the actual setting of the value. The following example shows how we want the callbacks of the 4 knobs that ultimately control the pitch of any key in the hh1 key group to look, including functions.
 
 ```
 function set_hh1_0_pitch
@@ -126,7 +125,7 @@ key_groups:
       main:
         knobs:
           - pitch: *default_pitch
-            notes: [0..2]            
+            notes: [0,1,2]            
           - name: cl_hh_decay
             notes: [0, 1]
           - name: o_hh_hold

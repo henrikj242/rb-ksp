@@ -15,74 +15,97 @@ def parse_config(config_file = 'ksp.yml')
 	symbolize(y)
 end
 
-class KeyGroup    
-    attr_writer :panels
+module Ksp
+    class KeyGroup
+        attr_writer :panels
 
-    def initialize
-        @panels = []
-    end
-    def panels
-        @panels
-    end
-end
-
-class UiPanel
-    attr_writer :knobs
-
-    def initialize
-        @knobs = []
-    end
-    def knobs
-        @knobs
-    end
-end
-
-class UiKnob
-    def initialize(knob_conf) 
-        @key_group_name = knob_conf[:key_group_name]
-        @panel_name = knob_conf[:panel_name]
-        @knob_name = knob_conf[:name]
-        @min_val = knob_conf[:min_val]
-        @max_val = knob_conf[:max_val]
-        @default_val = knob_conf[:default_val]
-        @affected_keys = knob_conf[:affected_keys]
-        @modulator = knob_conf[:modulator]
-        @parameter = knob_conf[:parameter]
-        @function = knob_conf[:function]
-    end
-    
-    def name
-        "$knob_" + [@key_group_name, @panel_name, @knob_name].join('_')
-    end    
-
-    def declare
-        "declare ui_slider #{name}(#{@min_val}, #{@max_val})"
+        def initialize
+            @panels = []
+        end
+        def panels
+            @panels
+        end
     end
 
-    def grpidx
-        42
+    class UiPanel
+        attr_writer :knobs
+
+        def initialize
+            @knobs = []
+        end
+        def knobs
+            @knobs
+        end
     end
 
-    def callback
-        return "" if @function == 'none'
+    class Variable
 
-        # Remember to actually iterate over affected_keys
-        statement_body = ""
-        if @function == 'bypass'
-            if @modulator
-                statement_body << "  $mod_idx := find_mod(#{grpidx}, \"#{@modulator}\") \n"
-            else
-                statement_body << "  $mod_idx := -1 \n"
-            end
-            statement_body << "  set_engine_par(#{@parameter}, #{name}, #{grpidx}, $mod_idx, -1) \n"
+    end
+
+    class Integer < Variable
+        def self.declare(name, init_val)
+            "declare #{name} := #{init_val}"
+        end
+    end
+
+    class UiControl < Variable
+
+    end
+
+    class UiKnob < UiControl
+        def initialize(knob_conf)
+            @conf = knob_conf
+        end
+        
+        def identifier
+            [@conf[:key_group_name], @conf[:panel_name], @conf[:name]].join('_')
         end
 
-        "on ui_control(#{name})\n" \
-            "#{statement_body}" \
-        "end on"
-    end
+        def name
+            "$knob_" + identifier
+        end    
 
-    def function
+        def declare
+            stmt = "declare ui_slider #{name}(#{@conf[:min_val]}, #{@conf[:max_val]})\n"
+            if @conf[:modulator]
+                stmt << Integer::declare("$mod_idx_#{identifier}", 0)
+                stmt << "\n"
+            end
+            stmt
+        end
+
+        def grpidx(affected_key)
+            # TODO: Implement logic to figure out grp indexes
+            42
+        end
+
+        def callback
+            return "" if @conf[:function] == 'none'
+
+            stmt = "on ui_control(#{identifier})\n"
+            if @conf[:function] == 'bypass'
+                @conf[:affected_keys].each do |affected_key|
+                    if @conf[:modulator]
+                        stmt << "  $mod_idx_#{identifier} := find_mod(#{grpidx(affected_key)}, \"#{@conf[:modulator]}\") \n"
+                    else
+                        stmt << "  $mod_idx_#{identifier} := -1 \n"
+                    end
+                    stmt << "  set_engine_par(#{@conf[:parameter]}, #{identifier}, #{grpidx(affected_key)}, $mod_idx_#{identifier}, -1) \n"
+                end    
+            end
+
+            stmt << "end on\n"
+        end
+
+        def function
+            stmt = ""
+            @conf[:affected_keys].each do |affected_key|                
+                indiv_knob = "$individ_knob_#{affected_key}_#{@conf[:name]}" # replace with smth like `get_indiv_knob_name(affected_key)`
+                stmt << "function set_#{@conf[:key_group_name]}_#{affected_key}_#{@conf[:name]}\n" \
+                    "  set_engine_par(#{@conf[:parameter]}, #{indiv_knob} + #{name}, #{grpidx(affected_key)}, -1, -1) \n" \
+                    "end function \n"
+            end
+            stmt        
+        end
     end
 end
-
