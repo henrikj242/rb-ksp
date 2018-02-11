@@ -52,11 +52,48 @@ ui control callback handlers listens for events on a ui control, and adjusts wha
 
 But how do I determine what actions to take on which targets?
 
-Let's take an example... The pitch-knob is turned on the HH1 main panel.
+
+As an example, behold the code for the hh1 key group:
+
+    on init
+      declare ui_slider $knob_hh1_main_pitch(0, 2000)
+      declare ui_slider $knob_hh1_main_cl_hh_decay(8000, 300000)
+      declare $mod_idx_hh1_main_cl_hh_decay := 0
+      declare ui_slider $knob_hh1_main_o_hh_hold(8000, 300000)
+      declare $mod_idx_hh1_main_o_hh_hold := 0
+      declare ui_slider $knob_hh1_main_o_hh_decay(8000, 300000)
+      declare $mod_idx_hh1_main_o_hh_decay := 0
+    end on
+
+
+
+
+    on ui_control($knob_hh1_main_pitch)
+      call    
+      call 
+      call 
+    end on
+    on ui_control($knob_hh1_main_cl_hh_decay)
+      $mod_idx_hh1_main_cl_hh_decay := find_mod(<grpidx>, "ENV_AHDSR") 
+      set_engine_par($ENGINE_PAR_DECAY, $knob_hh1_main_cl_hh_decay, <grpidx>, $mod_idx_hh1_main_cl_hh_decay, -1) 
+      $mod_idx_hh1_main_cl_hh_decay := find_mod(<grpidx>, "ENV_AHDSR") 
+      set_engine_par($ENGINE_PAR_DECAY, $knob_hh1_main_cl_hh_decay, <grpidx>, $mod_idx_hh1_main_cl_hh_decay, -1) 
+    end on
+    on ui_control($knob_hh1_main_o_hh_hold)
+      $mod_idx_hh1_main_o_hh_hold := find_mod(<grpidx>, "ENV_AHDSR") 
+      set_engine_par($ENGINE_PAR_HOLD, $knob_hh1_main_o_hh_hold, <grpidx>, $mod_idx_hh1_main_o_hh_hold, -1) 
+    end on
+    on ui_control($knob_hh1_main_o_hh_decay)
+      $mod_idx_hh1_main_o_hh_decay := find_mod(<grpidx>, "ENV_AHDSR") 
+      set_engine_par($ENGINE_PAR_DECAY, $knob_hh1_main_o_hh_decay, <grpidx>, $mod_idx_hh1_main_o_hh_decay, -1) 
+    end on
+
+
+<!-- Let's take an example... The pitch-knob is turned on the HH1 main panel.
 
 The code for this could end up something like the following:
-
-```
+ -->
+<!-- ```
 on ui_control(knob_hh1_main_pitch)
   set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_0, -1, -1)
   set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_1, -1, -1)
@@ -104,7 +141,7 @@ end on
 on ui_control($knob_hh1_2_pitch)
   set_hh1_0_pitch
 end on
-```
+ -->```
 
 
 Configuration snippet required to support the above:

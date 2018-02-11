@@ -7,6 +7,10 @@ def symbolize(obj)
     memo << symbolize(v); memo
   end if obj.is_a? Array
   
+  return obj.to_a.reduce([]) do |memo, v| 
+    memo << symbolize(v); memo
+  end if obj.is_a? Range
+
   obj
 end
 
@@ -17,13 +21,57 @@ end
 
 module Ksp
     class KeyGroup
-        attr_writer :panels
+        attr :knobs
 
-        def initialize
-            @panels = []
+        def initialize(key_group_conf)
+            @conf = key_group_conf
+            @knobs = []
+            set_knobs
         end
-        def panels
-            @panels
+
+        def name
+            @conf[:name]
+        end
+
+        def set_knobs
+            @conf[:knobs].each do |knob_conf|
+                knob_identifier = "#{@conf[:name]}_#{knob_conf[:name]}"
+                @knobs << UiKnob.new(knob_identifier, knob_conf)
+                knob_conf[:affected_keys].each do |ak|
+                    @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
+                    @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2] if @conf[:keys][ak][:k_groups][:osc2]
+                end
+            end
+        end    
+
+        def functions
+            pitch_functions
+        end
+
+        def mix_pitch_function(affected_key)
+            main_knob = "$knob_pitch_#{@conf[:name]}"
+            mix_knob = "$knob_pitch_#{@conf[:name]}_#{affected_key[:name]}"
+
+            stmt = "function set_pitch_#{@conf[:name]}_#{affected_key[:name]} \n"
+            affected_key[:k_groups].keys.each do |osc|
+                affected_key[:k_groups][osc].each do |k_group|
+                    stmt << "  set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1) \n" 
+                end    
+            end    
+            stmt << "end function\n"
+        end
+
+        def pitch_functions
+            stmt = "{{ default pitch functions }}\n"
+            @conf[:keys].each do |affected_key|
+                stmt << mix_pitch_function(affected_key)
+            end
+
+            stmt << "function set_pitch_#{@conf[:name]}\n"
+            @conf[:keys].each do |affected_key|
+                stmt << "  call set_pitch_#{@conf[:name]}_#{affected_key[:name]} \n" 
+            end
+            stmt << "end function \n"
         end
     end
 
@@ -37,6 +85,8 @@ module Ksp
             @knobs
         end
     end
+
+
 
     class Variable
 
@@ -53,59 +103,46 @@ module Ksp
     end
 
     class UiKnob < UiControl
-        def initialize(knob_conf)
-            @conf = knob_conf
+        attr_accessor :k_groups
+
+        def initialize(identifer, conf)
+            @identifier = identifer
+            @conf = conf
+            @k_groups = { osc1: [], osc2: [] }
         end
         
-        def identifier
-            [@conf[:key_group_name], @conf[:panel_name], @conf[:name]].join('_')
-        end
-
         def name
-            "$knob_" + identifier
+            "$knob_#{@identifier}"
         end    
 
         def declare
             stmt = "declare ui_slider #{name}(#{@conf[:min_val]}, #{@conf[:max_val]})\n"
             if @conf[:modulator]
-                stmt << Integer::declare("$mod_idx_#{identifier}", 0)
+                stmt << Integer::declare("$mod_idx_#{@identifier}", 0)
                 stmt << "\n"
             end
             stmt
         end
 
-        def grpidx(affected_key)
-            # TODO: Implement logic to figure out grp indexes
-            42
-        end
-
         def callback
             return "" if @conf[:function] == 'none'
 
-            stmt = "on ui_control(#{identifier})\n"
+            stmt = "on ui_control(#{name})\n"
             if @conf[:function] == 'bypass'
-                @conf[:affected_keys].each do |affected_key|
-                    if @conf[:modulator]
-                        stmt << "  $mod_idx_#{identifier} := find_mod(#{grpidx(affected_key)}, \"#{@conf[:modulator]}\") \n"
-                    else
-                        stmt << "  $mod_idx_#{identifier} := -1 \n"
+                k_groups.keys.each do |osc|
+                    k_groups[osc].each do |k_group|
+                        if @conf[:modulator]
+                            stmt << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\") \n"
+                        else
+                            stmt << "  $mod_idx_#{@identifier} := -1 \n"
+                        end
+                        stmt << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1) \n"
                     end
-                    stmt << "  set_engine_par(#{@conf[:parameter]}, #{identifier}, #{grpidx(affected_key)}, $mod_idx_#{identifier}, -1) \n"
                 end    
+            elsif @conf[:function]
+                stmt << "  call #{@conf[:function]}\n"
             end
-
             stmt << "end on\n"
-        end
-
-        def function
-            stmt = ""
-            @conf[:affected_keys].each do |affected_key|                
-                indiv_knob = "$individ_knob_#{affected_key}_#{@conf[:name]}" # replace with smth like `get_indiv_knob_name(affected_key)`
-                stmt << "function set_#{@conf[:key_group_name]}_#{affected_key}_#{@conf[:name]}\n" \
-                    "  set_engine_par(#{@conf[:parameter]}, #{indiv_knob} + #{name}, #{grpidx(affected_key)}, -1, -1) \n" \
-                    "end function \n"
-            end
-            stmt        
         end
     end
 end
