@@ -34,18 +34,28 @@ module Ksp
         end
 
         def set_knobs
+            knobs = []
             @conf[:knobs].each do |knob_conf|
                 knob_identifier = "#{@conf[:name]}_#{knob_conf[:name]}"
                 @knobs << UiKnob.new(knob_identifier, knob_conf)
                 knob_conf[:affected_keys].each do |ak|
                     @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
-                    @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2] if @conf[:keys][ak][:k_groups][:osc2]
+                    if @conf[:keys][ak][:k_groups][:osc2]
+                        @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2] 
+                    end    
                 end
             end
         end    
 
-        def functions
+        def default_functions
             pitch_functions
+            # level_functions
+            # pan_functions
+            # output_assign_functions
+        end
+
+        def functions
+            default_functions
         end
 
         def mix_pitch_function(affected_key)
@@ -75,21 +85,7 @@ module Ksp
         end
     end
 
-    class UiPanel
-        attr_writer :knobs
-
-        def initialize
-            @knobs = []
-        end
-        def knobs
-            @knobs
-        end
-    end
-
-
-
     class Variable
-
     end
 
     class Integer < Variable
@@ -99,7 +95,10 @@ module Ksp
     end
 
     class UiControl < Variable
-
+        # make_persistent
+        # set_position_px
+        # show / hide
+        # set_image stuff
     end
 
     class UiKnob < UiControl
@@ -108,12 +107,15 @@ module Ksp
         def initialize(identifer, conf)
             @identifier = identifer
             @conf = conf
-            @k_groups = { osc1: [], osc2: [] }
+            @k_groups = { 
+                osc1: [], 
+                osc2: [] 
+            }
         end
         
         def name
             "$knob_#{@identifier}"
-        end    
+        end
 
         def declare
             stmt = "declare ui_slider #{name}(#{@conf[:min_val]}, #{@conf[:max_val]})\n"

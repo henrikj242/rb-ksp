@@ -103,15 +103,15 @@ key_groups:
       - name: cl_hh_a
         midi_note: 54
         k_groups: 
-          osc1: [0]
+          osc1: [78]
       - name: cl_hh_b
         midi_note: 56
         k_groups: 
-          osc1: [6]
+          osc1: [79]
       - name: o_hh
         midi_note: 58
         k_groups: 
-          osc1: [12]
+          osc1: [80]
     knobs:
       - <<: *default_decay
         name: cl_hh_decay

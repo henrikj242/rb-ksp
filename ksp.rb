@@ -10,7 +10,7 @@ end
 debug = true
 
 @conf = parse_config
-puts @conf.inspect 
+pp @conf
 # @printable_conf = pp @conf
 
 # template = ERB.new(File.new("template.erb").read)
