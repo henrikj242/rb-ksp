@@ -6,7 +6,7 @@ I hope for this project to mature over the next couple of months, at least so th
 
 # Background #
 
-Our instruments are bult around the same template, with a few variations.
+Our instruments are built around the same template, with a few variations.
 
 They all have the same set of key groups, which are usually called by the same names, and usually have the same members.
 
@@ -15,7 +15,7 @@ Each key group always have two panels: Main and Mixer.
 The Main panel always have a set of knobs, and these vary quite a bit.
 Aside from the knobs, they have a set of buttons, which vary much less.
 
-In the mixer panel, the controls are always the same, they are called by the same names, and they work in the same way.
+In the mixer panel, the controls are always the same, they are called by predictable names, and they work in the same way.
 
 A button is used within each instrument group to switch between Mixer and Main panel. We may consider to move this functionality out to a general "working mode" level instead of having it on each key group.
 
@@ -26,10 +26,12 @@ Most knobs deal with setting a single parameter for a number of Kontakt-groups. 
 -- Set volume coefficients on two certain sets of groups
 - Accent
 -- Set a volume coefficient on certain groups
+- Color
+-- Allow/disallow specific sets of samples, for example to simulate a hardware filter.  
 
-So, since KSP is a very limited programming language, I've decided to write a code generator for KSP - in Ruby.
+So, since KSP is a very limited programming language, and does not add many features to minimize code repetitions, I've decided to write a code generator for KSP - in Ruby.
 
-It is not - currently - a generic tool for this purpose, but yes, it would be nice to turn it into one over time, just for fun :)
+It is not - currently - a generic tool for this purpose, but yes, it would be nice to turn it into one over time, since it is obvious that many developers are dissatisfied with the capabilities of the KSP programming language.
 
 - Keep dependencies minimal. Preferably no gems should be required
 - Keep code rganized. I expect to just write a bunch of functions first, and then possibly wrap them into classes along the way.
@@ -42,7 +44,9 @@ So what do I expect in terms of tasks..?
 
 One thing I know, is that I'd like to have a program that is generic enough to produce a valid KSP script based on a YAML file as an input parameter. Something like:
 
-`ruby ksp.rb xt808.yml`
+`./ksp.rb xt808`
+
+The command would look for the file `xt808.yml` and save the generated output in `xt808.txt`. The txt-file could then be copied to the Resources/script folder of your NKI instrument, ready to be `applied`.
 
 Let's start backwards, looking at the requirements of the generated KSP code:
 
@@ -64,9 +68,6 @@ As an example, behold the code for the hh1 key group:
       declare ui_slider $knob_hh1_main_o_hh_decay(8000, 300000)
       declare $mod_idx_hh1_main_o_hh_decay := 0
     end on
-
-
-
 
     on ui_control($knob_hh1_main_pitch)
       call    
