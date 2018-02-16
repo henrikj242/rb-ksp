@@ -6,7 +6,6 @@ RSpec.describe Ksp do
   end
 
   it "generates an integer variable" do
-    # "some text".should == "some text"
     expect(Ksp::Integer.declare("$my_int", 42)).to eq("declare $my_int := 42")
   end
 end
