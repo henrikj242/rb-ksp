@@ -1,18 +1,16 @@
 module Ksp
-  class UiKnob < UiControl
+  class CustomKnob < UiSlider
     attr_accessor :k_groups
+    attr_reader :name
 
     def initialize(identifer, conf)
       @identifier = identifer
+      @name = "$knob_#{@identifier}"
       @conf = conf
       @k_groups = {
           osc1: [],
           osc2: []
       }
-    end
-
-    def name
-      "$knob_#{@identifier}"
     end
 
     def declare

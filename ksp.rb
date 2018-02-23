@@ -28,6 +28,7 @@ key_groups.each do |key_group|
             puts "  " + statement
         end
     end
+    puts key_group.main_panel
 end
 puts "end on"
 
