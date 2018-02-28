@@ -28,14 +28,15 @@ module Ksp
     end
 
     def set_mix_panel
+      @volume_faders = []
+      @pan_faders = []
+      @pitch_knobs = []
       @conf[:keys].each do |key_conf|
-        identifier = "#{name}_#{key_conf[:name]}"
-
-      # define level fader
-      # define pan fader
-      # define pitch knob
-      # define output menu
-      # diode
+        @volume_faders << VolumeFader.new(name, key_conf)
+        # @pan_faders << PanFader.new(name, key_conf)
+        # pitch knob
+        # output menu
+        # diode
       end
     end
 
@@ -57,14 +58,39 @@ module Ksp
     end
 
     def default_functions
-      pitch_functions
-      # level_functions
+      pitch_functions + volume_functions
       # pan_functions
       # output_assign_functions
     end
 
     def functions
       default_functions
+    end
+
+    def volume_functions
+      stmt = "{{ default volume functions }}\n"
+      @conf[:keys].each do |affected_key|
+        stmt << mix_volume_function(affected_key)
+      end
+
+      stmt << "function set_volume_#{@conf[:name]}\n"
+      @conf[:keys].each do |affected_key|
+        stmt << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} \n"
+      end
+      stmt << "end function \n"
+    end
+
+    def mix_volume_function(affected_key)
+      main_knob = "$knob_volume_#{@conf[:name]}"
+      mix_knob = "$knob_volume_#{@conf[:name]}_#{affected_key[:name]}"
+
+      stmt = "function set_volume_#{@conf[:name]}_#{affected_key[:name]} \n"
+      affected_key[:k_groups].keys.each do |osc|
+        affected_key[:k_groups][osc].each do |k_group|
+          stmt << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1) \n"
+        end
+      end
+      stmt << "end function\n"
     end
 
     def mix_pitch_function(affected_key)

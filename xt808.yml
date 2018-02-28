@@ -36,19 +36,14 @@ hold: &default_hold
   parameter: "$ENGINE_PAR_HOLD"
   function: bypass
 
-default_mix_level: &default_mix_level
-  function: mix_level
-
-default_mix_pan: &default_mix_pan
-  function: mix_pan
-
-default_mix_output: &default_mix_output
-  function: mix_output
-
+# These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
-  - name: osc_drift
-  - name: vel_vca
-  - name: vel_start
+  osc_drift:
+    function: pitch
+  vel_vca:
+    function: none
+  vel_start:
+    function: none
 
 # -----------------------------------------------------------------------------
 #    Key Groups
@@ -60,7 +55,7 @@ key_groups:
     keys:
       - name: bd_1
         midi_note: 36
-        k_groups: 
+        k_groups:
           osc1: [0]
           osc2: !ruby/range 1..5
       - name: bd_2
@@ -93,7 +88,7 @@ key_groups:
         affected_keys: !ruby/range 0..5
       - <<: *default_decay
         affected_keys: !ruby/range 0..5
-        function: bd_decay
+        function: decay
       - name: osc2_level
         affected_keys:  !ruby/range 0..5
         min_val: 1  
@@ -111,7 +106,13 @@ key_groups:
         min_val: 8000
         default_val: 50000
         max_val: 300000
-        function: bd_decay
+        function: osc2_decay
+    buttons:
+      <<: *default_buttons
+      link_decays:
+        function: decay
+      pitch_osc2:
+        function: pitch
 
   - name: hh1
     label: "High-hats 1"
@@ -138,6 +139,5 @@ key_groups:
       - <<: *default_decay
         name: o_hh_decay
         affected_keys: [2]
-    buttons: *default_buttons
 
 

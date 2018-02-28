@@ -1,204 +1,60 @@
+# Introduction #
+A ruby application for generating KSP code to go along with Sampler Instruments for the Native Instruments Kontakt 
+sampler software.
+
+KSP scripts often have lots of repeated code, but as a developer this is just a hassle to work with. There some 
+excellent tools available to assist you in writing less code by simulating more advanced datatypes, control structures, 
+even objects and functions with arguments.
+I've used some of these myself with great results, and I am in no way discouraging use of these tools. In my own case, 
+however, I wanted something which I could just throw a configuration file after, and then it would spit out the KSP code 
+I needed. Plus I wanted to experiment more with Ruby - as part of a learning process.  
+
+It takes a yaml file with specifications on the elements (knobs, buttons, labels and variables) you want, and allows you 
+to configure each of these elements in detail. The idea is that functions and callbacks will be added automatically.
+
+The application is used specifically to generate the code behind the [Beaotic][beaotic] instruments, while the ksp gem 
+is supposed to be a generic tool for any KSP project.
+
+I've only done a few Rails projects before this, so I'm not particularly experienced with Ruby. Comments and suggestions 
+for improvements are warmly welcomed!
+
 # Status #
+Definitely work in progress - not mature at all! Use at your own risk :)
 
-Definitely work in progress - not mature at all!
+I'm changing a lot of stuff between every push while I'm figuring out how to structure the whole thing.
 
-I hope for this project to mature over the next couple of months, at least so that it can support the development of the Beaotic sample libraries that I'm working on. By that time it would be cool if anybody else would like to contribute.
+I do not care so much about the output layout of the generated KSP code, but I may add some kind of formatting engine 
+later on, if I can find one.
 
-# Background #
+# The Beaotic application #
+The Beaotic instruments are based on the same feature set, although with some notable variations. They all have the same 
+set of key groups, which are usually called by the same names, and usually have the same members.
 
-Our instruments are built around the same template, with a few variations.
+The instruments always provide two views for editing and mixing respectively. The edit panels have a set of knobs, 
+varying in both functionality and underlying implementation of same functionality. They also have buttons - these vary 
+much less.
 
-They all have the same set of key groups, which are usually called by the same names, and usually have the same members.
+In the mixer panel, the controls are always the same, they are called by predictable names, and they work in the same 
+way - only on different targets.
 
-Each key group always have two panels: Main and Mixer.
+A "button" is used within each instrument group to switch between mixer and edit panel.
 
-The Main panel always have a set of knobs, and these vary quite a bit.
-Aside from the knobs, they have a set of buttons, which vary much less.
+Most edit knobs deal with setting a single parameter for a number of Kontakt-groups. But a few do different stuff, for 
+example:
+* OSC 2 level
+  * Set a volume coefficient on certain groups
+* OSC 1/2 crossfade
+  * Set volume coefficients on two certain sets of groups
+* Accent
+  * Set a volume coefficient on certain groups
+* Color
+  * Allow/disallow specific sets of samples, for example to simulate a hardware filter using 32 different "color" steps.
 
-In the mixer panel, the controls are always the same, they are called by predictable names, and they work in the same way.
+# Usage #
+Something like this...
 
-A button is used within each instrument group to switch between Mixer and Main panel. We may consider to move this functionality out to a general "working mode" level instead of having it on each key group.
+`ruby beaotic.rb xt808`
 
-Most knobs deal with setting a single parameter for a number of Kontakt-groups. But a few do different stuff:
-- OSC 2 level
--- Set a volume coefficient on certain groups
-- OSC 1/2 crossfade
--- Set volume coefficients on two certain sets of groups
-- Accent
--- Set a volume coefficient on certain groups
-- Color
--- Allow/disallow specific sets of samples, for example to simulate a hardware filter.  
+Such a command should look for a file name xt808.yml, process it and save the generated code in xt808.txt
 
-So, since KSP is a very limited programming language, and does not add many features to minimize code repetitions, I've decided to write a code generator for KSP - in Ruby.
-
-It is not - currently - a generic tool for this purpose, but yes, it would be nice to turn it into one over time, since it is obvious that many developers are dissatisfied with the capabilities of the KSP programming language.
-
-- Keep dependencies minimal. Preferably no gems should be required
-- Keep code rganized. I expect to just write a bunch of functions first, and then possibly wrap them into classes along the way.
-
-I do not care so much about the output layout of the generated KSP code. For example, I do not care about code repetitions, since the whole point of using another more flexible programming language is to avoid the repetitions **here**.
-
-# Tasks #
-
-So what do I expect in terms of tasks..?
-
-One thing I know, is that I'd like to have a program that is generic enough to produce a valid KSP script based on a YAML file as an input parameter. Something like:
-
-`./ksp.rb xt808`
-
-The command would look for the file `xt808.yml` and save the generated output in `xt808.txt`. The txt-file could then be copied to the Resources/script folder of your NKI instrument, ready to be `applied`.
-
-Let's start backwards, looking at the requirements of the generated KSP code:
-
-We need callback handlers for ui controls and notes. 
-
-ui control callback handlers listens for events on a ui control, and adjusts what ever parameters are required.
-
-But how do I determine what actions to take on which targets?
-
-
-As an example, behold the code for the hh1 key group:
-
-    on init
-      declare ui_slider $knob_hh1_main_pitch(0, 2000)
-      declare ui_slider $knob_hh1_main_cl_hh_decay(8000, 300000)
-      declare $mod_idx_hh1_main_cl_hh_decay := 0
-      declare ui_slider $knob_hh1_main_o_hh_hold(8000, 300000)
-      declare $mod_idx_hh1_main_o_hh_hold := 0
-      declare ui_slider $knob_hh1_main_o_hh_decay(8000, 300000)
-      declare $mod_idx_hh1_main_o_hh_decay := 0
-    end on
-
-    on ui_control($knob_hh1_main_pitch)
-      call    
-      call 
-      call 
-    end on
-    on ui_control($knob_hh1_main_cl_hh_decay)
-      $mod_idx_hh1_main_cl_hh_decay := find_mod(<grpidx>, "ENV_AHDSR") 
-      set_engine_par($ENGINE_PAR_DECAY, $knob_hh1_main_cl_hh_decay, <grpidx>, $mod_idx_hh1_main_cl_hh_decay, -1) 
-      $mod_idx_hh1_main_cl_hh_decay := find_mod(<grpidx>, "ENV_AHDSR") 
-      set_engine_par($ENGINE_PAR_DECAY, $knob_hh1_main_cl_hh_decay, <grpidx>, $mod_idx_hh1_main_cl_hh_decay, -1) 
-    end on
-    on ui_control($knob_hh1_main_o_hh_hold)
-      $mod_idx_hh1_main_o_hh_hold := find_mod(<grpidx>, "ENV_AHDSR") 
-      set_engine_par($ENGINE_PAR_HOLD, $knob_hh1_main_o_hh_hold, <grpidx>, $mod_idx_hh1_main_o_hh_hold, -1) 
-    end on
-    on ui_control($knob_hh1_main_o_hh_decay)
-      $mod_idx_hh1_main_o_hh_decay := find_mod(<grpidx>, "ENV_AHDSR") 
-      set_engine_par($ENGINE_PAR_DECAY, $knob_hh1_main_o_hh_decay, <grpidx>, $mod_idx_hh1_main_o_hh_decay, -1) 
-    end on
-
-
-<!-- Let's take an example... The pitch-knob is turned on the HH1 main panel.
-
-The code for this could end up something like the following:
- -->
-<!-- ```
-on ui_control(knob_hh1_main_pitch)
-  set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_0, -1, -1)
-  set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_1, -1, -1)
-  set_engine_par($ENGINE_PAR_TUNE, hh1_pitch, grp_idx_hh1_2, -1, -1)
-  ...
-end on
-```
-
-But... Since several knobs or sliders may affect the same parameter, we should let a function handle the actual setting of the value. The following example shows how we want the callbacks of the 4 knobs that ultimately control the pitch of any key in the hh1 key group to look, including functions.
-
-```
-function set_hh1_0_pitch
-  $hh1_0_pitch_val := $knob_hh1_0_pitch + $knob_hh1_main_pitch
-  set_engine_par($ENGINE_PAR_TUNE, hh1_0_pitch_val, $grp_idx_hh1_0, -1, -1)
-end function
-
-function set_hh1_1_pitch
-  $hh1_1_pitch_val := $knob_hh1_1_pitch + $knob_hh1_main_pitch
-  set_engine_par($ENGINE_PAR_TUNE, $hh1_0_pitch_val, $grp_idx_hh1_0, -1, -1)
-end function
-
-function set_hh1_2_pitch
-  $hh1_2_pitch_val := $knob_hh1_2_pitch + $knob_hh1_main_pitch
-  set_engine_par($ENGINE_PAR_TUNE, $hh1_0_pitch_val, $grp_idx_hh1_0, -1, -1)
-end function
-
-function set_hh1_main_pitch
-  set_hh1_0_pitch
-  set_hh1_1_pitch
-  set_hh1_2_pitch
-end function
-
-on ui_control($knob_hh1_main_pitch)
-  set_hh1_main_pitch
-end on
-
-on ui_control($knob_hh1_0_pitch)
-  set_hh1_0_pitch
-end on
-
-on ui_control($knob_hh1_1_pitch)
-  set_hh1_0_pitch
-end on
-
-on ui_control($knob_hh1_2_pitch)
-  set_hh1_0_pitch
-end on
- -->```
-
-
-Configuration snippet required to support the above:
-
-```
-# define some default blocks, such as pitch:
-default_pitch: &default_pitch
-  name: pitch
-  default_value: 500000
-  max_value: 700000
-  min_value: 300000  
-  label: Pitch
-
-key_groups:
-  - short_name: hh1
-    long_name: "XT-808 High-hats 1"
-    panels:
-      main:
-        knobs:
-          - pitch: *default_pitch
-            notes: [0,1,2]            
-          - name: cl_hh_decay
-            notes: [0, 1]
-          - name: o_hh_hold
-            notes: [2]
-          - name: o hh decay
-            notes: [2]
-        buttons:
-          - name: osc_drift
-
-
-  - name: toms
-    knobs:
-      tom_1_pitch: *default_pitch
-        label: "Tom 1 pitch"
-      tom_2_pitch: *default_pitch
-        label: "Tom 2 pitch"
-      ...  
-```
-
-
-
-So, in other words, I want all the pitch knobs to have the same range and default value, but different targets and correspondingly different labels. The yaml extract above show how to do this, I think...
-
-
-For this to work, we need to know which groups to change the pitch for, so that we may loop over them in the ruby code. Since we follow a strict system when it comes to the number of groups, and their order (with/without accent, RR-vairants, color-variants etc), so I feel confident about that part.
-
-
-
-So, to imagine how this would look in the yaml configuration, I would like to be able to specifiy a function per knob.
-
-    
-
-
-
-
-
-
-
+[beaotic]: https://beaotic.com
