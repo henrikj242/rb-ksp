@@ -14,12 +14,26 @@ module Ksp
     end
 
     def declare
-      stmt = "declare ui_slider #{name}(#{@conf[:min_val]}, #{@conf[:max_val]})\n"
+      stmt = []
+      stmt << "{{ #{name} }}"
+      stmt << "declare ui_slider #{name}(#{@conf[:min_val]}, #{@conf[:max_val]})"
       if @conf[:modulator]
         stmt << Integer::declare("$mod_idx_#{@identifier}", 0)
-        stmt << "\n"
       end
-      stmt
+      stmt << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_DEFAULT_VALUE, #{@conf[:default_val]})"
+      stmt << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_VALUE, #{@conf[:default_val]})"
+      stmt << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_AUTOMATION_NAME, \"#{@identifier}\")"
+      # set_control_par(get_ui_id($knob_pitch),$CONTROL_PAR_AUTOMATION_ID,$host_auto_id)
+      # inc($host_auto_id)
+      stmt << "make_persistent(#{name})"
+      stmt << "hide_part(#{name},$HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
+      stmt << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"knob\")"
+      stmt << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_MOUSE_BEHAVIOUR, -500)"
+      stmt.join("\n")
+    end
+
+    def set_position(x, y)
+      "move_control_px(#{name}, #{x}, #{y})"
     end
 
     def callback

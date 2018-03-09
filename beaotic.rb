@@ -4,7 +4,7 @@ require 'pp'
 require_relative 'lib'
 $LOAD_PATH.unshift './ksp/lib/'
 require 'ksp'
-
+require_relative 'beaotic/beaotic'
 debug = true
 
 project_name = ARGV[0]
@@ -14,9 +14,9 @@ conf_file = "#{File.dirname(__FILE__)}/#{project_name}"
 pp @conf if debug
 
 key_groups = []
-# Popuate ruby elements
+# Populate ruby elements
 @conf[:key_groups].each do |key_group_conf|
-  key_groups << Ksp::KeyGroup.new(key_group_conf)
+  key_groups << Beaotic::KeyGroup.new(key_group_conf)
   puts "{{ Key group: #{key_groups.last.name} }} \n"
 end
 
@@ -32,13 +32,23 @@ puts '  ' + 'set_control_par_str($INST_ICON_ID,$CONTROL_PAR_PICTURE,"icon")'
 puts '  ' + "declare %panels[#{key_groups.count}*2]"
 
 key_groups.each do |key_group|
+  x = 37
+  y = 72
   key_group.knobs.each do |knob|
     knob.declare.split(/\n/).each do |statement|
       puts '  ' + statement
     end
+    puts '  ' + knob.set_position(x, y)
+    x += 82
+    # define image properties
+    # define placement
+    puts ''
   end
   puts '  ' + key_group.main_panel
+  puts ''
 end
+
+
 puts 'end on'
 
 # declare user defined functions

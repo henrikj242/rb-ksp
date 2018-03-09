@@ -7,7 +7,7 @@ require "ksp/custom_knob"
 require "ksp/custom_fader"
 require "ksp/volume_fader"
 require "ksp/pan_fader"
-require "ksp/key_group"
+# require "ksp/key_group"
 
 module Ksp
   # Your code goes here..

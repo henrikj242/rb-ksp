@@ -1,6 +1,9 @@
-module Ksp
+module Beaotic
+  $LOAD_PATH.unshift '../ksp/lib/'
+  require 'ksp'
+
   class KeyGroup
-    attr :knobs, :main_panel
+    attr :knobs, :main_panel, :mix_panel
 
     def initialize(key_group_conf)
       @conf = key_group_conf
@@ -20,8 +23,8 @@ module Ksp
       main_panel
     end
 
+    # a ksp statement that adds all the ui_id's to a ksp array
     def main_panel
-      # return a ksp statement that adds all the ui_id's to a ksp array
       ui_elements = @knobs.map(&:name) + @buttons.map(&:name)
       ui_elements = ui_elements.map { |elem| sprintf("get_ui_id(%s)",elem) }
       @main_panel = "declare %panel_main_#{name}[#{ui_elements.count}] := (#{ui_elements.join(',')})"
@@ -32,7 +35,7 @@ module Ksp
       @pan_faders = []
       @pitch_knobs = []
       @conf[:keys].each do |key_conf|
-        @volume_faders << VolumeFader.new(name, key_conf)
+        @volume_faders << Ksp::VolumeFader.new(name, key_conf)
         # @pan_faders << PanFader.new(name, key_conf)
         # pitch knob
         # output menu
@@ -43,7 +46,7 @@ module Ksp
     def set_knobs
       @conf[:knobs].each do |knob_conf|
         knob_identifier = "#{name}_#{knob_conf[:name]}"
-        @knobs << CustomKnob.new(knob_identifier, knob_conf)
+        @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf)
         knob_conf[:affected_keys].each do |ak|
           @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
           if @conf[:keys][ak][:k_groups][:osc2]
