@@ -1,17 +1,16 @@
 module Ksp
   class UiImage < UiControl
     attr_reader :name
+    attr :image_size
 
     def initialize(identifer)
       @identifier = identifer
       @name = "$image_#{@identifier}"
+      @image_size = { width: 468, height: 16 }
     end
 
-    def image_size
-      {
-          width: 468,
-          height: 16
-      }
+    def image_size=(width: 10, height: 10)
+      @image_size = { width: width, height: height }
     end
 
     def declare

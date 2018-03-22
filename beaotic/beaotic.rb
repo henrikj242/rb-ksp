@@ -3,13 +3,14 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :knobs, :main_panel, :mix_panel, :title_image
+    attr :knobs, :main_panel, :mix_panel, :title_image, :backdrops
 
     def initialize(key_group_conf)
       @conf = key_group_conf
       @knobs = []
       @buttons = []
       set_title_image
+      # set_backdrops
       set_main_panel
       set_mix_panel
     end
@@ -21,6 +22,14 @@ module Beaotic
     def set_title_image
       @title_image = Ksp::UiImage.new("title_#{name}")
     end
+
+    # def set_backdrops
+    #   @backdrops = []
+    #   @backdrops << Ksp::UiImage.new("img_buttons_backdrop_short")
+    #   @backdrops.last.image_size = { width: 10, height: 33 }
+    #   @backdrops << Ksp::UiImage.new("img_buttons_backdrop")
+    #   @backdrops.last.image_size = { width: 650, height: 33 }
+    # end
 
     def set_main_panel
       set_knobs

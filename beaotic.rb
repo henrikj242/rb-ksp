@@ -46,7 +46,16 @@ key_groups.each do |key_group|
     puts '  '  + statememt
   end
 
-  puts '  ' + key_group.title_image.set_position(83, 0)
+  # puts '  ' + key_group.title_image.set_position(83, 0)
+  # y = 200
+  # key_group.backdrops.each do |backdrop|
+  #   backdrop.declare.each do |statement|
+  #     puts '  ' + statement
+  #   end
+  #   puts '  ' + backdrop.set_position(10, y)
+  #   y += 100
+  # end
+
 
   x = 21
   y = 84
