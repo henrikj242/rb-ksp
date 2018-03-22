@@ -15,7 +15,7 @@ module Ksp
 
     def declare
       stmt = []
-      stmt << "{{ #{name} }}"
+      stmt << "{ #{name} }"
       stmt << "declare ui_slider #{name}(#{@conf[:min_val]}, #{@conf[:max_val]})"
       if @conf[:modulator]
         stmt << Integer::declare("$mod_idx_#{@identifier}", 0)
@@ -27,9 +27,8 @@ module Ksp
       # inc($host_auto_id)
       stmt << "make_persistent(#{name})"
       stmt << "hide_part(#{name},$HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
-      stmt << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"knob\")"
+      stmt << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"knob_48\")"
       stmt << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_MOUSE_BEHAVIOUR, -500)"
-      stmt.join("\n")
     end
 
     def set_position(x, y)

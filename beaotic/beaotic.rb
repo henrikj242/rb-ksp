@@ -3,18 +3,23 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :knobs, :main_panel, :mix_panel
+    attr :knobs, :main_panel, :mix_panel, :title_image
 
     def initialize(key_group_conf)
       @conf = key_group_conf
       @knobs = []
       @buttons = []
+      set_title_image
       set_main_panel
       set_mix_panel
     end
 
     def name
       @conf[:name]
+    end
+
+    def set_title_image
+      @title_image = Ksp::UiImage.new("title_#{name}")
     end
 
     def set_main_panel
@@ -26,6 +31,7 @@ module Beaotic
     # a ksp statement that adds all the ui_id's to a ksp array
     def main_panel
       ui_elements = @knobs.map(&:name) + @buttons.map(&:name)
+      ui_elements << @title_image.name
       ui_elements = ui_elements.map { |elem| sprintf("get_ui_id(%s)",elem) }
       @main_panel = "declare %panel_main_#{name}[#{ui_elements.count}] := (#{ui_elements.join(',')})"
     end
@@ -71,7 +77,7 @@ module Beaotic
     end
 
     def volume_functions
-      stmt = "{{ default volume functions }}\n"
+      stmt = "{ default volume functions }\n"
       @conf[:keys].each do |affected_key|
         stmt << mix_volume_function(affected_key)
       end
@@ -110,7 +116,7 @@ module Beaotic
     end
 
     def pitch_functions
-      stmt = "{{ default pitch functions }}\n"
+      stmt = "{ default pitch functions }\n"
       @conf[:keys].each do |affected_key|
         stmt << mix_pitch_function(affected_key)
       end

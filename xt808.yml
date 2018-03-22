@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 
 perf_view:
-  height_px: 242
+  height_px: 350
   global_variables:
     - viewmode # main or mix
 
@@ -111,33 +111,33 @@ key_groups:
       <<: *default_buttons
       link_decays:
         function: decay
-      pitch_osc2:
+      pitch_impact:
         function: pitch
 
-  - name: hh1
-    label: "High-hats 1"
-    keys:
-      - name: cl_hh_a
-        midi_note: 54
-        k_groups: 
-          osc1: [78]
-      - name: cl_hh_b
-        midi_note: 56
-        k_groups: 
-          osc1: [79]
-      - name: o_hh
-        midi_note: 58
-        k_groups: 
-          osc1: [80]
-    knobs:
-      - <<: *default_decay
-        name: cl_hh_decay
-        affected_keys: [0, 1]
-      - <<: *default_hold
-        name: o_hh_hold
-        affected_keys: [2]
-      - <<: *default_decay
-        name: o_hh_decay
-        affected_keys: [2]
+#  - name: hh1
+#    label: "High-hats 1"
+#    keys:
+#      - name: cl_hh_a
+#        midi_note: 54
+#        k_groups:
+#          osc1: [78]
+#      - name: cl_hh_b
+#        midi_note: 56
+#        k_groups:
+#          osc1: [79]
+#      - name: o_hh
+#        midi_note: 58
+#        k_groups:
+#          osc1: [80]
+#    knobs:
+#      - <<: *default_decay
+#        name: cl_hh_decay
+#        affected_keys: [0, 1]
+#      - <<: *default_hold
+#        name: o_hh_hold
+#        affected_keys: [2]
+#      - <<: *default_decay
+#        name: o_hh_decay
+#        affected_keys: [2]
 
 
