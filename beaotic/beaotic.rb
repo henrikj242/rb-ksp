@@ -137,4 +137,67 @@ module Beaotic
       stmt << "end function \n"
     end
   end
+
+  class Image
+    def generate_txt_files
+      image_file_names.each do |name|
+        basename = File.basename(name)
+        image_type = basename.split('_').first
+        content = content(image_type)
+        if content.length > 0
+          File.open("_gui/#{basename}.txt", 'w') do |f|
+            f.write(content)
+          end
+        end
+      end
+    end
+
+    def image_file_names
+      image_file_names = []
+      Dir.foreach('_gui') do |item|
+        next if item == '.' or item == '..'
+        if item.match(/\.txt/)
+          File.unlink("_gui/#{item}")
+          # puts 'Would have deleted ' + item
+        else
+          image_file_names << item
+        end
+      end
+      image_file_names
+    end
+
+    def content(image_type)
+      content_hash = case image_type
+                       when 'img'
+                         template vertical_resizable: 'yes',
+                                  horizontal_resizable: 'yes'
+                       when 'title', 'label'
+                         template number_of_animations: 1
+                       when 'button'
+                         template number_of_animations: 6
+                       when 'knob'
+                         template number_of_animations: 101
+                       else
+                         {}
+                     end
+      output = ''
+      content_hash.map{ |k, v| output << k.to_s.split('_').map(&:capitalize).join(' ') + ": #{v}\n"}
+      output
+    end
+
+    def template(options = {})
+      {
+        has_alpha_channel: options[:has_alpha_channel] || 'yes',
+        number_of_animations: options[:number_of_animations] || 1,
+        horizontal_animation: options[:horizontal_animation] || 'no',
+        vertical_resizable: options[:vertical_resizable] || 'no',
+        horizontal_resizable: options[:horizontal_resizable] || 'yes',
+        fixed_top: options[:fixed_top] || 0,
+        fixed_bottom: options[:fixed_bottom] || 0,
+        fixed_left: options[:fixed_left] || 0,
+        fixed_right: options[:fixed_right] || 0,
+      }
+      # Hash[hash.map{ |k, v| [k.to_s.split('_').map(&:capitalize).join(' '), v] }]
+    end
+  end
 end

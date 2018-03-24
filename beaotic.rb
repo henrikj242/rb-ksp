@@ -1,3 +1,5 @@
+#! /usr/bin/ruby
+
 require 'erb'
 require 'yaml'
 require 'pp'
@@ -8,10 +10,18 @@ require_relative 'beaotic/beaotic'
 debug = false
 
 project_name = ARGV[0]
-conf_file = "#{File.dirname(__FILE__)}/#{project_name}"
-@conf = parse_config(yaml_file(conf_file))
+conf_file = yaml_file("#{File.dirname(__FILE__)}/#{project_name}")
+@conf = parse_config(conf_file)
 
 pp @conf if debug
+
+if ARGV[1] == 'img-txt'
+  img = Beaotic::Image.new
+  img.generate_txt_files
+  exit(0)
+end
+
+
 
 key_groups = []
 # Populate ruby elements
