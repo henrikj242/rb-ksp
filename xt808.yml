@@ -118,30 +118,32 @@ key_groups:
       pitch_impact:
         function: pitch
 
-#  - name: hh1
-#    label: "High-hats 1"
-#    keys:
-#      - name: cl_hh_a
-#        midi_note: 54
-#        k_groups:
-#          osc1: [78]
-#      - name: cl_hh_b
-#        midi_note: 56
-#        k_groups:
-#          osc1: [79]
-#      - name: o_hh
-#        midi_note: 58
-#        k_groups:
-#          osc1: [80]
-#    knobs:
-#      - <<: *default_decay
-#        name: cl_hh_decay
-#        affected_keys: [0, 1]
-#      - <<: *default_hold
-#        name: o_hh_hold
-#        affected_keys: [2]
-#      - <<: *default_decay
-#        name: o_hh_decay
-#        affected_keys: [2]
+  - name: hh1
+    label: "High-hats 1"
+    keys:
+      - name: cl_hh_a
+        midi_note: 54
+        k_groups:
+          osc1: [78]
+      - name: cl_hh_b
+        midi_note: 56
+        k_groups:
+          osc1: [79]
+      - name: o_hh
+        midi_note: 58
+        k_groups:
+          osc1: [80]
+    knobs:
+      - <<: *default_decay
+        name: chh_decay
+        affected_keys: [0, 1]
+      - <<: *default_hold
+        name: ohh_hold
+        affected_keys: [2]
+      - <<: *default_decay
+        name: ohh_decay
+        affected_keys: [2]
+    edit_buttons:
+      <<: *default_buttons
 
 

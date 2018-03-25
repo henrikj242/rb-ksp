@@ -19,6 +19,7 @@ module Ksp
       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE,\"#{@identifier}\")"
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_WIDTH,#{@width})"
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_HEIGHT,#{@height})"
+      statements
     end
 
   end

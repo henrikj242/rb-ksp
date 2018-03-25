@@ -30,6 +30,7 @@ group_select_buttons = []
       "group_#{key_group_conf[:name]}",
       name: "group_#{key_group_conf[:name]}",
       image: "button_group_#{key_group_conf[:name]}"
+      # function: "select_group_#{key_group_conf[:name]}"
   )
 end
 
@@ -39,10 +40,10 @@ puts '  ' + 'message("")'
 puts '  ' + 'make_perfview'
 puts '  ' + "set_script_title(\"#{project_name}\")"
 puts '  ' + "set_ui_height_px(#{@conf[:perf_view][:height_px]})"
-puts '  ' + 'declare $viewmode := 0'
 # puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
 puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
 puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon_hejo")'
+puts '  ' + 'declare $selected_group := 0'
 
 key_groups.each do |key_group|
   key_group.title_image.declare.each do |statememt|
@@ -124,7 +125,12 @@ key_groups.each do |key_group|
   puts '  ' + "call hide_panel_main_#{key_group.name}"
 end
 puts '  ' + 'if ($button_note_edit = 0)'
-puts '  ' + "  call show_panel_main_bd"
+puts '  ' + '  select ($selected_group)'
+key_groups.each_with_index do |key_group, key_group_idx|
+  puts '  ' + "    case #{key_group_idx}"
+  puts '  ' + "      call show_panel_main_#{key_group.name}"
+end
+puts '  ' + '  end select'
 puts '  ' + 'end if'
 puts 'end function'
 
