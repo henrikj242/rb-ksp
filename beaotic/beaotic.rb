@@ -3,12 +3,12 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :knobs, :main_panel, :mix_panel, :title_image, :backdrops
+    attr :knobs, :edit_buttons, :main_panel, :mix_panel, :title_image, :backdrops
 
     def initialize(key_group_conf)
       @conf = key_group_conf
       @knobs = []
-      @buttons = []
+      @edit_buttons = []
       set_title_image
       # set_backdrops
       set_main_panel
@@ -33,13 +33,13 @@ module Beaotic
 
     def set_main_panel
       set_knobs
-      set_buttons
+      set_edit_buttons
       main_panel
     end
 
     # a ksp statement that adds all the ui_id's to a ksp array
     def main_panel
-      ui_elements = @knobs.map(&:name) + @buttons.map(&:name)
+      ui_elements = @knobs.map(&:name) + @edit_buttons.map(&:name)
       ui_elements << @title_image.name
       ui_elements = ui_elements.map { |elem| sprintf("get_ui_id(%s)",elem) }
       @main_panel = "declare %panel_main_#{name}[#{ui_elements.count}] := (#{ui_elements.join(',')})"
@@ -74,8 +74,12 @@ module Beaotic
       end
     end
 
-    def set_buttons
-
+    def set_edit_buttons
+      @conf[:edit_buttons].each do |k, v|
+        button_identifier = "#{name}_#{k}"
+        v = v.merge(image: "button_#{k}")
+        @edit_buttons << Ksp::CustomButton.new(button_identifier, v)
+      end
     end
 
     def default_functions
@@ -148,11 +152,10 @@ module Beaotic
 
     def generate_txt_files
       image_file_names.each do |name|
-        basename = File.basename(name)
-        image_type = basename.split('_').first
+        image_type = name.split('_').first
         content = content(image_type)
         if content.length > 0
-          File.open("#{@directory}/#{basename}.txt", 'w') do |f|
+          File.open("#{@directory}/#{name}.txt", 'w') do |f|
             f.write(content)
           end
         end
@@ -166,7 +169,7 @@ module Beaotic
         if item.match(/\.txt/)
           File.unlink("#{@directory}/#{item}")
         elsif item.match(/\.png/)
-          image_file_names << item
+          image_file_names << File.basename(item, '.png')
         end
       end
       image_file_names
@@ -187,7 +190,15 @@ module Beaotic
                          {}
                      end
       output = ''
-      content_hash.map{ |k, v| output << k.to_s.split('_').map(&:capitalize).join(' ') + ": #{v}\n"}
+      content_hash.map do |k, v|
+        output << k.to_s.split('_').map do |word|
+            if %w(of).include?(word)
+              word
+            else
+              word.capitalize
+            end
+        end.join(' ') + ": #{v}\n"
+      end
       output
     end
 
@@ -197,7 +208,7 @@ module Beaotic
         number_of_animations: options[:number_of_animations] || 1,
         horizontal_animation: options[:horizontal_animation] || 'no',
         vertical_resizable: options[:vertical_resizable] || 'no',
-        horizontal_resizable: options[:horizontal_resizable] || 'yes',
+        horizontal_resizable: options[:horizontal_resizable] || 'no',
         fixed_top: options[:fixed_top] || 0,
         fixed_bottom: options[:fixed_bottom] || 0,
         fixed_left: options[:fixed_left] || 0,

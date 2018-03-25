@@ -21,22 +21,23 @@ if ARGV[1] == 'img-txt'
   exit(0)
 end
 
-
-
 key_groups = []
+group_select_buttons = []
 # Populate ruby elements
 @conf[:key_groups].each do |key_group_conf|
   key_groups << Beaotic::KeyGroup.new(key_group_conf)
+  group_select_buttons << Ksp::CustomButton.new("group_#{key_group_conf[:name]}", name: "group_#{key_group_conf[:name]}", image: "button_group_#{key_group_conf[:name]}")
 end
 
 # TODO Refactor into an on_init method
 puts 'on init'
+puts '  ' + 'message("")'
 puts '  ' + 'make_perfview'
 puts '  ' + "set_script_title(\"#{project_name}\")"
 puts '  ' + "set_ui_height_px(#{@conf[:perf_view][:height_px]})"
 puts '  ' + 'declare $viewmode := 0'
-puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
-# puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
+# puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
+puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
 puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon_hejo")'
 
 # puts '
@@ -49,6 +50,7 @@ puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon
 # '
 
 # puts '  ' + "declare %panels[#{key_groups.count}*2]"
+
 
 key_groups.each do |key_group|
   key_group.title_image.declare.each do |statememt|
@@ -78,15 +80,48 @@ key_groups.each do |key_group|
       puts '  ' + statement
     end
     puts '  ' + knob.label.set_position(x-18, y - 41)
-
-    # define image properties
-    # define placement
     x += 78
     puts ''
   end
+
+  x = 17
+  y = 179
+  key_group.edit_buttons.each do |button|
+    button.declare.each do |statement|
+      puts '  ' + statement
+    end
+    puts '  ' + button.set_position(x, y)
+    x += 51
+  end
+
   # puts '  ' + key_group.main_panel
   puts ''
 end
+
+puts '{ Global buttons // midi_select }'
+button_midi_select = Ksp::CustomButton.new('midi_select', name: 'midi_select', image: 'button_midi_select')
+button_midi_select.declare.each do |statement|
+  puts '  ' + statement
+end
+puts '  ' + button_midi_select.set_position(7, 222)
+
+puts '{ Global buttons // group_select }'
+x = 83
+group_select_buttons.each do |button|
+  button.declare.each do |statement|
+    puts '  ' + statement
+  end
+  puts '  ' + button.set_position(x, 226)
+  x += 36
+end
+
+
+puts '{ Global buttons // note_edit }'
+button_note_edit = Ksp::CustomButton.new('note_edit', name: 'note_edit', image: 'button_note_edit')
+button_note_edit.declare.each do |statement|
+  puts '  ' + statement
+end
+puts '  ' + button_note_edit.set_position(546, 222)
 
 
 puts 'end on'

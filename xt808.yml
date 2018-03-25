@@ -4,8 +4,10 @@
 
 perf_view:
   height_px: 350
-  global_variables:
-    - viewmode # main or mix
+
+#global_buttons:
+#  - note_edit    # false or true, group or note / main or mix ...??
+#  - midi_select  # false or true
 
 # -----------------------------------------------------------------------------
 #    Default blocks
@@ -40,9 +42,9 @@ hold: &default_hold
 default_buttons: &default_buttons
   osc_drift:
     function: pitch
-  vel_vca:
-    function: none
   vel_start:
+    function: none
+  vel_vca:
     function: none
 
 # -----------------------------------------------------------------------------
@@ -109,7 +111,7 @@ key_groups:
         default_val: 50000
         max_val: 300000
         function: impact_decay
-    buttons:
+    edit_buttons:
       <<: *default_buttons
       link_decays:
         function: decay
