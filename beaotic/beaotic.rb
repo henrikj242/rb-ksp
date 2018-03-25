@@ -63,6 +63,9 @@ module Beaotic
         knob_identifier = "#{name}_#{knob_conf[:name]}"
         @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf)
         knob_conf[:affected_keys].each do |ak|
+          if @knobs.last.label_exists?
+            @knobs.last.label = Ksp::UiImage.new("label_#{knob_conf[:name]}")
+          end
           @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
           if @conf[:keys][ak][:k_groups][:osc2]
             @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
@@ -139,13 +142,17 @@ module Beaotic
   end
 
   class Image
+    def initialize
+      @directory = '_gui'
+    end
+
     def generate_txt_files
       image_file_names.each do |name|
         basename = File.basename(name)
         image_type = basename.split('_').first
         content = content(image_type)
         if content.length > 0
-          File.open("_gui/#{basename}.txt", 'w') do |f|
+          File.open("#{@directory}/#{basename}.txt", 'w') do |f|
             f.write(content)
           end
         end
@@ -154,12 +161,11 @@ module Beaotic
 
     def image_file_names
       image_file_names = []
-      Dir.foreach('_gui') do |item|
+      Dir.foreach(@directory) do |item|
         next if item == '.' or item == '..'
         if item.match(/\.txt/)
-          File.unlink("_gui/#{item}")
-          # puts 'Would have deleted ' + item
-        else
+          File.unlink("#{@directory}/#{item}")
+        elsif item.match(/\.png/)
           image_file_names << item
         end
       end
@@ -197,7 +203,6 @@ module Beaotic
         fixed_left: options[:fixed_left] || 0,
         fixed_right: options[:fixed_right] || 0,
       }
-      # Hash[hash.map{ |k, v| [k.to_s.split('_').map(&:capitalize).join(' '), v] }]
     end
   end
 end

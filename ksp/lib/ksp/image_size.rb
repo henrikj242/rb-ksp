@@ -21,8 +21,8 @@ module Ksp
                   data_or_io.dup.tap(&:rewind)
                 when String
                   StringIO.new(data_or_io)
-                else
-                  raise ArgumentError.new("expected instance of IO, StringIO, Tempfile or String, got #{data_or_io.class}")
+                # else
+                #   raise ArgumentError.new("expected instance of IO, StringIO, Tempfile or String, got #{data_or_io.class}")
               end
         @read = 0
         @data = ''
@@ -52,16 +52,6 @@ module Ksp
     def self.path(path)
       open(path, 'rb'){ |f| new(f) }
     end
-
-    # # Used for svg
-    # def self.dpi
-    #   @dpi || 72
-    # end
-    #
-    # # Used for svg
-    # def self.dpi=(dpi)
-    #   @dpi = dpi.to_f
-    # end
 
     # Given image as IO, StringIO, Tempfile or String finds its format and dimensions
     def initialize(data)

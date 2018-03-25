@@ -1,9 +1,10 @@
 module Ksp
   class CustomKnob < UiSlider
-    attr_accessor :k_groups
+    attr_accessor :k_groups, :label
     attr_reader :name
 
     def initialize(identifer, conf)
+      @directory = '_gui'
       @identifier = identifer
       @name = "$knob_#{@identifier}"
       @conf = conf
@@ -11,6 +12,18 @@ module Ksp
           osc1: [],
           osc2: []
       }
+    end
+
+    def label_exists?
+      File.exists?(label_file)
+    end
+
+    def label_file
+      "#{@directory}/label_#{@conf[:name]}.png"
+    end
+
+    def label=(ui_image)
+      @label = ui_image
     end
 
     def declare
@@ -29,6 +42,7 @@ module Ksp
       stmt << "hide_part(#{name},$HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
       stmt << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"knob_48\")"
       stmt << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_MOUSE_BEHAVIOUR, -500)"
+      stmt << "{ has label: #{label.name} }"
     end
 
     def set_position(x, y)

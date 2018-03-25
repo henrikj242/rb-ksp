@@ -27,7 +27,6 @@ key_groups = []
 # Populate ruby elements
 @conf[:key_groups].each do |key_group_conf|
   key_groups << Beaotic::KeyGroup.new(key_group_conf)
-  puts "{ Key group: #{key_groups.last.name} } \n"
 end
 
 # TODO Refactor into an on_init method
@@ -36,8 +35,8 @@ puts '  ' + 'make_perfview'
 puts '  ' + "set_script_title(\"#{project_name}\")"
 puts '  ' + "set_ui_height_px(#{@conf[:perf_view][:height_px]})"
 puts '  ' + 'declare $viewmode := 0'
-# puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
-puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
+puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
+# puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
 puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon_hejo")'
 
 # puts '
@@ -56,7 +55,8 @@ key_groups.each do |key_group|
     puts '  '  + statememt
   end
 
-  # puts '  ' + key_group.title_image.set_position(83, 0)
+  puts '  ' + key_group.title_image.set_position(83, 0)
+
   # y = 200
   # key_group.backdrops.each do |backdrop|
   #   backdrop.declare.each do |statement|
@@ -66,7 +66,6 @@ key_groups.each do |key_group|
   #   y += 100
   # end
 
-
   x = 21
   y = 84
 
@@ -75,9 +74,14 @@ key_groups.each do |key_group|
       puts '  ' + statement
     end
     puts '  ' + knob.set_position(x, y)
-    x += 78
+    knob.label.declare.each do |statement|
+      puts '  ' + statement
+    end
+    puts '  ' + knob.label.set_position(x-18, y - 41)
+
     # define image properties
     # define placement
+    x += 78
     puts ''
   end
   # puts '  ' + key_group.main_panel
