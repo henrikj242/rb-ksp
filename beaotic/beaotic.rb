@@ -3,12 +3,14 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :knobs, :edit_buttons, :main_panel, :mix_panel, :title_image, :backdrops
+    attr :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops
 
     def initialize(key_group_conf)
       @conf = key_group_conf
       @knobs = []
       @edit_buttons = []
+      @main_panel_name = "%panel_main_#{name}"
+      @main_panel_elements = []
       set_title_image
       # set_backdrops
       set_main_panel
@@ -39,10 +41,30 @@ module Beaotic
 
     # a ksp statement that adds all the ui_id's to a ksp array
     def main_panel
-      ui_elements = @knobs.map(&:name) + @edit_buttons.map(&:name)
-      ui_elements << @title_image.name
-      ui_elements = ui_elements.map { |elem| sprintf("get_ui_id(%s)",elem) }
-      @main_panel = "declare %panel_main_#{name}[#{ui_elements.count}] := (#{ui_elements.join(',')})"
+      @main_panel_elements = @knobs.map(&:name) + @knobs.map{ |knob| knob.label.name if knob.label } + @edit_buttons.map(&:name)
+      @main_panel_elements << @title_image.name
+    end
+
+    def main_panel_declare
+      statements = ["declare #{@main_panel_name}[#{@main_panel_elements.count}]"]
+      @main_panel_elements.each_with_index { |elem, idx | statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})" }
+      statements
+    end
+
+    def main_panel_hide
+      statements = ["function hide_panel_main_#{name}"]
+      @main_panel_elements.each do |elem|
+        statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
+      end
+      statements << "end function"
+    end
+
+    def main_panel_show
+      statements = ["function show_panel_main_#{name}"]
+      @main_panel_elements.each do |elem|
+        statements << "  hide_part(#{elem}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
+      end
+      statements << "end function"
     end
 
     def set_mix_panel

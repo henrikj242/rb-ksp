@@ -48,26 +48,25 @@ module Ksp
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_HEIGHT, #{@height})"
     end
 
-    # Not yet implemented -- currently just copied from CustomKnob
-    # def callback
-    #   return "" if @conf[:function] == 'none'
-    #
-    #   stmt = "on ui_control(#{name})\n"
-    #   if @conf[:function] == 'bypass'
-    #     k_groups.keys.each do |osc|
-    #       k_groups[osc].each do |k_group|
-    #         if @conf[:modulator]
-    #           stmt << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\") \n"
-    #         else
-    #           stmt << "  $mod_idx_#{@identifier} := -1 \n"
-    #         end
-    #         stmt << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1) \n"
-    #       end
-    #     end
-    #   elsif @conf[:function]
-    #     stmt << "  call #{@conf[:function]}\n"
-    #   end
-    #   stmt << "end on\n"
-    # end
+    def callback
+      return "" if @conf[:function] == 'none'
+
+      statements = ["on ui_control(#{name})"]
+      if @conf[:function] == 'bypass'
+        # k_groups.keys.each do |osc|
+        #   k_groups[osc].each do |k_group|
+        #     if @conf[:modulator]
+        #       stmt << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\") \n"
+        #     else
+        #       stmt << "  $mod_idx_#{@identifier} := -1 \n"
+        #     end
+        #     stmt << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1) \n"
+        #   end
+        # end
+      elsif @conf[:function]
+        statements << "call #{@conf[:function]}"
+      end
+      statements << "end on"
+    end
   end
 end

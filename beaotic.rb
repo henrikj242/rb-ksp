@@ -26,7 +26,11 @@ group_select_buttons = []
 # Populate ruby elements
 @conf[:key_groups].each do |key_group_conf|
   key_groups << Beaotic::KeyGroup.new(key_group_conf)
-  group_select_buttons << Ksp::CustomButton.new("group_#{key_group_conf[:name]}", name: "group_#{key_group_conf[:name]}", image: "button_group_#{key_group_conf[:name]}")
+  group_select_buttons << Ksp::CustomButton.new(
+      "group_#{key_group_conf[:name]}",
+      name: "group_#{key_group_conf[:name]}",
+      image: "button_group_#{key_group_conf[:name]}"
+  )
 end
 
 # TODO Refactor into an on_init method
@@ -40,33 +44,12 @@ puts '  ' + 'declare $viewmode := 0'
 puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
 puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon_hejo")'
 
-# puts '
-# declare ui_switch $title_bd
-# set_control_par_str(get_ui_id($title_bd),$CONTROL_PAR_TEXT,"")
-# set_control_par_str(get_ui_id($title_bd),$CONTROL_PAR_PICTURE,"title_bd")
-# set_control_par(get_ui_id($title_bd),$CONTROL_PAR_HEIGHT,16)
-# set_control_par(get_ui_id($title_bd),$CONTROL_PAR_WIDTH,468)
-# move_control_px($title_bd,83,0)
-# '
-
-# puts '  ' + "declare %panels[#{key_groups.count}*2]"
-
-
 key_groups.each do |key_group|
   key_group.title_image.declare.each do |statememt|
     puts '  '  + statememt
   end
 
   puts '  ' + key_group.title_image.set_position(83, 0)
-
-  # y = 200
-  # key_group.backdrops.each do |backdrop|
-  #   backdrop.declare.each do |statement|
-  #     puts '  ' + statement
-  #   end
-  #   puts '  ' + backdrop.set_position(10, y)
-  #   y += 100
-  # end
 
   x = 21
   y = 84
@@ -94,7 +77,9 @@ key_groups.each do |key_group|
     x += 51
   end
 
-  # puts '  ' + key_group.main_panel
+  key_group.main_panel_declare.each do |statement|
+    puts '  ' + statement
+  end
   puts ''
 end
 
@@ -115,16 +100,34 @@ group_select_buttons.each do |button|
   x += 36
 end
 
-
 puts '{ Global buttons // note_edit }'
-button_note_edit = Ksp::CustomButton.new('note_edit', name: 'note_edit', image: 'button_note_edit')
+button_note_edit = Ksp::CustomButton.new('note_edit', name: 'note_edit', image: 'button_note_edit', function: 'set_display')
 button_note_edit.declare.each do |statement|
   puts '  ' + statement
 end
 puts '  ' + button_note_edit.set_position(546, 222)
-
-
+puts '  ' + '$button_note_edit := 0'
 puts 'end on'
+
+key_groups.each do |key_group|
+  key_group.main_panel_hide.each do |statement|
+    puts statement
+  end
+  key_group.main_panel_show.each do |statement|
+    puts statement
+  end
+end
+
+# declare global functions
+puts 'function set_display'
+key_groups.each do |key_group|
+  puts '  ' + "call hide_panel_main_#{key_group.name}"
+end
+puts '  ' + 'if ($button_note_edit = 0)'
+puts '  ' + "  call show_panel_main_bd"
+puts '  ' + 'end if'
+puts 'end function'
+
 
 # declare user defined functions
 key_groups.each do |key_group|
@@ -139,7 +142,15 @@ key_groups.each do |key_group|
   key_group.knobs.each do |knob|
     # puts knob.callback
   end
+  key_group.edit_buttons.each do |knob|
+    # puts knob.callback
+  end
 end
+
+# declare global callbacks
+puts 'on ui_control($button_note_edit)'
+puts '  ' + 'call set_display'
+puts 'end on'
 
 # declare midi callbacks
 
