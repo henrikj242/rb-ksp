@@ -27,10 +27,10 @@ group_select_buttons = []
 @conf[:key_groups].each do |key_group_conf|
   key_groups << Beaotic::KeyGroup.new(key_group_conf)
   group_select_buttons << Ksp::CustomButton.new(
-      "group_#{key_group_conf[:name]}",
-      name: "group_#{key_group_conf[:name]}",
-      image: "button_group_#{key_group_conf[:name]}"
-      # function: "select_group_#{key_group_conf[:name]}"
+    "group_#{key_group_conf[:name]}",
+    name: "group_#{key_group_conf[:name]}",
+    image: "button_group_#{key_group_conf[:name]}",
+    function: "select_group_#{key_group_conf[:name]}"
   )
 end
 
@@ -134,6 +134,24 @@ puts '  ' + '  end select'
 puts '  ' + 'end if'
 puts 'end function'
 
+# declare global functions per key_group
+global_key_group_functions = []
+key_groups.each do |key_group_me|
+  global_key_group_functions << []
+  global_key_group_functions.last << "function select_group_#{key_group_me.name}"
+  key_groups.each do |key_group_other|
+    val = key_group_other.name ==  key_group_me.name ? '1' : '0'
+    global_key_group_functions.last << "  $button_group_#{key_group_other.name} := #{val}"
+  end
+  global_key_group_functions.last <<  '  call set_display'
+  global_key_group_functions.last << 'end function'
+end
+global_key_group_functions.each do |global_key_group_function|
+  global_key_group_function.each do |statement|
+    puts statement
+  end
+end
+
 
 # declare user defined functions
 key_groups.each do |key_group|
@@ -151,6 +169,9 @@ key_groups.each do |key_group|
   key_group.edit_buttons.each do |knob|
     # puts knob.callback
   end
+  puts "on ui_control ($button_group_#{key_group.name})"
+  puts "  call select_group_#{key_group.name}"
+  puts 'end on'
 end
 
 # declare global callbacks
