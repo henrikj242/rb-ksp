@@ -14,13 +14,13 @@ module Ksp
       }
     end
 
-    def label_exists?
-      File.exists?(label_file)
-    end
-
-    def label_file
-      "#{@directory}/label_#{@conf[:name]}.png"
-    end
+    # def label_exists?
+    #   File.exists?(label_file)
+    # end
+    #
+    # def label_file
+    #   "#{@directory}/label_#{@conf[:name]}.png"
+    # end
 
     def label=(ui_image)
       @label = ui_image
@@ -42,7 +42,6 @@ module Ksp
       statements << "hide_part(#{name},$HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"knob_48\")"
       statements << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_MOUSE_BEHAVIOUR, -500)"
-      statements << "{ has label: #{label.name} }" if label_exists?
       statements
     end
 

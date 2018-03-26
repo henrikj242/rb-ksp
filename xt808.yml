@@ -53,7 +53,6 @@ default_buttons: &default_buttons
 
 key_groups:
   - name: bd
-    label: "Bass Drums"
     keys:
       - name: bd_1
         midi_note: 36
@@ -117,9 +116,109 @@ key_groups:
         function: decay
       pitch_impact:
         function: pitch
-
+  - name: sd1
+    keys:
+      - name: sd_1
+        midi_note: 42
+        k_groups:
+          osc1: [0]
+          osc2: !ruby/range 1..5
+      - name: sd_2
+        midi_note: 43
+        k_groups:
+          osc1: [6]
+          osc2: !ruby/range 7..11
+      - name: sd_3
+        midi_note: 44
+        k_groups:
+          osc1: [12]
+          osc2: !ruby/range 13..17
+      - name: sd_4
+        midi_note: 45
+        k_groups:
+          osc1: [18]
+          osc2: !ruby/range 19..23
+      - name: sd_5
+        midi_note: 46
+        k_groups:
+          osc1: [24]
+          osc2: !ruby/range 25..29
+      - name: sd_6
+        midi_note: 47
+        k_groups:
+          osc1: [30]
+          osc2: !ruby/range 31..35
+    knobs:
+      - <<: *default_pitch
+        affected_keys: !ruby/range 0..5
+      - <<: *default_hold
+        affected_keys: !ruby/range 0..5
+      - <<: *default_decay
+        affected_keys: !ruby/range 0..5
+        function: decay
+    edit_buttons:
+      <<: *default_buttons
+  - name: sd2
+    keys:
+      - name: sd_1
+        midi_note: 48
+        k_groups:
+          osc1: [0]
+          osc2: !ruby/range 1..5
+      - name: sd_2
+        midi_note: 49
+        k_groups:
+          osc1: [6]
+          osc2: !ruby/range 7..11
+      - name: sd_3
+        midi_note: 50
+        k_groups:
+          osc1: [12]
+          osc2: !ruby/range 13..17
+      - name: sd_4
+        midi_note: 51
+        k_groups:
+          osc1: [18]
+          osc2: !ruby/range 19..23
+      - name: sd_5
+        midi_note: 52
+        k_groups:
+          osc1: [24]
+          osc2: !ruby/range 25..29
+      - name: sd_6
+        midi_note: 53
+        k_groups:
+          osc1: [30]
+          osc2: !ruby/range 31..35
+    knobs:
+      - <<: *default_pitch
+        affected_keys: !ruby/range 0..5
+      - <<: *default_hold
+        affected_keys: !ruby/range 0..5
+      - <<: *default_decay
+        affected_keys: !ruby/range 0..5
+        function: decay
+      - name: snappy_balance
+        affected_keys:  !ruby/range 0..5
+        min_val: 1
+        default_val: 500
+        max_val: 1000
+        function: snappy_balance
+      - name: snappy_color
+        affected_keys:  !ruby/range 0..5
+        min_val: 1
+        default_val: 24
+        max_val: 32
+        function: snappy_color
+      - name: snappy_decay
+        affected_keys:  !ruby/range 0..5
+        min_val: 8000
+        default_val: 50000
+        max_val: 300000
+        function: snappy_decay
+    edit_buttons:
+      <<: *default_buttons
   - name: hh1
-    label: "High-hats 1"
     keys:
       - name: cl_hh_a
         midi_note: 54
@@ -145,5 +244,3 @@ key_groups:
         affected_keys: [2]
     edit_buttons:
       <<: *default_buttons
-
-

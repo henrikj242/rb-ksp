@@ -23,8 +23,9 @@ end
 
 key_groups = []
 group_select_buttons = []
+key_group_indexes = {}
 # Populate ruby elements
-@conf[:key_groups].each do |key_group_conf|
+@conf[:key_groups].each_with_index do |key_group_conf, idx|
   key_groups << Beaotic::KeyGroup.new(key_group_conf)
   group_select_buttons << Ksp::CustomButton.new(
     "group_#{key_group_conf[:name]}",
@@ -32,6 +33,7 @@ group_select_buttons = []
     image: "button_group_#{key_group_conf[:name]}",
     function: "select_group_#{key_group_conf[:name]}"
   )
+  key_group_indexes[key_group_conf[:name]] = idx
 end
 
 # TODO Refactor into an on_init method
@@ -128,6 +130,7 @@ puts '  ' + 'if ($button_note_edit = 0)'
 puts '  ' + '  select ($selected_group)'
 key_groups.each_with_index do |key_group, key_group_idx|
   puts '  ' + "    case #{key_group_idx}"
+  puts '  ' + "      message(\"selecting #{key_group.name}\")"
   puts '  ' + "      call show_panel_main_#{key_group.name}"
 end
 puts '  ' + '  end select'
@@ -170,6 +173,7 @@ key_groups.each do |key_group|
     # puts knob.callback
   end
   puts "on ui_control ($button_group_#{key_group.name})"
+  puts "  $selected_group := #{key_group_indexes[key_group.name]}"
   puts "  call select_group_#{key_group.name}"
   puts 'end on'
 end

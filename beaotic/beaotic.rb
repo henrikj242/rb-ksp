@@ -6,6 +6,7 @@ module Beaotic
     attr :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops
 
     def initialize(key_group_conf)
+      @gui_directory = '_gui'
       @conf = key_group_conf
       @knobs = []
       @edit_buttons = []
@@ -22,7 +23,7 @@ module Beaotic
     end
 
     def set_title_image
-      @title_image = Ksp::UiImage.new("title_#{name}")
+      @title_image = Ksp::UiImage.new("title_#{name}", image: "title_#{name}")
     end
 
     # def set_backdrops
@@ -85,9 +86,8 @@ module Beaotic
         knob_identifier = "#{name}_#{knob_conf[:name]}"
         @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf)
         knob_conf[:affected_keys].each do |ak|
-          if @knobs.last.label_exists?
-            @knobs.last.label = Ksp::UiImage.new("label_#{knob_conf[:name]}")
-          end
+          label = "label_#{knob_conf[:name]}"
+            @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
           @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
           if @conf[:keys][ak][:k_groups][:osc2]
             @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
