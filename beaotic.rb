@@ -158,16 +158,17 @@ end
 
 # declare user defined functions
 key_groups.each do |key_group|
-  # puts key_group.functions
-  # key_group.knobs.each do |knob|
-  #   puts knob.function
-  # end
+  key_group.functions.each do |statement|
+    puts statement
+  end
 end
+
+key_groups.map{ |kg| kg.knobs.map{ |k| k.function.map{ |f| puts f} } }
 
 # declare ui callbacks
 key_groups.each do |key_group|
   key_group.knobs.each do |knob|
-    # puts knob.callback
+    puts knob.callback
   end
   key_group.edit_buttons.each do |knob|
     # puts knob.callback

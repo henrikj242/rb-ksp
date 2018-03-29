@@ -15,10 +15,11 @@ perf_view:
 
 pitch: &default_pitch
   name: pitch
-  min_val: 0  
+  min_val: 0
   default_val: 1000
   max_val: 2000
   parameter: "$ENGINE_PAR_TUNE"
+  function: none
 
 decay: &default_decay
   name: decay
@@ -91,25 +92,25 @@ key_groups:
         affected_keys: !ruby/range 0..5
       - <<: *default_decay
         affected_keys: !ruby/range 0..5
-        function: decay
+#        function: decay
       - name: impact_level
         affected_keys:  !ruby/range 0..5
         min_val: 1  
         default_val: 500
         max_val: 1000
-        function: impact_level
+#        function: impact_level
       - name: impact_color
         affected_keys:  !ruby/range 0..5
         min_val: 1 
         default_val: 24
         max_val: 32
-        function: impact_color
+#        function: impact_color
       - name: impact_decay
         affected_keys:  !ruby/range 0..5
         min_val: 8000
         default_val: 50000
         max_val: 300000
-        function: impact_decay
+#        function: impact_decay
     edit_buttons:
       <<: *default_buttons
       link_decays:
@@ -155,7 +156,7 @@ key_groups:
         affected_keys: !ruby/range 0..5
       - <<: *default_decay
         affected_keys: !ruby/range 0..5
-        function: decay
+#        function: decay
     edit_buttons:
       <<: *default_buttons
   - name: sd2
@@ -197,25 +198,25 @@ key_groups:
         affected_keys: !ruby/range 0..5
       - <<: *default_decay
         affected_keys: !ruby/range 0..5
-        function: decay
+#        function: decay
       - name: snappy_balance
         affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 500
         max_val: 1000
-        function: snappy_balance
+#        function: snappy_balance
       - name: snappy_color
         affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 24
         max_val: 32
-        function: snappy_color
+#        function: snappy_color
       - name: snappy_decay
         affected_keys:  !ruby/range 0..5
         min_val: 8000
         default_val: 50000
         max_val: 300000
-        function: snappy_decay
+#        function: snappy_decay
     edit_buttons:
       <<: *default_buttons
   - name: hh1
@@ -233,6 +234,8 @@ key_groups:
         k_groups:
           osc1: [80]
     knobs:
+      - <<: *default_pitch
+        affected_keys: [0, 1, 2]
       - <<: *default_decay
         name: chh_decay
         affected_keys: [0, 1]

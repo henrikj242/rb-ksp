@@ -105,7 +105,8 @@ module Beaotic
     end
 
     def default_functions
-      pitch_functions + volume_functions
+      pitch_functions
+      # volume_functions
       # pan_functions
       # output_assign_functions
     end
@@ -115,56 +116,66 @@ module Beaotic
     end
 
     def volume_functions
-      stmt = "{ default volume functions }\n"
+      statements = ["{ default volume functions }"]
       @conf[:keys].each do |affected_key|
-        stmt << mix_volume_function(affected_key)
+        mix_volume_function(affected_key).map do |statement|
+          statements << statement
+        end
       end
 
-      stmt << "function set_volume_#{@conf[:name]}\n"
+      statements << "function set_volume_#{@conf[:name]}"
       @conf[:keys].each do |affected_key|
-        stmt << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} \n"
+        statements << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} "
       end
-      stmt << "end function \n"
+      statements << "end function"
+      statements
     end
 
     def mix_volume_function(affected_key)
-      main_knob = "$knob_volume_#{@conf[:name]}"
-      mix_knob = "$knob_volume_#{@conf[:name]}_#{affected_key[:name]}"
-
-      stmt = "function set_volume_#{@conf[:name]}_#{affected_key[:name]} \n"
+      main_knob = "$knob_#{@conf[:name]}_volume"
+      mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_volume"
+      statements = []
+      statements << "function #{@conf[:name]}_#{affected_key[:name]}_volume"
       affected_key[:k_groups].keys.each do |osc|
         affected_key[:k_groups][osc].each do |k_group|
-          stmt << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1) \n"
+          statements << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
         end
       end
-      stmt << "end function\n"
+      statements << "end function"
+      statements
     end
 
     def mix_pitch_function(affected_key)
-      main_knob = "$knob_pitch_#{@conf[:name]}"
-      mix_knob = "$knob_pitch_#{@conf[:name]}_#{affected_key[:name]}"
-
-      stmt = "function set_pitch_#{@conf[:name]}_#{affected_key[:name]} \n"
+      main_knob = "$knob_#{@conf[:name]}_pitch"
+      # mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_pitch"
+      mix_knob = "0"
+      statements = []
+      statements << "function #{@conf[:name]}_#{affected_key[:name]}_pitch"
       affected_key[:k_groups].keys.each do |osc|
         affected_key[:k_groups][osc].each do |k_group|
-          stmt << "  set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1) \n"
+          statements << "  set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
         end
       end
-      stmt << "end function\n"
+      statements << "end function"
+      statements
     end
 
     def pitch_functions
-      stmt = "{ default pitch functions }\n"
+      statements = ["{ default pitch functions }\n"]
       @conf[:keys].each do |affected_key|
-        stmt << mix_pitch_function(affected_key)
+        mix_pitch_function(affected_key).each do |statement|
+          statements << statement
+        end
       end
 
-      stmt << "function set_pitch_#{@conf[:name]}\n"
+      statements << "function #{@conf[:name]}_pitch"
       @conf[:keys].each do |affected_key|
-        stmt << "  call set_pitch_#{@conf[:name]}_#{affected_key[:name]} \n"
+        statements << "  call #{@conf[:name]}_#{affected_key[:name]}_pitch"
       end
-      stmt << "end function \n"
+      statements << "end function \n"
+      statements
     end
+
   end
 
   class Image

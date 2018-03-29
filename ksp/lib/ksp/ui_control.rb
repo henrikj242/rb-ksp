@@ -14,7 +14,5 @@ module Ksp
     # show / hide
     # set_image stuff
 
-
-
   end
 end

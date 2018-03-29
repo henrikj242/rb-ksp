@@ -49,25 +49,36 @@ module Ksp
       "move_control_px(#{name}, #{x}, #{y})"
     end
 
-    def callback
-      return "" if @conf[:function] == 'none'
+    def function
+      return [] if @conf[:function] == 'none'
+      statements = []
+      statements << "function #{@identifier}"
+      statements << 'end function'
+      statements
+    end
 
-      stmt = "on ui_control(#{name})\n"
+    def callback
+      return [] if @conf[:function] == 'none'
+
+      statements = ["on ui_control(#{name})"]
       if @conf[:function] == 'bypass'
         k_groups.keys.each do |osc|
           k_groups[osc].each do |k_group|
             if @conf[:modulator]
-              stmt << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\") \n"
+              statements << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\")"
             else
-              stmt << "  $mod_idx_#{@identifier} := -1 \n"
+              statements << "  $mod_idx_#{@identifier} := -1"
             end
-            stmt << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1) \n"
+            statements << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1)"
           end
         end
       elsif @conf[:function]
-        stmt << "  call #{@conf[:function]}\n"
+        statements << "  call #{@conf[:function]}"
+      else
+        statements << "  call #{@identifier}"
       end
-      stmt << "end on\n"
+      statements << "end on"
+      statements
     end
   end
 end
