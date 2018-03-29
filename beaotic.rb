@@ -92,6 +92,7 @@ button_midi_select.declare.each do |statement|
   puts '  ' + statement
 end
 puts '  ' + button_midi_select.set_position(7, 222)
+puts '  ' + button_midi_select.name + ' := 0'
 
 puts '{ Global buttons // group_select }'
 x = 83
@@ -109,7 +110,7 @@ button_note_edit.declare.each do |statement|
   puts '  ' + statement
 end
 puts '  ' + button_note_edit.set_position(546, 222)
-puts '  ' + '$button_note_edit := 0'
+puts '  ' + button_note_edit.name + ' := 0'
 puts 'end on'
 
 key_groups.each do |key_group|

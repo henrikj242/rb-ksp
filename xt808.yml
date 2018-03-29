@@ -15,24 +15,24 @@ perf_view:
 
 pitch: &default_pitch
   name: pitch
-  min_val: 0
-  default_val: 1000
-  max_val: 2000
+  min_val: -200000
+  default_val: 0
+  max_val: 200000
   parameter: "$ENGINE_PAR_TUNE"
-  function: none
+  function: KEY_GROUP_pitch
 
 decay: &default_decay
   name: decay
-  min_val: 8000
-  default_val: 50000
-  max_val: 300000
+  min_val: 45000
+  default_val: 700000
+  max_val: 800000
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_DECAY"
   function: bypass
 
 hold: &default_hold
   name: hold
-  min_val: 8000
+  min_val: 0
   default_val: 50000
   max_val: 300000
   modulator: "ENV_AHDSR"
@@ -42,7 +42,7 @@ hold: &default_hold
 # These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
   osc_drift:
-    function: pitch
+    function: KEY_GROUP_pitch
   vel_start:
     function: none
   vel_vca:
@@ -62,27 +62,27 @@ key_groups:
           osc2: !ruby/range 1..5
       - name: bd_2
         midi_note: 37
-        k_groups: 
+        k_groups:
           osc1: [6]
           osc2: !ruby/range 7..11
       - name: bd_3
         midi_note: 38
-        k_groups: 
+        k_groups:
           osc1: [12]
           osc2: !ruby/range 13..17
       - name: bd_4
         midi_note: 39
-        k_groups: 
+        k_groups:
           osc1: [18]
           osc2: !ruby/range 19..23
       - name: bd_5
         midi_note: 40
-        k_groups: 
+        k_groups:
           osc1: [24]
           osc2: !ruby/range 25..29
       - name: bd_6
         midi_note: 41
-        k_groups: 
+        k_groups:
           osc1: [30]
           osc2: !ruby/range 31..35
     knobs:
@@ -92,25 +92,21 @@ key_groups:
         affected_keys: !ruby/range 0..5
       - <<: *default_decay
         affected_keys: !ruby/range 0..5
-#        function: decay
       - name: impact_level
         affected_keys:  !ruby/range 0..5
-        min_val: 1  
+        min_val: 1
         default_val: 500
         max_val: 1000
-#        function: impact_level
       - name: impact_color
         affected_keys:  !ruby/range 0..5
-        min_val: 1 
+        min_val: 1
         default_val: 24
         max_val: 32
-#        function: impact_color
       - name: impact_decay
         affected_keys:  !ruby/range 0..5
         min_val: 8000
         default_val: 50000
         max_val: 300000
-#        function: impact_decay
     edit_buttons:
       <<: *default_buttons
       link_decays:
@@ -122,33 +118,27 @@ key_groups:
       - name: sd_1
         midi_note: 42
         k_groups:
-          osc1: [0]
-          osc2: !ruby/range 1..5
+          osc1: [36]
       - name: sd_2
         midi_note: 43
         k_groups:
-          osc1: [6]
-          osc2: !ruby/range 7..11
+          osc1: [37]
       - name: sd_3
         midi_note: 44
         k_groups:
-          osc1: [12]
-          osc2: !ruby/range 13..17
+          osc1: [38]
       - name: sd_4
         midi_note: 45
         k_groups:
-          osc1: [18]
-          osc2: !ruby/range 19..23
+          osc1: [39]
       - name: sd_5
         midi_note: 46
         k_groups:
-          osc1: [24]
-          osc2: !ruby/range 25..29
+          osc1: [40]
       - name: sd_6
         midi_note: 47
         k_groups:
-          osc1: [30]
-          osc2: !ruby/range 31..35
+          osc1: [41]
     knobs:
       - <<: *default_pitch
         affected_keys: !ruby/range 0..5
@@ -164,33 +154,33 @@ key_groups:
       - name: sd_1
         midi_note: 48
         k_groups:
-          osc1: [0]
-          osc2: !ruby/range 1..5
+          osc1: [42]
+          osc2: !ruby/range 43..47
       - name: sd_2
         midi_note: 49
         k_groups:
-          osc1: [6]
-          osc2: !ruby/range 7..11
+          osc1: [48]
+          osc2: !ruby/range 49..53
       - name: sd_3
         midi_note: 50
         k_groups:
-          osc1: [12]
-          osc2: !ruby/range 13..17
+          osc1: [54]
+          osc2: !ruby/range 55..59
       - name: sd_4
         midi_note: 51
         k_groups:
-          osc1: [18]
-          osc2: !ruby/range 19..23
+          osc1: [60]
+          osc2: !ruby/range 61..65
       - name: sd_5
         midi_note: 52
         k_groups:
-          osc1: [24]
-          osc2: !ruby/range 25..29
+          osc1: [66]
+          osc2: !ruby/range 67..71
       - name: sd_6
         midi_note: 53
         k_groups:
-          osc1: [30]
-          osc2: !ruby/range 31..35
+          osc1: [72]
+          osc2: !ruby/range 73..77
     knobs:
       - <<: *default_pitch
         affected_keys: !ruby/range 0..5
@@ -198,25 +188,21 @@ key_groups:
         affected_keys: !ruby/range 0..5
       - <<: *default_decay
         affected_keys: !ruby/range 0..5
-#        function: decay
       - name: snappy_balance
         affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 500
         max_val: 1000
-#        function: snappy_balance
       - name: snappy_color
         affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 24
         max_val: 32
-#        function: snappy_color
       - name: snappy_decay
         affected_keys:  !ruby/range 0..5
         min_val: 8000
         default_val: 50000
         max_val: 300000
-#        function: snappy_decay
     edit_buttons:
       <<: *default_buttons
   - name: hh1

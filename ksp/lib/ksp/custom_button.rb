@@ -46,6 +46,7 @@ module Ksp
       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"#{@conf[:image]}\")"
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_WIDTH,  #{@width})"
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_HEIGHT, #{@height})"
+      statements
     end
 
     def callback
@@ -67,6 +68,7 @@ module Ksp
         statements << "call #{@conf[:function]}"
       end
       statements << "end on"
+      statements
     end
   end
 end

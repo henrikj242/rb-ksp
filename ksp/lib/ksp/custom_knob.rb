@@ -50,7 +50,9 @@ module Ksp
     end
 
     def function
-      return [] if @conf[:function] == 'none'
+      if @conf[:function]
+        return [] if @conf[:function] == 'none' || @conf[:function].match(/^KEY_GROUP_/)
+      end
       statements = []
       statements << "function #{@identifier}"
       statements << 'end function'
@@ -61,23 +63,27 @@ module Ksp
       return [] if @conf[:function] == 'none'
 
       statements = ["on ui_control(#{name})"]
+      message = "callback: #{name}"
       if @conf[:function] == 'bypass'
         k_groups.keys.each do |osc|
           k_groups[osc].each do |k_group|
             if @conf[:modulator]
+              message += " modulator: #{@conf[:modulator]}"
               statements << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\")"
             else
               statements << "  $mod_idx_#{@identifier} := -1"
             end
+            message += " param: #{@conf[:parameter]}"
             statements << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1)"
           end
         end
       elsif @conf[:function]
-        statements << "  call #{@conf[:function]}"
+        statements << "  call #{@conf[:function].gsub(/^KEY_GROUP/, @conf[:key_group_name])}"
       else
         statements << "  call #{@identifier}"
       end
-      statements << "end on"
+      # statements << "message (\"#{message}\")"
+      statements << 'end on'
       statements
     end
   end

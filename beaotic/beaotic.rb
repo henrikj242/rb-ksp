@@ -84,7 +84,7 @@ module Beaotic
     def set_knobs
       @conf[:knobs].each do |knob_conf|
         knob_identifier = "#{name}_#{knob_conf[:name]}"
-        @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf)
+        @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf.merge(key_group_name: name))
         knob_conf[:affected_keys].each do |ak|
           label = "label_#{knob_conf[:name]}"
             @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
@@ -148,7 +148,7 @@ module Beaotic
     def mix_pitch_function(affected_key)
       main_knob = "$knob_#{@conf[:name]}_pitch"
       # mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_pitch"
-      mix_knob = "0"
+      mix_knob = "500000"
       statements = []
       statements << "function #{@conf[:name]}_#{affected_key[:name]}_pitch"
       affected_key[:k_groups].keys.each do |osc|
