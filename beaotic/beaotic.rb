@@ -3,7 +3,7 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops
+    attr :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries
 
     def initialize(key_group_conf)
       @gui_directory = '_gui'
@@ -12,10 +12,13 @@ module Beaotic
       @edit_buttons = []
       @main_panel_name = "%panel_main_#{name}"
       @main_panel_elements = []
+      @round_robin_entries = @conf[:round_robin][:entries] rescue 1
       set_title_image
       # set_backdrops
       set_main_panel
       set_mix_panel
+
+      set_keys
     end
 
     def name
@@ -176,6 +179,50 @@ module Beaotic
       statements
     end
 
+    def set_keys
+      @keys = []
+      @conf[:keys].each do |key|
+        @keys << Note.new(key.merge(key_group_name: name, round_robin_mode: @conf[:round_robin][:mode]))
+      end
+    end
+  end
+
+  class Note
+    attr :midi_note, :name, :callback, :callback_function
+    def initialize(conf)
+      @conf = conf
+      @midi_note = conf[:midi_note]
+      @name = conf[:name]
+      @callback_function = []
+      @callback = []
+      set_callback
+    end
+
+    # There a few ways we can support round robin and the "color" setting.
+    #
+    # For groups with no color setting we can simply split the round robin entries out across the velocity range
+    # This implies the ones without accent being assigned to velocities below 64, and the ones with accent being
+    # assigned to velocities 64 and up.
+    #
+    # For groups with a few color variants (up to 12) we can also use velocity splitting, as this will result in
+    # 120 samples - so less than 128.
+    #
+    # For groups with more than 12 color variations, we are forced to use additional Kontakt groups.
+    #
+
+
+    def set_callback
+      @callback << "if ($EVENT_NOTE = #{midi_note})"
+      @callback << '  message ("Note number $EVENT_NOTE received")'
+      @callback << '  message("Velocity: " & $EVENT_VELOCITY)'
+
+      if @conf[:round_robin_mode] == 'velocity'
+        
+      end
+
+      @callback << '  if ($EVENT_VELOCITY >= 85)'
+      @callback << 'end if'
+    end
   end
 
   class Image

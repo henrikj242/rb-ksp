@@ -48,11 +48,14 @@ puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon
 puts '  ' + 'declare $selected_group := 0'
 
 key_groups.each do |key_group|
+  puts '  ' + "declare $#{key_group.name}_round_robin_next := 1"
+  puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.round_robin_entries}"
+
   key_group.title_image.declare.each do |statememt|
     puts '  '  + statememt
   end
 
-  puts '  ' + key_group.title_image.set_position(83, 0)
+  puts '  ' + key_group.title_image.set_position(82, 0)
 
   x = 21
   y = 84
@@ -111,6 +114,7 @@ button_note_edit.declare.each do |statement|
 end
 puts '  ' + button_note_edit.set_position(546, 222)
 puts '  ' + button_note_edit.name + ' := 0'
+
 puts 'end on'
 
 key_groups.each do |key_group|
@@ -164,7 +168,9 @@ key_groups.each do |key_group|
   end
 end
 
+# declare knob functions - very short syntax
 key_groups.map{ |kg| kg.knobs.map{ |k| k.function.map{ |f| puts f} } }
+
 
 # declare ui callbacks
 key_groups.each do |key_group|
@@ -185,8 +191,23 @@ puts 'on ui_control($button_note_edit)'
 puts '  ' + 'call set_display'
 puts 'end on'
 
+# declare callback functions per midi note
+key_groups.each do |key_group|
+  key_group.keys.each do |key|
+    key.callback_function.each do |statement|
+      puts statement
+    end
+  end
+end
+
 # declare midi callbacks
-
-
-
+puts 'on note'
+key_groups.each do |key_group|
+  key_group.keys.each do |key|
+    key.callback.each do |statement|
+      puts '  ' + statement
+    end
+  end
+end
+puts 'end on'
 
