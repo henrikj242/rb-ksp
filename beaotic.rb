@@ -57,6 +57,12 @@ key_groups.each do |key_group|
   puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.round_robin_entries}"
   puts '  ' + "declare $#{key_group.name}_new_velocity"
 
+  key_group.keys.each do |key|
+    key.set_k_groups.each do |statement|
+      puts '  ' + statement
+    end
+  end
+
   key_group.title_image.declare.each do |statememt|
     puts '  '  + statememt
   end

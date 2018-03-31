@@ -223,6 +223,14 @@ module Beaotic
     #
     #
 
+    def set_k_groups
+      statements = []
+      @conf[:k_groups].keys.each do |osc|
+        statements << "declare %#{@conf[:key_group_name]}_#{name}_k_groups_#{osc}[#{@conf[:k_groups][osc].count}] := (#{@conf[:k_groups][osc].join(', ')})"
+      end
+      statements
+    end
+
     def disallow_groups
       statements = []
       @conf[:k_groups].keys.each do |osc|
@@ -259,6 +267,9 @@ module Beaotic
       @key_group.conf[:knobs].select{ |k| k[:name] == @conf[:features][:osc2_color] }.first
     end
 
+    # Round Robin and our Color-concept become quite intertwined, as also mentioned in comment above.
+    # TODO: Make prettier!
+
     def set_callback
       @callback << "if ($EVENT_NOTE = #{midi_note})"
 
@@ -272,6 +283,13 @@ module Beaotic
           when 'group'
             if @conf[:features][:osc2_color]
               @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
+              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent_switch]})"
+              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]})-1]"
+              @callback << '  else'
+              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
+              @callback << '  end if'
+              @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
+              @callback << "allow_group(%#{@conf[:key_group_name]}_#{name}_k_groups_osc2[$#{@conf[:key_group_name]}_round_robin_next])"
             end
           when 'velocity'
             # if @conf[:features][:osc2_color] ## NOT YET SUPPORTED FOR VELOCITY SPLIT
