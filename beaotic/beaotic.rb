@@ -3,7 +3,7 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries
+    attr :conf, :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries
 
     def initialize(key_group_conf)
       @gui_directory = '_gui'
@@ -12,7 +12,8 @@ module Beaotic
       @edit_buttons = []
       @main_panel_name = "%panel_main_#{name}"
       @main_panel_elements = []
-      @round_robin_entries = @conf[:round_robin][:entries] rescue 1
+      @round_robin_entries = @conf[:features][:round_robin][:entries] rescue 1
+      @keys = []
       set_title_image
       # set_backdrops
       set_main_panel
@@ -118,35 +119,35 @@ module Beaotic
       default_functions
     end
 
-    def volume_functions
-      statements = ["{ default volume functions }"]
-      @conf[:keys].each do |affected_key|
-        mix_volume_function(affected_key).map do |statement|
-          statements << statement
-        end
-      end
-
-      statements << "function set_volume_#{@conf[:name]}"
-      @conf[:keys].each do |affected_key|
-        statements << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} "
-      end
-      statements << "end function"
-      statements
-    end
-
-    def mix_volume_function(affected_key)
-      main_knob = "$knob_#{@conf[:name]}_volume"
-      mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_volume"
-      statements = []
-      statements << "function #{@conf[:name]}_#{affected_key[:name]}_volume"
-      affected_key[:k_groups].keys.each do |osc|
-        affected_key[:k_groups][osc].each do |k_group|
-          statements << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
-        end
-      end
-      statements << "end function"
-      statements
-    end
+    # def volume_functions
+    #   statements = ["{ default volume functions }"]
+    #   @conf[:keys].each do |affected_key|
+    #     mix_volume_function(affected_key).map do |statement|
+    #       statements << statement
+    #     end
+    #   end
+    #
+    #   statements << "function set_volume_#{@conf[:name]}"
+    #   @conf[:keys].each do |affected_key|
+    #     statements << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} "
+    #   end
+    #   statements << "end function"
+    #   statements
+    # end
+    #
+    # def mix_volume_function(affected_key)
+    #   main_knob = "$knob_#{@conf[:name]}_volume"
+    #   mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_volume"
+    #   statements = []
+    #   statements << "function #{@conf[:name]}_#{affected_key[:name]}_volume"
+    #   affected_key[:k_groups].keys.each do |osc|
+    #     affected_key[:k_groups][osc].each do |k_group|
+    #       statements << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
+    #     end
+    #   end
+    #   statements << "end function"
+    #   statements
+    # end
 
     def mix_pitch_function(affected_key)
       main_knob = "$knob_#{@conf[:name]}_pitch"
@@ -180,47 +181,117 @@ module Beaotic
     end
 
     def set_keys
-      @keys = []
+      extra_options = {
+          key_group_name: name
+      }
+      extra_options[:features] = @conf[:features] if @conf[:features]
+
       @conf[:keys].each do |key|
-        @keys << Note.new(key.merge(key_group_name: name, round_robin_mode: @conf[:round_robin][:mode]))
+        @keys << Beaotic::Key.new(self, key.merge(extra_options))
+        @keys.last.set_callback()
       end
     end
   end
 
-  class Note
+  class Key
     attr :midi_note, :name, :callback, :callback_function
-    def initialize(conf)
+    def initialize(key_group, conf)
+      @key_group = key_group
       @conf = conf
       @midi_note = conf[:midi_note]
       @name = conf[:name]
-      @callback_function = []
+      # @callback_function = []
       @callback = []
-      set_callback
+      # puts @conf.inspect
+      # exit
     end
 
-    # There a few ways we can support round robin and the "color" setting.
+    # There are a few ways we can support round robin and the "color" setting.
     #
-    # For groups with no color setting we can simply split the round robin entries out across the velocity range
+    # 1: For groups with no color setting we can simply split the round robin entries out across the velocity range
     # This implies the ones without accent being assigned to velocities below 64, and the ones with accent being
     # assigned to velocities 64 and up.
     #
-    # For groups with a few color variants (up to 12) we can also use velocity splitting, as this will result in
+    # 2: For groups with a few color variants (up to 12) we can also use velocity splitting, as this will result in
     # 120 samples - so less than 128.
     #
-    # For groups with more than 12 color variations, we are forced to use additional Kontakt groups.
+    # 3: For groups with more than 12 color variations, we are forced to use additional Kontakt groups.
+    #
+    # As long as we don't use more than 32 color variations, we always split colors across velocity.
+    #
+    #
+    #
     #
 
+    def disallow_groups
+      statements = []
+      @conf[:k_groups].keys.each do |osc|
+        @conf[:k_groups][osc].map { |k_group_id| statements << "disallow_group(#{k_group_id})"}
+      end
+      statements
+    end
+
+    def allow_groups
+      statements = []
+
+      # if @conf[:features] && @conf[:features][:osc2_color]
+      #
+      # end
+      @conf[:k_groups][:osc1].map { |k_group_id| statements << "allow_group(#{k_group_id})"}
+      # @conf[:k_groups].keys.each do |osc|
+      #   @conf[:k_groups][osc].map { |k_group_id| statements << "allow_group(#{k_group_id})"}
+      # end
+      statements
+    end
+
+    def split_count
+      splits = if @conf[:features][:osc2_color] && @conf[:features][:round_robin] && @conf[:features][:round_robin][:mode] == 'group'
+        osc2_color_conf[:max_val]
+      elsif @conf[:features][:osc2_color] && @conf[:features][:round_robin] && @conf[:features][:round_robin][:mode] == 'velocity'
+        # not yet supported
+      elsif @conf[:features][:round_robin] && @conf[:features][:round_robin][:mode] == 'velocity'
+        @conf[:features][:round_robin][:entries]
+      end
+      (splits.to_i * 2).to_s unless @conf[:features][:accent_switch].nil?
+    end
+
+    def osc2_color_conf
+      @key_group.conf[:knobs].select{ |k| k[:name] == @conf[:features][:osc2_color] }.first
+    end
 
     def set_callback
       @callback << "if ($EVENT_NOTE = #{midi_note})"
-      @callback << '  message ("Note number $EVENT_NOTE received")'
-      @callback << '  message("Velocity: " & $EVENT_VELOCITY)'
 
-      if @conf[:round_robin_mode] == 'velocity'
-        
+      disallow_groups.map { |statement| @callback << '  ' + statement }
+      allow_groups.map { |statement| @callback << '  ' + statement }
+
+      if @conf[:features] && @conf[:features][:round_robin]
+        @callback << "{ RR Mode: #{@conf[:features][:round_robin][:mode]} }"
+        @callback << " $#{@conf[:key_group_name]}_round_robin_next := ($#{@conf[:key_group_name]}_round_robin_next+1) mod $#{@conf[:key_group_name]}_round_robin_max"
+        case @conf[:features][:round_robin][:mode]
+          when 'group'
+            if @conf[:features][:osc2_color]
+              @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
+            end
+          when 'velocity'
+            # if @conf[:features][:osc2_color] ## NOT YET SUPPORTED FOR VELOCITY SPLIT
+            #   @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
+            #   @callback << "{ velocity_split_list:  #{Ksp::Utility.velocity_split_list(split_count)} }"
+            # else
+              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent_switch]})"
+              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next]"
+              @callback << '  else'
+              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
+              @callback << '  end if'
+              @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
+            # end
+        end
       end
 
-      @callback << '  if ($EVENT_VELOCITY >= 85)'
+      # if @conf[:features] && @conf[:features][:accent_switch]
+      #   @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent_switch]})"
+      #   @callback << '  end if'
+      # end
       @callback << 'end if'
     end
   end

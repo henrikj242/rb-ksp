@@ -45,11 +45,17 @@ puts '  ' + "set_ui_height_px(#{@conf[:perf_view][:height_px]})"
 # puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
 puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
 puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon_hejo")'
+
+Ksp::Utility.split_lists_declare.each do |statement|
+  puts '  ' + statement
+end
+
 puts '  ' + 'declare $selected_group := 0'
 
 key_groups.each do |key_group|
   puts '  ' + "declare $#{key_group.name}_round_robin_next := 1"
   puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.round_robin_entries}"
+  puts '  ' + "declare $#{key_group.name}_new_velocity"
 
   key_group.title_image.declare.each do |statememt|
     puts '  '  + statememt
@@ -192,13 +198,13 @@ puts '  ' + 'call set_display'
 puts 'end on'
 
 # declare callback functions per midi note
-key_groups.each do |key_group|
-  key_group.keys.each do |key|
-    key.callback_function.each do |statement|
-      puts statement
-    end
-  end
-end
+# key_groups.each do |key_group|
+#   key_group.keys.each do |key|
+#     key.callback_function.each do |statement|
+#       puts statement
+#     end
+#   end
+# end
 
 # declare midi callbacks
 puts 'on note'
