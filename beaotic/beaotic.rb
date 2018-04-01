@@ -3,7 +3,7 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :conf, :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries
+    attr :conf, :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries, :main_panel_elements
 
     def initialize(key_group_conf)
       @gui_directory = '_gui'
@@ -217,11 +217,9 @@ module Beaotic
     #
     # 3: For groups with more than 12 color variations, we are forced to use additional Kontakt groups.
     #
-    # As long as we don't use more than 32 color variations, we always split colors across velocity.
+    # As long as we don't use more than 64 color variations, we always split colors across velocity.
     #
-    #
-    #
-    #
+
 
     def set_k_groups
       statements = []
@@ -260,7 +258,7 @@ module Beaotic
       elsif @conf[:features][:round_robin] && @conf[:features][:round_robin][:mode] == 'velocity'
         @conf[:features][:round_robin][:entries]
       end
-      (splits.to_i * 2).to_s unless @conf[:features][:accent_switch].nil?
+      (splits.to_i * 2).to_s unless @conf[:features][:accent][:velocity_threshold].nil?
     end
 
     def osc2_color_conf
@@ -283,7 +281,7 @@ module Beaotic
           when 'group'
             if @conf[:features][:osc2_color]
               @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
-              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent_switch]})"
+              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
               @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]})-1]"
               @callback << '  else'
               @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
@@ -296,7 +294,7 @@ module Beaotic
             #   @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
             #   @callback << "{ velocity_split_list:  #{Ksp::Utility.velocity_split_list(split_count)} }"
             # else
-              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent_switch]})"
+              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
               @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next]"
               @callback << '  else'
               @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
@@ -306,10 +304,13 @@ module Beaotic
         end
       end
 
-      # if @conf[:features] && @conf[:features][:accent_switch]
-      #   @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent_switch]})"
-      #   @callback << '  end if'
-      # end
+      # We can imply use the change_vol function to relatively change the volume of the individual event for Accent-strikes
+      if @conf[:features] && @conf[:features][:accent][:velocity_threshold]
+        @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
+        @callback << '    change_vol($EVENT_ID, $accent, 0)'
+        @callback << '  end if'
+      end
+
       @callback << 'end if'
     end
   end

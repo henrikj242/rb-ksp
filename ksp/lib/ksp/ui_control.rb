@@ -7,6 +7,10 @@ module Ksp
       "move_control_px(#{name}, #{x}, #{y})"
     end
 
+    def hide
+      "hide_part(#{name},$HIDE_WHOLE_CONTROL)"
+    end
+
     @callback_statements = []
 
     # make_persistent

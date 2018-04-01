@@ -21,6 +21,7 @@ module Ksp
       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE,\"#{@conf[:image]}\")"
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_WIDTH,#{@width})"
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_HEIGHT,#{@height})"
+      # statements << "hide_part(#{name},$HIDE_WHOLE_CONTROL)"
       statements
     end
 

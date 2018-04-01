@@ -39,7 +39,8 @@ module Ksp
       # set_control_par(get_ui_id($knob_pitch),$CONTROL_PAR_AUTOMATION_ID,$host_auto_id)
       # inc($host_auto_id)
       statements << "make_persistent(#{name})"
-      statements << "hide_part(#{name},$HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
+      # statements << "hide_part(#{name},$HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
+      statements << "hide_part(#{name},$HIDE_WHOLE_CONTROL)"
       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"knob_48\")"
       statements << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_MOUSE_BEHAVIOUR, -500)"
       statements

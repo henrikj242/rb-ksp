@@ -11,6 +11,11 @@
 perf_view:
   height_px: 350
 
+accent: &accent
+  velocity_threshold: 85
+  volume_boost_min: 0
+  volume_boost_max: 12
+
 #global_buttons:
 #  - note_edit    # false or true, group or note / main or mix ...??
 #  - midi_select  # false or true
@@ -61,11 +66,12 @@ default_buttons: &default_buttons
 key_groups:
   - name: bd
     features:
-      accent_switch: 85
+      accent: *accent
       round_robin:
         mode: group
         entries: 5
       osc2_color: impact_color
+      osc2_decay: impact_decay
     keys:
       - name: bd_1
         midi_note: 36
@@ -133,7 +139,7 @@ key_groups:
         function: pitch
   - name: sd1
     features:
-      accent_switch: 85
+      accent: *accent
       round_robin:
         mode: velocity
         entries: 5
@@ -176,7 +182,7 @@ key_groups:
       <<: *default_buttons
   - name: sd2
     features:
-      accent_switch: 85
+      accent: *accent
       round_robin:
         mode: group
         entries: 5
@@ -238,7 +244,7 @@ key_groups:
       <<: *default_buttons
   - name: hh1
     features:
-      accent_switch: 85
+      accent: *accent
       round_robin:
         mode: velocity
         entries: 5

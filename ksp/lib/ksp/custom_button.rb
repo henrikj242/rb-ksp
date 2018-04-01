@@ -8,7 +8,7 @@ module Ksp
       @identifier = identifer
       @name = "$button_#{@identifier}"
       @conf = conf
-
+      @conf[:options] ||= []
       image_size = ImageSize.path("#{@directory}/#{@conf[:image]}.png")
       @width = image_size.width
       @height = image_size.height / 6
@@ -38,10 +38,10 @@ module Ksp
       statements << "{ #{name} }"
       statements << "declare ui_switch #{name}"
       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_TEXT,\"\")"
-      statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_AUTOMATION_NAME, \"#{@identifier}\")"
+      statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_AUTOMATION_NAME, \"#{@identifier}\")" unless @conf[:options].include? :no_auto
       # set_control_par(get_ui_id($knob_pitch),$CONTROL_PAR_AUTOMATION_ID,$host_auto_id)
       # inc($host_auto_id)
-      statements << "make_persistent(#{name})"
+      statements << "make_persistent(#{name})" unless @conf[:options].include? :no_persist
       statements << "hide_part(#{name}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"#{@conf[:image]}\")"
       statements << "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_WIDTH,  #{@width})"
