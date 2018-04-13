@@ -39,7 +39,7 @@ hold: &default_hold
   max_val: 300000
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_HOLD"
-  function: bypass
+  function: inline
 
 decay: &default_decay
   name: decay
@@ -48,7 +48,7 @@ decay: &default_decay
   max_val: 800000
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_DECAY"
-  function: bypass
+  function: inline
 
 # These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
@@ -116,25 +116,24 @@ key_groups:
         min_val: 1
         default_val: 500
         max_val: 1000
-#        function: KEY_GROUP_osc2_level
+        function: none # TODO: change this
       - name: impact_color
         affected_keys: !ruby/range 0..5
         affected_oscs: [osc2]
         min_val: 1
         default_val: 24
         max_val: 32
-#        function: KEY_GROUP_osc2_color
+        function: none
       - name: impact_decay
         affected_keys:  !ruby/range 0..5
         affected_oscs: [osc2]
         min_val: 8000
         default_val: 50000
         max_val: 300000
-#        function: KEY_GROUP_osc2_decay
     edit_buttons:
       <<: *default_buttons
       link_decays:
-        function: decay
+        function: link_decays
       pitch_impact:
         function: pitch
   - name: sd1
@@ -187,6 +186,7 @@ key_groups:
         mode: group
         entries: 5
       osc2_color: snappy_color
+      osc2_decay: snappy_decay
     keys:
       - name: sd_1
         midi_note: 48
@@ -230,11 +230,13 @@ key_groups:
         min_val: 1
         default_val: 500
         max_val: 1000
+        function: none # TODO: change this
       - name: snappy_color
         affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 24
         max_val: 32
+        function: none
       - name: snappy_decay
         affected_keys:  !ruby/range 0..5
         min_val: 8000
@@ -242,6 +244,10 @@ key_groups:
         max_val: 300000
     edit_buttons:
       <<: *default_buttons
+      link_decays:
+        function: link_decays
+      pitch_impact:
+        function: pitch
   - name: hh1
     features:
       accent: *accent

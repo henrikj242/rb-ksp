@@ -8,17 +8,19 @@ module Beaotic
     def initialize(key_group_conf)
       @gui_directory = '_gui'
       @conf = key_group_conf
+      # @functions = []
       @knobs = []
       @edit_buttons = []
       @main_panel_name = "%panel_main_#{name}"
       @main_panel_elements = []
-      @round_robin_entries = @conf[:features][:round_robin][:entries] rescue 1
       @keys = []
       set_title_image
-      # set_backdrops
-      set_main_panel
-      set_mix_panel
+      # set_functions
+      set_knobs
+      set_edit_buttons
 
+      # set_main_panel
+      set_mix_panel
       set_keys
     end
 
@@ -30,27 +32,9 @@ module Beaotic
       @title_image = Ksp::UiImage.new("title_#{name}", image: "title_#{name}")
     end
 
-    # def set_backdrops
-    #   @backdrops = []
-    #   @backdrops << Ksp::UiImage.new("img_buttons_backdrop_short")
-    #   @backdrops.last.image_size = { width: 10, height: 33 }
-    #   @backdrops << Ksp::UiImage.new("img_buttons_backdrop")
-    #   @backdrops.last.image_size = { width: 650, height: 33 }
-    # end
-
-    def set_main_panel
-      set_knobs
-      set_edit_buttons
-      main_panel
-    end
-
-    # a ksp statement that adds all the ui_id's to a ksp array
     def main_panel
       @main_panel_elements = @knobs.map(&:name) + @knobs.map{ |knob| knob.label.name if knob.label } + @edit_buttons.map(&:name)
       @main_panel_elements << @title_image.name
-    end
-
-    def main_panel_declare
       statements = ["declare #{@main_panel_name}[#{@main_panel_elements.count}]"]
       @main_panel_elements.each_with_index { |elem, idx | statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})" }
       statements
@@ -70,6 +54,10 @@ module Beaotic
         statements << "  hide_part(#{elem}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
       end
       statements << "end function"
+    end
+
+    def functions
+      default_functions + feature_functions
     end
 
     def set_mix_panel
@@ -97,6 +85,7 @@ module Beaotic
             @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
           end
         end
+        # @knobs.last.set_callback()
       end
     end
 
@@ -115,9 +104,6 @@ module Beaotic
       # output_assign_functions
     end
 
-    def functions
-      default_functions
-    end
 
     # def volume_functions
     #   statements = ["{ default volume functions }"]
@@ -180,6 +166,30 @@ module Beaotic
       statements
     end
 
+    def feature_functions
+      statements = []
+      if @conf[:features].include?(:osc2_decay)
+        osc2_decay_function.map{ |statement| statements << statement }
+      end
+      statements
+    end
+
+    def osc2_decay_function
+      decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_decay" }.first
+      osc2_decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_#{@conf[:features][:osc2_decay]}" }.first
+      osc2_link_decays_button = @edit_buttons.select{ |button| button.identifier == "#{name}_link_decays" }.first
+
+      # statements << "function "
+
+      statements = [" { osc2_decay_function here. source var: #{osc2_decay_knob.name} } "]
+      statements << "function #{osc2_decay_knob.identifier}"
+      statements << "  if (#{osc2_link_decays_button.name} = 1)"
+      statements << "    { #{decay_knob.name} }"
+      statements << "  end if"
+      statements << 'end function'
+      statements
+    end
+
     def set_keys
       extra_options = {
           key_group_name: name
@@ -215,9 +225,10 @@ module Beaotic
     # 2: For groups with a few color variants (up to 12) we can also use velocity splitting, as this will result in
     # 120 samples - so less than 128.
     #
-    # 3: For groups with more than 12 color variations, we are forced to use additional Kontakt groups.
+    # 3: For groups with more than 12 color variations, as long as we also have 5 RR-entries and Accent, we are
+    # forced to use additional Kontakt groups.
     #
-    # As long as we don't use more than 64 color variations, we always split colors across velocity.
+    # As long as we don't use more than 64 color variations and Accent, we always split colors across velocity.
     #
 
 

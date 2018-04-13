@@ -1,7 +1,7 @@
 module Ksp
   class CustomButton < UiSwitch
     attr_accessor :k_groups, :label
-    attr_reader :name
+    attr_reader :name, :identifier
 
     def initialize(identifer, conf)
       @directory = '_gui'

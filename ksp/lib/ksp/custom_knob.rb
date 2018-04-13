@@ -1,7 +1,7 @@
 module Ksp
   class CustomKnob < UiSlider
     attr_accessor :k_groups, :label
-    attr_reader :name
+    attr_reader :name, :identifier
 
     def initialize(identifer, conf)
       @directory = '_gui'
@@ -50,22 +50,22 @@ module Ksp
       "move_control_px(#{name}, #{x}, #{y})"
     end
 
-    def function
-      if @conf[:function]
-        return [] if @conf[:function] == 'none' || @conf[:function].match(/^KEY_GROUP_/)
-      end
-      statements = []
-      statements << "function #{@identifier}"
-      statements << 'end function'
-      statements
-    end
+    # def function
+    #   if @conf[:function]
+    #     return [] if @conf[:function] == 'none' || @conf[:function].match(/^KEY_GROUP_/)
+    #   end
+    #   statements = []
+    #   statements << "function #{@identifier}"
+    #   statements << 'end function'
+    #   statements
+    # end
 
     def callback
       return [] if @conf[:function] == 'none'
 
       statements = ["on ui_control(#{name})"]
       message = "callback: #{name}"
-      if @conf[:function] == 'bypass'
+      if @conf[:function] == 'inline'
         k_groups.keys.each do |osc|
           k_groups[osc].each do |k_group|
             if @conf[:modulator]

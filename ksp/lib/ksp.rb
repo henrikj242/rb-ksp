@@ -40,7 +40,6 @@ module Ksp
         "declare %velocity_splits_#{k}[#{k}] := (#{v.join(', ')})"
       end
     end
-
   end
 
 

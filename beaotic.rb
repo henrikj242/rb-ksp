@@ -1,6 +1,7 @@
 #! /usr/bin/ruby
 
-require 'erb'
+# require 'erb'
+require 'time'
 require 'yaml'
 require 'pp'
 require_relative 'lib'
@@ -37,8 +38,9 @@ key_group_indexes = {}
   key_group_indexes[key_group_conf[:name]] = idx
 end
 
-# ==========   ON INIT
 
+puts "{ Created by: #{`whoami`} on #{Time.now} }"
+# ==========   ON INIT
 # TODO Refactor into an on_init method
 puts 'on init'
 puts '  ' + 'message("")'
@@ -59,7 +61,7 @@ puts '  ' + 'declare $selected_group := 0'
 
 key_groups.each do |key_group|
   puts '  ' + "declare $#{key_group.name}_round_robin_next := 1"
-  puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.round_robin_entries}"
+  puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.conf[:features][:round_robin][:entries]}"
   puts '  ' + "declare $#{key_group.name}_new_velocity"
 
   key_group.keys.each do |key|
@@ -99,7 +101,7 @@ key_groups.each do |key_group|
     x += 51
   end
 
-  key_group.main_panel_declare.each do |statement|
+  key_group.main_panel.each do |statement|
     puts '  ' + statement
   end
   puts ''
@@ -166,11 +168,11 @@ key_groups.each do |key_group|
 end
 puts '  ' + 'if ($button_note_edit = 0)'
 puts '  ' + '  select ($selected_group)'
-key_groups.each_with_index do |key_group, key_group_idx|
-  puts '  ' + "    case #{key_group_idx}"
-  puts '  ' + "      message(\"selecting #{key_group.name}\")"
-  puts '  ' + "      call show_panel_main_#{key_group.name}"
-end
+  key_groups.each_with_index do |key_group, key_group_idx|
+    puts '  ' + "    case #{key_group_idx}"
+    puts '  ' + "      message(\"selecting #{key_group.name}\")"
+    puts '  ' + "      call show_panel_main_#{key_group.name}"
+  end
 puts '  ' + '  end select'
 puts '  ' + 'end if'
 puts 'end function'
@@ -203,7 +205,7 @@ key_groups.each do |key_group|
 end
 
 # declare knob functions - very short syntax
-key_groups.map{ |kg| kg.knobs.map{ |k| k.function.map{ |f| puts f } } }
+# key_groups.map{ |kg| kg.knobs.map{ |k| k.function.map{ |f| puts f } } }
 
 
 # declare ui callbacks
