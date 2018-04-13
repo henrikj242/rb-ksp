@@ -16,10 +16,6 @@ accent: &accent
   volume_boost_min: 0
   volume_boost_max: 12
 
-#global_buttons:
-#  - note_edit    # false or true, group or note / main or mix ...??
-#  - midi_select  # false or true
-
 # -----------------------------------------------------------------------------
 #    Default blocks
 # -----------------------------------------------------------------------------
@@ -43,12 +39,14 @@ hold: &default_hold
 
 decay: &default_decay
   name: decay
+  callback: decay
+  affected_oscs: [osc1]
   min_val: 45000
   default_val: 700000
   max_val: 800000
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_DECAY"
-  function: inline
+  function: none
 
 # These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
@@ -124,12 +122,10 @@ key_groups:
         default_val: 24
         max_val: 32
         function: none
-      - name: impact_decay
+      - <<: *default_decay
+        name: impact_decay
         affected_keys:  !ruby/range 0..5
         affected_oscs: [osc2]
-        min_val: 8000
-        default_val: 50000
-        max_val: 300000
     edit_buttons:
       <<: *default_buttons
       link_decays:
@@ -237,11 +233,10 @@ key_groups:
         default_val: 24
         max_val: 32
         function: none
-      - name: snappy_decay
+      - <<: *default_decay
+        name: snappy_decay
+        affected_oscs: [osc2]
         affected_keys:  !ruby/range 0..5
-        min_val: 8000
-        default_val: 50000
-        max_val: 300000
     edit_buttons:
       <<: *default_buttons
       link_decays:

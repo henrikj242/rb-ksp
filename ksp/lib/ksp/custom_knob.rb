@@ -1,7 +1,7 @@
 module Ksp
   class CustomKnob < UiSlider
     attr_accessor :k_groups, :label
-    attr_reader :name, :identifier
+    attr_reader :name, :identifier, :conf
 
     def initialize(identifer, conf)
       @directory = '_gui'

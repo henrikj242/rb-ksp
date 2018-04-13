@@ -179,13 +179,17 @@ module Beaotic
       osc2_decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_#{@conf[:features][:osc2_decay]}" }.first
       osc2_link_decays_button = @edit_buttons.select{ |button| button.identifier == "#{name}_link_decays" }.first
 
-      # statements << "function "
-
       statements = [" { osc2_decay_function here. source var: #{osc2_decay_knob.name} } "]
       statements << "function #{osc2_decay_knob.identifier}"
       statements << "  if (#{osc2_link_decays_button.name} = 1)"
-      statements << "    { #{decay_knob.name} }"
+      statements << "    #{decay_knob.name} := #{osc2_decay_knob.name}"
       statements << "  end if"
+      # @conf[:k_groups][:osc2].each do |k_group|
+      #   statements << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\")"
+      #   @conf[:k_groups][osc2].map { |k_group| statements << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1)" "disallow_group()"}
+      # end
+
+
       statements << 'end function'
       statements
     end
@@ -196,8 +200,8 @@ module Beaotic
       }
       extra_options[:features] = @conf[:features] if @conf[:features]
 
-      @conf[:keys].each do |key|
-        @keys << Beaotic::Key.new(self, key.merge(extra_options))
+      @conf[:keys].each_with_index do |key, idx|
+        @keys << Beaotic::Key.new(self, idx, key.merge(extra_options))
         @keys.last.set_callback()
       end
     end
@@ -205,8 +209,9 @@ module Beaotic
 
   class Key
     attr :midi_note, :name, :callback, :callback_function
-    def initialize(key_group, conf)
+    def initialize(key_group, idx, conf)
       @key_group = key_group
+      @idx = idx
       @conf = conf
       @midi_note = conf[:midi_note]
       @name = conf[:name]
@@ -233,7 +238,7 @@ module Beaotic
 
 
     def set_k_groups
-      statements = []
+      statements = ["{ setting k_groups }"]
       @conf[:k_groups].keys.each do |osc|
         statements << "declare %#{@conf[:key_group_name]}_#{name}_k_groups_#{osc}[#{@conf[:k_groups][osc].count}] := (#{@conf[:k_groups][osc].join(', ')})"
       end
@@ -250,14 +255,23 @@ module Beaotic
 
     def allow_groups
       statements = []
+      @conf[:k_groups][:osc1].map do |k_group_id|
+        statements << "allow_group(#{k_group_id})"
+      end
+      statements
+    end
 
-      # if @conf[:features] && @conf[:features][:osc2_color]
-      #
-      # end
-      @conf[:k_groups][:osc1].map { |k_group_id| statements << "allow_group(#{k_group_id})"}
-      # @conf[:k_groups].keys.each do |osc|
-      #   @conf[:k_groups][osc].map { |k_group_id| statements << "allow_group(#{k_group_id})"}
-      # end
+    def set_decay
+      statements = []
+      # find knobs with callback: 'decay' and affected_keys including me based on my midi_note and idx
+      knobs = @key_group.knobs.select{ |k| k.conf[:callback] == 'decay' && k.conf[:affected_keys].include?(@idx) }
+      knobs.each do |knob|
+        knob.conf[:affected_oscs].each do |affected_osc|
+          @conf[:k_groups][affected_osc.to_sym].each do |k_group|
+            statements << "set_engine_par(#{knob.conf[:parameter]}, #{knob.name}, #{k_group}, find_mod(#{k_group}, \"#{knob.conf[:modulator]}\"), -1)"
+          end
+        end
+      end
       statements
     end
 
@@ -281,41 +295,37 @@ module Beaotic
 
     def set_callback
       @callback << "if ($EVENT_NOTE = #{midi_note})"
-
-      disallow_groups.map { |statement| @callback << '  ' + statement }
-      allow_groups.map { |statement| @callback << '  ' + statement }
+      set_decay.map{ |statement| @callback << '  ' + statement }
+      disallow_groups.map{ |statement| @callback << '  ' + statement }
+      allow_groups.map{ |statement| @callback << '  ' + statement }
 
       if @conf[:features] && @conf[:features][:round_robin]
         @callback << "{ RR Mode: #{@conf[:features][:round_robin][:mode]} }"
         @callback << " $#{@conf[:key_group_name]}_round_robin_next := ($#{@conf[:key_group_name]}_round_robin_next+1) mod $#{@conf[:key_group_name]}_round_robin_max"
         case @conf[:features][:round_robin][:mode]
-          when 'group'
-            if @conf[:features][:osc2_color]
-              @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
-              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
-              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]})-1]"
-              @callback << '  else'
-              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
-              @callback << '  end if'
-              @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
-              @callback << "allow_group(%#{@conf[:key_group_name]}_#{name}_k_groups_osc2[$#{@conf[:key_group_name]}_round_robin_next])"
-            end
-          when 'velocity'
-            # if @conf[:features][:osc2_color] ## NOT YET SUPPORTED FOR VELOCITY SPLIT
-            #   @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
-            #   @callback << "{ velocity_split_list:  #{Ksp::Utility.velocity_split_list(split_count)} }"
-            # else
-              @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
-              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next]"
-              @callback << '  else'
-              @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
-              @callback << '  end if'
-              @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
-            # end
+        when 'group'
+          if @conf[:features][:osc2_color]
+            @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
+            @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
+            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]})-1]"
+            @callback << '  else'
+            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
+            @callback << '  end if'
+            @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
+            @callback << "  allow_group(%#{@conf[:key_group_name]}_#{name}_k_groups_osc2[$#{@conf[:key_group_name]}_round_robin_next])"
+          end
+        when 'velocity'
+            # @conf[:features][:osc2_color] NOT YET SUPPORTED FOR VELOCITY-BASED ROUND-ROBIN
+            @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
+            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next]"
+            @callback << '  else'
+            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
+            @callback << '  end if'
+            @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
         end
       end
 
-      # We can imply use the change_vol function to relatively change the volume of the individual event for Accent-strikes
+      # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
       if @conf[:features] && @conf[:features][:accent][:velocity_threshold]
         @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
         @callback << '    change_vol($EVENT_ID, $accent, 0)'

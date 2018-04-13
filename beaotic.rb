@@ -1,6 +1,5 @@
 #! /usr/bin/ruby
 
-# require 'erb'
 require 'time'
 require 'yaml'
 require 'pp'
@@ -39,7 +38,7 @@ key_group_indexes = {}
 end
 
 
-puts "{ Created by: #{`whoami`} on #{Time.now} }"
+puts "{ Created by: #{ENV['USER'] || ENV['USERNAME']} at #{Time.now} }"
 # ==========   ON INIT
 # TODO Refactor into an on_init method
 puts 'on init'
