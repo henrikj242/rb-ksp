@@ -51,7 +51,7 @@ decay: &default_decay
 # These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
   osc_drift:
-    function: KEY_GROUP_pitch
+    function: none # KEY_GROUP_pitch
   vel_start:
     function: none
   vel_vca:
@@ -70,6 +70,9 @@ key_groups:
         entries: 5
       osc2_color: impact_color
       osc2_decay: impact_decay
+      link_decays:
+        knobs: [decay, impact_decay]
+        button: link_decays
     keys:
       - name: bd_1
         midi_note: 36
@@ -103,20 +106,21 @@ key_groups:
           osc2: !ruby/range 31..35
     knobs:
       - <<: *default_pitch
-        affected_keys: !ruby/range 0..5
+        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
       - <<: *default_hold
-        affected_keys: !ruby/range 0..5
+        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
       - <<: *default_decay
-        affected_keys: !ruby/range 0..5
+        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
+        function: KEY_GROUP_link_decays_1
       - name: impact_level
-        affected_keys:  !ruby/range 0..5
+        affected_keys:  !ruby/range 0..5 # TODO: define range 'all' and set is as default
         affected_oscs: [osc2]
         min_val: 1
         default_val: 500
         max_val: 1000
         function: none # TODO: change this
       - name: impact_color
-        affected_keys: !ruby/range 0..5
+        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
         affected_oscs: [osc2]
         min_val: 1
         default_val: 24
@@ -124,14 +128,15 @@ key_groups:
         function: none
       - <<: *default_decay
         name: impact_decay
-        affected_keys:  !ruby/range 0..5
+        affected_keys:  !ruby/range 0..5 # TODO: define range 'all' and set is as default
         affected_oscs: [osc2]
+        function: KEY_GROUP_link_decays_2
     edit_buttons:
       <<: *default_buttons
       link_decays:
-        function: link_decays
+        function: KEY_GROUP_link_decays_1
       pitch_impact:
-        function: pitch
+        function: none # pitch
   - name: sd1
     features:
       accent: *accent
@@ -183,6 +188,9 @@ key_groups:
         entries: 5
       osc2_color: snappy_color
       osc2_decay: snappy_decay
+      link_decays:
+        knobs: [decay, snappy_decay]
+        button: link_decays
     keys:
       - name: sd_1
         midi_note: 48
@@ -221,6 +229,7 @@ key_groups:
         affected_keys: !ruby/range 0..5
       - <<: *default_decay
         affected_keys: !ruby/range 0..5
+        function: KEY_GROUP_link_decays_1
       - name: snappy_balance
         affected_keys:  !ruby/range 0..5
         min_val: 1
@@ -237,12 +246,13 @@ key_groups:
         name: snappy_decay
         affected_oscs: [osc2]
         affected_keys:  !ruby/range 0..5
+        function: KEY_GROUP_link_decays_2
     edit_buttons:
       <<: *default_buttons
       link_decays:
-        function: link_decays
-      pitch_impact:
-        function: pitch
+        function: KEY_GROUP_link_decays_1
+      pitch_snappy:
+        function: none # pitch
   - name: hh1
     features:
       accent: *accent

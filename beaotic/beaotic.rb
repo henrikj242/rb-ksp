@@ -92,7 +92,7 @@ module Beaotic
     def set_edit_buttons
       @conf[:edit_buttons].each do |k, v|
         button_identifier = "#{name}_#{k}"
-        v = v.merge(image: "button_#{k}")
+        v = v.merge(image: "button_#{k}", key_group_name: name)
         @edit_buttons << Ksp::CustomButton.new(button_identifier, v)
       end
     end
@@ -168,31 +168,53 @@ module Beaotic
 
     def feature_functions
       statements = []
-      if @conf[:features].include?(:osc2_decay)
-        osc2_decay_function.map{ |statement| statements << statement }
+      # if @conf[:features].include?(:osc2_decay)
+      #   osc2_decay_function.map{ |statement| statements << statement }
+      # end
+      if @conf[:features].include?(:link_decays)
+        link_decays_functions.map{ |statement| statements << statement }
       end
       statements
     end
 
-    def osc2_decay_function
-      decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_decay" }.first
-      osc2_decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_#{@conf[:features][:osc2_decay]}" }.first
-      osc2_link_decays_button = @edit_buttons.select{ |button| button.identifier == "#{name}_link_decays" }.first
-
-      statements = [" { osc2_decay_function here. source var: #{osc2_decay_knob.name} } "]
-      statements << "function #{osc2_decay_knob.identifier}"
-      statements << "  if (#{osc2_link_decays_button.name} = 1)"
-      statements << "    #{decay_knob.name} := #{osc2_decay_knob.name}"
+    def link_decays_functions
+      button_identifer = "#{name}_#{@conf[:features][:link_decays][:button]}"
+      link_decays_button = edit_buttons.select{ |button| button.identifier == button_identifer }.first
+      knob_identifiers = @conf[:features][:link_decays][:knobs].map{ |knob| "#{name}_#{knob}" }
+      link_decay_knobs = knobs.select{ |knob| knob_identifiers.include?(knob.identifier) }
+      statements = []
+      # statements << "{ #{link_decay_knobs.inspect} }"
+      statements << "function #{name}_link_decays_1"
+      statements << "  if (#{link_decays_button.name} = 1)"
+      link_decay_knobs[1..-1].map{ |knob| statements << "    #{knob.name} := #{link_decay_knobs[0].name}" }
       statements << "  end if"
-      # @conf[:k_groups][:osc2].each do |k_group|
-      #   statements << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\")"
-      #   @conf[:k_groups][osc2].map { |k_group| statements << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1)" "disallow_group()"}
-      # end
-
-
-      statements << 'end function'
+      statements << "end function"
+      statements << "function #{name}_link_decays_2"
+      statements << "  if (#{link_decays_button.name} = 1)"
+      statements << "    #{link_decay_knobs[0].name} := #{link_decay_knobs[1].name}"
+      statements << "  end if"
+      statements << "end function"
       statements
     end
+
+    # def osc2_decay_function
+    #   decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_decay" }.first
+    #   osc2_decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_#{@conf[:features][:osc2_decay]}" }.first
+    #   osc2_link_decays_button = @edit_buttons.select{ |button| button.identifier == "#{name}_link_decays" }.first
+    #
+    #   statements = [" { osc2_decay_function here. source var: #{osc2_decay_knob.name} } "]
+    #   statements << "function #{osc2_decay_knob.identifier}"
+    #   statements << "  if (#{osc2_link_decays_button.name} = 1)"
+    #   statements << "    #{decay_knob.name} := #{osc2_decay_knob.name}"
+    #   statements << "  end if"
+    #   # @conf[:k_groups][:osc2].each do |k_group|
+    #   #   statements << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\")"
+    #   #   @conf[:k_groups][osc2].map { |k_group| statements << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1)" "disallow_group()"}
+    #   # end
+    #
+    #   statements << 'end function'
+    #   statements
+    # end
 
     def set_keys
       extra_options = {
@@ -296,8 +318,6 @@ module Beaotic
     def set_callback
       @callback << "if ($EVENT_NOTE = #{midi_note})"
       set_decay.map{ |statement| @callback << '  ' + statement }
-      disallow_groups.map{ |statement| @callback << '  ' + statement }
-      allow_groups.map{ |statement| @callback << '  ' + statement }
 
       if @conf[:features] && @conf[:features][:round_robin]
         @callback << "{ RR Mode: #{@conf[:features][:round_robin][:mode]} }"
@@ -305,6 +325,9 @@ module Beaotic
         case @conf[:features][:round_robin][:mode]
         when 'group'
           if @conf[:features][:osc2_color]
+            disallow_groups.map{ |statement| @callback << '  ' + statement }
+            allow_groups.map{ |statement| @callback << '  ' + statement }
+
             @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
             @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
             @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]})-1]"

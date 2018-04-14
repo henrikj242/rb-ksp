@@ -212,8 +212,8 @@ key_groups.each do |key_group|
   key_group.knobs.each do |knob|
     puts knob.callback
   end
-  key_group.edit_buttons.each do |knob|
-    # puts knob.callback
+  key_group.edit_buttons.each do |button|
+    puts button.callback
   end
   puts "on ui_control ($button_group_#{key_group.name})"
   puts "  $selected_group := #{key_group_indexes[key_group.name]}"
