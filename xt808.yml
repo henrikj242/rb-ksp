@@ -10,6 +10,7 @@
 
 perf_view:
   height_px: 350
+  wallpaper_animations: 5
 
 accent: &accent
   velocity_threshold: 85
@@ -47,6 +48,22 @@ decay: &default_decay
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_DECAY"
   function: none
+
+level: &default_level
+  name: level
+  min_val: 1000
+  default_val: 7000
+  max_val: 10000
+  function: none
+  position: [6]
+
+pan: &default_pan
+  name: pan
+  min_val: 0
+  default_val: 500000
+  max_val: 1000000
+  function: none
+  position: [7]
 
 # These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
@@ -106,21 +123,21 @@ key_groups:
           osc2: !ruby/range 31..35
     knobs:
       - <<: *default_pitch
-        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
+#        affected_keys: !ruby/range 0..5
       - <<: *default_hold
-        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
+#        affected_keys: !ruby/range 0..5
       - <<: *default_decay
-        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
+#        affected_keys: !ruby/range 0..5
         function: KEY_GROUP_link_decays_1
       - name: impact_level
-        affected_keys:  !ruby/range 0..5 # TODO: define range 'all' and set is as default
+#        affected_keys:  !ruby/range 0..5
         affected_oscs: [osc2]
         min_val: 1
         default_val: 500
         max_val: 1000
         function: none # TODO: change this
       - name: impact_color
-        affected_keys: !ruby/range 0..5 # TODO: define range 'all' and set is as default
+#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc2]
         min_val: 1
         default_val: 24
@@ -128,9 +145,11 @@ key_groups:
         function: none
       - <<: *default_decay
         name: impact_decay
-        affected_keys:  !ruby/range 0..5 # TODO: define range 'all' and set is as default
+#        affected_keys:  !ruby/range 0..5
         affected_oscs: [osc2]
         function: KEY_GROUP_link_decays_2
+      - <<: *default_level
+      - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
       link_decays:
@@ -170,14 +189,16 @@ key_groups:
           osc1: [41]
     knobs:
       - <<: *default_pitch
-        affected_keys: !ruby/range 0..5
+#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc1]
       - <<: *default_hold
-        affected_keys: !ruby/range 0..5
+#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc1]
       - <<: *default_decay
-        affected_keys: !ruby/range 0..5
+#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc1]
+      - <<: *default_level
+      - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
   - name: sd2
@@ -224,20 +245,20 @@ key_groups:
           osc2: !ruby/range 73..77
     knobs:
       - <<: *default_pitch
-        affected_keys: !ruby/range 0..5
+#        affected_keys: !ruby/range 0..5
       - <<: *default_hold
-        affected_keys: !ruby/range 0..5
+#        affected_keys: !ruby/range 0..5
       - <<: *default_decay
-        affected_keys: !ruby/range 0..5
+#        affected_keys: !ruby/range 0..5
         function: KEY_GROUP_link_decays_1
       - name: snappy_balance
-        affected_keys:  !ruby/range 0..5
+#        affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 500
         max_val: 1000
         function: none # TODO: change this
       - name: snappy_color
-        affected_keys:  !ruby/range 0..5
+#        affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 24
         max_val: 32
@@ -245,8 +266,10 @@ key_groups:
       - <<: *default_decay
         name: snappy_decay
         affected_oscs: [osc2]
-        affected_keys:  !ruby/range 0..5
+#        affected_keys:  !ruby/range 0..5
         function: KEY_GROUP_link_decays_2
+      - <<: *default_level
+      - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
       link_decays:
@@ -260,15 +283,15 @@ key_groups:
         mode: velocity
         entries: 5
     keys:
-      - name: cl_hh_a
+      - name: chha
         midi_note: 54
         k_groups:
           osc1: [78]
-      - name: cl_hh_b
+      - name: chhb
         midi_note: 56
         k_groups:
           osc1: [79]
-      - name: o_hh
+      - name: ohh
         midi_note: 58
         k_groups:
           osc1: [80]
@@ -284,5 +307,7 @@ key_groups:
       - <<: *default_decay
         name: ohh_decay
         affected_keys: [2]
+      - <<: *default_level
+      - <<: *default_pan
     edit_buttons:
       <<: *default_buttons

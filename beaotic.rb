@@ -16,7 +16,7 @@ conf_file = yaml_file("#{File.dirname(__FILE__)}/#{project_name}")
 pp @conf if debug
 
 if ARGV[1] == 'img-txt'
-  img = Beaotic::Image.new
+  img = Beaotic::Image.new(@conf[:perf_view])
   img.generate_txt_files
   exit(0)
 end
@@ -97,6 +97,16 @@ key_groups.each do |key_group|
       puts '  ' + statement
     end
     puts '  ' + button.set_position(x, y)
+    x += 51
+  end
+
+  x = 64
+  y = 180
+  key_group.edit_button_dividers.each do |divider|
+    divider.declare.each do |statement|
+      puts '  ' + statement
+    end
+    puts '  ' + divider.set_position(x, y)
     x += 51
   end
 

@@ -3,14 +3,22 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :conf, :knobs, :edit_buttons, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries, :main_panel_elements
+    attr :conf, :knobs, :edit_buttons, :edit_button_dividers, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries, :main_panel_elements
 
     def initialize(key_group_conf)
       @gui_directory = '_gui'
       @conf = key_group_conf
+
+
+      @conf[:knobs].each_index do |index|
+        if @conf[:knobs][index][:affected_keys].nil?
+          @conf[:knobs][index][:affected_keys] = 0..@conf[:keys].count-1
+        end
+      end
       # @functions = []
       @knobs = []
       @edit_buttons = []
+      @edit_button_dividers = []
       @main_panel_name = "%panel_main_#{name}"
       @main_panel_elements = []
       @keys = []
@@ -33,7 +41,10 @@ module Beaotic
     end
 
     def main_panel
-      @main_panel_elements = @knobs.map(&:name) + @knobs.map{ |knob| knob.label.name if knob.label } + @edit_buttons.map(&:name)
+      @main_panel_elements = @knobs.map(&:name) +
+          @knobs.map{ |knob| knob.label.name if knob.label } +
+          @edit_buttons.map(&:name) +
+          @edit_button_dividers.map(&:name)
       @main_panel_elements << @title_image.name
       statements = ["declare #{@main_panel_name}[#{@main_panel_elements.count}]"]
       @main_panel_elements.each_with_index { |elem, idx | statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})" }
@@ -79,7 +90,7 @@ module Beaotic
         @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf.merge(key_group_name: name))
         knob_conf[:affected_keys].each do |ak|
           label = "label_#{knob_conf[:name]}"
-            @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
+          @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
           @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
           if @conf[:keys][ak][:k_groups][:osc2]
             @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
@@ -94,6 +105,10 @@ module Beaotic
         button_identifier = "#{name}_#{k}"
         v = v.merge(image: "button_#{k}", key_group_name: name)
         @edit_buttons << Ksp::CustomButton.new(button_identifier, v)
+
+        v = v.merge(image: "img_edit_button_divider")
+        divider_identifier = "#{name}_#{k}"
+        @edit_button_dividers << Ksp::UiImage.new(divider_identifier, v)
       end
     end
 
@@ -360,7 +375,8 @@ module Beaotic
   end
 
   class Image
-    def initialize
+    def initialize(conf)
+      @conf = conf
       @directory = '_gui'
     end
 
@@ -391,17 +407,24 @@ module Beaotic
 
     def content(image_type)
       content_hash = case image_type
-                       when 'img'
-                         template vertical_resizable: 'yes',
-                                  horizontal_resizable: 'yes'
-                       when 'title', 'label'
-                         template number_of_animations: 1
-                       when 'button'
-                         template number_of_animations: 6
-                       when 'knob'
-                         template number_of_animations: 101
-                       else
-                         {}
+                     when 'img'
+                       template vertical_resizable: 'yes',
+                                horizontal_resizable: 'yes',
+                                number_of_animations: 1
+                     when 'title', 'label'
+                       template number_of_animations: 1
+                     when 'diode'
+                       template number_of_animations: 3
+                     when 'button'
+                       template number_of_animations: 6
+                     when 'fader'
+                       template number_of_animations: 41
+                     when 'knob'
+                       template number_of_animations: 101
+                     when 'wallpaper'
+                       template number_of_animations: @conf[:wallpaper_animations]
+                     else
+                       {}
                      end
       output = ''
       content_hash.map do |k, v|
