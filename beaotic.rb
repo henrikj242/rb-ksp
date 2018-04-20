@@ -81,16 +81,18 @@ key_groups.each_with_index do |key_group, index|
 
   x = 19
   y = 84
-  key_group.knobs.each do |knob|
+  key_group.knobs.each_with_index do |knob, knob_index|
     knob.declare.each do |statement|
       puts '  ' + statement
     end
+    x = knob.conf[:position] ?
+            19 + (knob.conf[:position][0] * 78) :
+            19 + (knob_index * 78)
     puts '  ' + knob.set_position(x, y)
     knob.label.declare.each do |statement|
       puts '  ' + statement
     end
     puts '  ' + knob.label.set_position(x-16, y - 41)
-    x += 78
     puts ''
   end
 
