@@ -1,17 +1,17 @@
-require "ksp/version"
-require "ksp/variable"
-require "ksp/integer"
-require "ksp/ui_control"
-require "ksp/image_size"
-require "ksp/ui_image"
-require "ksp/ui_switch"
-require "ksp/custom_button"
-require "ksp/ui_slider"
-require "ksp/custom_knob"
-require "ksp/custom_fader"
-require "ksp/volume_fader"
-require "ksp/pan_fader"
-# require "ksp/key_group"
+require 'ksp/version'
+require 'ksp/variable'
+require 'ksp/integer'
+require 'ksp/ui_control'
+require 'ksp/image_size'
+require 'ksp/ui_image'
+require 'ksp/ui_switch'
+require 'ksp/custom_button'
+require 'ksp/ui_slider'
+require 'ksp/custom_diode'
+require 'ksp/custom_knob'
+require 'ksp/custom_fader'
+require 'ksp/volume_fader'
+require 'ksp/pan_fader'
 
 module Ksp
 

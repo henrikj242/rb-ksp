@@ -3,7 +3,9 @@ module Beaotic
   require 'ksp'
 
   class KeyGroup
-    attr :conf, :knobs, :edit_buttons, :edit_button_dividers, :mix_panel, :title_image, :backdrops, :keys, :round_robin_entries, :main_panel_elements
+    attr :conf, :knobs, :edit_buttons, :edit_button_dividers, :mix_panel,
+         :title_image, :diode, :backdrops, :keys, :round_robin_entries,
+         :main_panel_elements
 
     def initialize(key_group_conf)
       @gui_directory = '_gui'
@@ -24,6 +26,7 @@ module Beaotic
       @keys = []
       set_title_image
       # set_functions
+      set_diode
       set_knobs
       set_edit_buttons
 
@@ -38,6 +41,10 @@ module Beaotic
 
     def set_title_image
       @title_image = Ksp::UiImage.new("title_#{name}", image: "title_#{name}")
+    end
+
+    def set_diode
+      @diode = Ksp::CustomDiode.new(name, levels: 3)
     end
 
     def main_panel
@@ -106,7 +113,7 @@ module Beaotic
         v = v.merge(image: "button_#{k}", key_group_name: name)
         @edit_buttons << Ksp::CustomButton.new(button_identifier, v)
 
-        v = v.merge(image: "img_edit_button_divider")
+        v = v.merge(image: "img_edit_button_divider", add_to_height: 1)
         divider_identifier = "#{name}_#{k}"
         @edit_button_dividers << Ksp::UiImage.new(divider_identifier, v)
       end
@@ -239,21 +246,22 @@ module Beaotic
 
       @conf[:keys].each_with_index do |key, idx|
         @keys << Beaotic::Key.new(self, idx, key.merge(extra_options))
-        @keys.last.set_callback()
+        @keys.last.set_callback
+        @keys.last.set_off_callback
       end
     end
   end
 
   class Key
-    attr :midi_note, :name, :callback, :callback_function
+    attr :midi_note, :name, :callback, :off_callback
     def initialize(key_group, idx, conf)
       @key_group = key_group
       @idx = idx
       @conf = conf
       @midi_note = conf[:midi_note]
       @name = conf[:name]
-      # @callback_function = []
       @callback = []
+      @off_callback = []
       # puts @conf.inspect
       # exit
     end
@@ -334,6 +342,16 @@ module Beaotic
       @callback << "if ($EVENT_NOTE = #{midi_note})"
       set_decay.map{ |statement| @callback << '  ' + statement }
 
+      # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
+      if @conf[:features] && @conf[:features][:accent][:velocity_threshold]
+        @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
+        @callback << '    change_vol($EVENT_ID, $accent, 0)'
+        @callback << "    #{@key_group.diode.name} := 2" if @key_group.diode
+        @callback << "  else"
+        @callback << "    #{@key_group.diode.name} := 1" if @key_group.diode
+        @callback << '  end if'
+      end
+
       if @conf[:features] && @conf[:features][:round_robin]
         @callback << "{ RR Mode: #{@conf[:features][:round_robin][:mode]} }"
         @callback << " $#{@conf[:key_group_name]}_round_robin_next := ($#{@conf[:key_group_name]}_round_robin_next+1) mod $#{@conf[:key_group_name]}_round_robin_max"
@@ -362,15 +380,13 @@ module Beaotic
             @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
         end
       end
-
-      # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
-      if @conf[:features] && @conf[:features][:accent][:velocity_threshold]
-        @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
-        @callback << '    change_vol($EVENT_ID, $accent, 0)'
-        @callback << '  end if'
-      end
-
       @callback << 'end if'
+    end
+
+    def set_off_callback
+      @off_callback << "if ($EVENT_NOTE = #{midi_note})"
+      @off_callback << "  #{@key_group.diode.name} := 0" if @key_group.diode
+      @off_callback << 'end if'
     end
   end
 

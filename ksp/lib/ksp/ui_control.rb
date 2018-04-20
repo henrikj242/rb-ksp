@@ -11,6 +11,10 @@ module Ksp
       "hide_part(#{name},$HIDE_WHOLE_CONTROL)"
     end
 
+    def label=(ui_image)
+      @label = ui_image
+    end
+
     @callback_statements = []
 
     # make_persistent

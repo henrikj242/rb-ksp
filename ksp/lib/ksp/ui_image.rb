@@ -10,8 +10,8 @@ module Ksp
       @conf = conf
       # image_size = ImageSize.path("#{@directory}/#{@identifier}.png")
       image_size = ImageSize.path("#{@gui_directory}/#{@conf[:image]}.png")
-      @width = image_size.width
-      @height = image_size.height
+      @width = image_size.width + ( @conf[:add_to_width] || 0 )
+      @height = image_size.height  + ( @conf[:add_to_height] || 0 )
     end
 
     def declare

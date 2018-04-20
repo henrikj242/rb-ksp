@@ -14,10 +14,6 @@ module Ksp
       }
     end
 
-    def label=(ui_image)
-      @label = ui_image
-    end
-
     def declare
       statements = []
       statements << "{ #{name} }"
