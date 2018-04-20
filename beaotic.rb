@@ -58,7 +58,7 @@ end
 
 puts '  ' + 'declare $selected_group := 0'
 
-key_groups.each do |key_group|
+key_groups.each_with_index do |key_group, index|
   puts '  ' + "declare $#{key_group.name}_round_robin_next := 1"
   puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.conf[:features][:round_robin][:entries]}"
   puts '  ' + "declare $#{key_group.name}_new_velocity"
@@ -74,9 +74,13 @@ key_groups.each do |key_group|
   end
   puts '  ' + key_group.title_image.set_position(82, 0)
 
-  x = 21
-  y = 84
+  key_group.diode.declare.each do |statememt|
+    puts '  '  + statememt
+  end
+  puts '  ' + key_group.diode.set_position(93 + index * 36, 249)
 
+  x = 19
+  y = 84
   key_group.knobs.each do |knob|
     knob.declare.each do |statement|
       puts '  ' + statement
@@ -85,12 +89,12 @@ key_groups.each do |key_group|
     knob.label.declare.each do |statement|
       puts '  ' + statement
     end
-    puts '  ' + knob.label.set_position(x-18, y - 41)
+    puts '  ' + knob.label.set_position(x-16, y - 41)
     x += 78
     puts ''
   end
 
-  x = 17
+  x = 18
   y = 179
   key_group.edit_buttons.each do |button|
     button.declare.each do |statement|
@@ -100,8 +104,8 @@ key_groups.each do |key_group|
     x += 51
   end
 
-  x = 64
-  y = 180
+  x = 65
+  y = 179
   key_group.edit_button_dividers.each do |divider|
     divider.declare.each do |statement|
       puts '  ' + statement
@@ -109,6 +113,13 @@ key_groups.each do |key_group|
     puts '  ' + divider.set_position(x, y)
     x += 51
   end
+
+  puts '{ Global buttons // group_select }'
+  button = group_select_buttons[index]
+  button.declare.each do |statement|
+    puts '  ' + statement
+  end
+  puts '  ' + button.set_position(83 + index * 36, 226)
 
   key_group.main_panel.each do |statement|
     puts '  ' + statement
@@ -126,20 +137,10 @@ button_midi_select = Ksp::CustomButton.new(
 button_midi_select.declare.each do |statement|
   puts '  ' + statement
 end
-puts '  ' + button_midi_select.set_position(7, 222)
+puts '  ' + button_midi_select.set_position(1, 224)
 puts '  ' + button_midi_select.name + ' := 0'
 
-puts '{ Global buttons // group_select }'
-x = 83
-group_select_buttons.each do |button|
-  button.declare.each do |statement|
-    puts '  ' + statement
-  end
-  puts '  ' + button.set_position(x, 226)
-  x += 36
-end
 puts '  $button_group_bd := 1'
-
 
 puts '{ Global buttons // note_edit }'
 button_note_edit = Ksp::CustomButton.new(
@@ -152,13 +153,12 @@ button_note_edit = Ksp::CustomButton.new(
 button_note_edit.declare.each do |statement|
   puts '  ' + statement
 end
-puts '  ' + button_note_edit.set_position(546, 222)
+puts '  ' + button_note_edit.set_position(550, 224)
 puts '  ' + button_note_edit.name + ' := 0'
 
 key_groups.select{ |kg| kg.name != 'bd' }.map{ |g| g.main_panel_elements.map{ |elem| puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)" } }
 
 puts 'end on'
-
 # =============== END ON INIT
 
 # =============== GROUP SELECT
@@ -248,3 +248,12 @@ key_groups.each do |key_group|
 end
 puts 'end on'
 
+puts 'on release'
+key_groups.each do |key_group|
+  key_group.keys.each do |key|
+    key.off_callback.each do |statement|
+      puts '  ' + statement
+    end
+  end
+end
+puts 'end on'
