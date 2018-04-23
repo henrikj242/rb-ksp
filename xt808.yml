@@ -12,10 +12,20 @@ perf_view:
   height_px: 350
   wallpaper_animations: 5
 
+
 accent: &accent
   velocity_threshold: 85
   volume_boost_min: 0
   volume_boost_max: 12
+
+
+features: &default_features
+  accent:
+    <<: *accent
+  round_robin:
+    mode: velocity
+    entries: 5
+  midi_select: true
 
 # -----------------------------------------------------------------------------
 #    Default blocks
@@ -81,7 +91,7 @@ default_buttons: &default_buttons
 key_groups:
   - name: bd
     features:
-      accent: *accent
+      <<: *default_features
       round_robin:
         mode: group
         entries: 5
@@ -158,10 +168,7 @@ key_groups:
         function: none # pitch
   - name: sd1
     features:
-      accent: *accent
-      round_robin:
-        mode: velocity
-        entries: 5
+      <<: *default_features
     keys:
       - name: sd_1
         midi_note: 42
@@ -203,7 +210,7 @@ key_groups:
       <<: *default_buttons
   - name: sd2
     features:
-      accent: *accent
+      <<: *default_features
       round_robin:
         mode: group
         entries: 5
@@ -278,10 +285,7 @@ key_groups:
         function: none # pitch
   - name: hh1
     features:
-      accent: *accent
-      round_robin:
-        mode: velocity
-        entries: 5
+      <<: *default_features
     keys:
       - name: chha
         midi_note: 54

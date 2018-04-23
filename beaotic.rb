@@ -58,7 +58,7 @@ end
 
 puts '  ' + 'declare $selected_group := 0'
 
-key_groups.each_with_index do |key_group, index|
+key_groups.each_with_index do |key_group, key_group_index|
   puts '  ' + "declare $#{key_group.name}_round_robin_next := 1"
   puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.conf[:features][:round_robin][:entries]}"
   puts '  ' + "declare $#{key_group.name}_new_velocity"
@@ -77,9 +77,8 @@ key_groups.each_with_index do |key_group, index|
   key_group.diode.declare.each do |statememt|
     puts '  '  + statememt
   end
-  puts '  ' + key_group.diode.set_position(93 + index * 36, 249)
+  puts '  ' + key_group.diode.set_position(93 + key_group_index * 36, 249)
 
-  x = 19
   y = 84
   key_group.knobs.each_with_index do |knob, knob_index|
     knob.declare.each do |statement|
@@ -117,11 +116,11 @@ key_groups.each_with_index do |key_group, index|
   end
 
   puts '{ Global buttons // group_select }'
-  button = group_select_buttons[index]
+  button = group_select_buttons[key_group_index]
   button.declare.each do |statement|
     puts '  ' + statement
   end
-  puts '  ' + button.set_position(83 + index * 36, 226)
+  puts '  ' + button.set_position(83 + key_group_index * 36, 226)
 
   key_group.main_panel.each do |statement|
     puts '  ' + statement
@@ -129,6 +128,7 @@ key_groups.each_with_index do |key_group, index|
   puts ''
 end
 
+# =============== Global stuff
 puts '{ Global buttons // midi_select }'
 button_midi_select = Ksp::CustomButton.new(
     'midi_select',
