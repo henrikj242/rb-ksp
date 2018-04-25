@@ -26,6 +26,7 @@ group_select_buttons = []
 key_group_indexes = {}
 # Populate ruby elements
 @conf[:key_groups].each_with_index do |key_group_conf, idx|
+  key_group_conf = key_group_conf.merge(index: idx)
   key_groups << Beaotic::KeyGroup.new(key_group_conf)
   group_select_buttons << Ksp::CustomButton.new(
     "group_#{key_group_conf[:name]}",
@@ -50,7 +51,7 @@ puts '  ' + "set_ui_height_px(#{@conf[:perf_view][:height_px]})"
 puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
 puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon_hejo")'
 
-puts '  ' + "declare ui_knob $accent(1, #{@conf[:accent][:volume_boost_max].to_i * 1000}, 1)"
+# puts '  ' + "declare ui_knob $accent(1, #{@conf[:accent][:volume_boost_max].to_i * 1000}, 1)"
 
 Ksp::Utility.split_lists_declare.each do |statement|
   puts '  ' + statement
@@ -128,7 +129,7 @@ key_groups.each_with_index do |key_group, key_group_index|
   puts ''
 end
 
-# =============== Global stuff
+# Global stuff ===============
 puts '{ Global buttons // midi_select }'
 button_midi_select = Ksp::CustomButton.new(
     'midi_select',
@@ -160,10 +161,21 @@ puts '  ' + button_note_edit.name + ' := 0'
 
 key_groups.select{ |kg| kg.name != 'bd' }.map{ |g| g.main_panel_elements.map{ |elem| puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)" } }
 
-puts 'end on'
-# =============== END ON INIT
+puts '{ Logo }'
+logo = Ksp::UiImage.new('logo', {})
+Ksp::Variable.print_declare 2, logo.declare
+puts '  ' + logo.set_position(9, 271)
 
-# =============== GROUP SELECT
+puts '{ Accent slider }'
+accent = Ksp::CustomFader.new('accent', @conf[:accent].merge(orientation: 'horizontal'))
+
+Ksp::Variable.print_declare(2, accent.declare)
+puts '  ' + accent.set_position(564, 320)
+
+puts 'end on'
+# END ON INIT ===============
+
+# GROUP SELECT ===============
 key_groups.each do |key_group|
   key_group.main_panel_hide.each do |statement|
     puts statement

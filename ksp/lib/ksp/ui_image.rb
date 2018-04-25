@@ -7,6 +7,7 @@ module Ksp
       @gui_directory = '_gui'
       @identifier = identifier
       @name = "$image_#{@identifier}"
+      conf[:image] ||= identifier
       @conf = conf
       # image_size = ImageSize.path("#{@directory}/#{@identifier}.png")
       image_size = ImageSize.path("#{@gui_directory}/#{@conf[:image]}.png")

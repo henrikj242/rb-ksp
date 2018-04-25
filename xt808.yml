@@ -12,12 +12,17 @@ perf_view:
   height_px: 350
   wallpaper_animations: 5
 
+# -----------------------------------------------------------------------------
+#    Default blocks
+# -----------------------------------------------------------------------------
 
 accent: &accent
   velocity_threshold: 85
-  volume_boost_min: 0
-  volume_boost_max: 12
-
+  min_val: 0
+  default_val: 0
+  max_val: 12000
+  ui_control:
+    mouse_behaviour: 900
 
 features: &default_features
   accent:
@@ -25,11 +30,12 @@ features: &default_features
   round_robin:
     mode: velocity
     entries: 5
-  midi_select: true
-
-# -----------------------------------------------------------------------------
-#    Default blocks
-# -----------------------------------------------------------------------------
+  midi_select:
+    group_selector: midi_select
+    function: select_group_KEY_GROUP
+    view:
+      selector: note_edit
+      panels: [main, mix]
 
 pitch: &default_pitch
   name: pitch
@@ -38,6 +44,8 @@ pitch: &default_pitch
   max_val: 200000
   parameter: "$ENGINE_PAR_TUNE"
   function: KEY_GROUP_pitch
+  ui_control:
+    mouse_behaviour: -500
 
 hold: &default_hold
   name: hold
@@ -47,6 +55,8 @@ hold: &default_hold
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_HOLD"
   function: inline
+  ui_control:
+    mouse_behaviour: -500
 
 decay: &default_decay
   name: decay
@@ -58,6 +68,8 @@ decay: &default_decay
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_DECAY"
   function: none
+  ui_control:
+    mouse_behaviour: -500
 
 level: &default_level
   name: level
@@ -66,6 +78,8 @@ level: &default_level
   max_val: 10000
   function: none
   position: [6]
+  ui_control:
+    mouse_behaviour: -500
 
 pan: &default_pan
   name: pan
@@ -74,6 +88,8 @@ pan: &default_pan
   max_val: 1000000
   function: none
   position: [7]
+  ui_control:
+    mouse_behaviour: -500
 
 # These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
@@ -146,6 +162,8 @@ key_groups:
         default_val: 500
         max_val: 1000
         function: none # TODO: change this
+        ui_control:
+          mouse_behaviour: -500
       - name: impact_color
 #        affected_keys: !ruby/range 0..5
         affected_oscs: [osc2]
@@ -153,6 +171,8 @@ key_groups:
         default_val: 24
         max_val: 32
         function: none
+        ui_control:
+          mouse_behaviour: -500
       - <<: *default_decay
         name: impact_decay
 #        affected_keys:  !ruby/range 0..5
@@ -264,12 +284,16 @@ key_groups:
         default_val: 500
         max_val: 1000
         function: none # TODO: change this
+        ui_control:
+          mouse_behaviour: -500
       - name: snappy_color
 #        affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 24
         max_val: 32
         function: none
+        ui_control:
+          mouse_behaviour: -500
       - <<: *default_decay
         name: snappy_decay
         affected_oscs: [osc2]

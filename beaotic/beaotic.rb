@@ -343,18 +343,27 @@ module Beaotic
       set_decay.map{ |statement| @callback << '  ' + statement }
 
       # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
-      if @conf[:features] && @conf[:features][:accent][:velocity_threshold]
+      if @conf.fetch(:features, {}).fetch(:accent, {}) != {}
+      # if @conf[:features] && @conf[:features][:accent][:velocity_threshold]
         @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
-        @callback << '    change_vol($EVENT_ID, $accent, 0)'
+        @callback << '    change_vol($EVENT_ID, $fader_accent, 0)'
         @callback << "    #{@key_group.diode.name} := 2" if @key_group.diode
         @callback << "  else"
         @callback << "    #{@key_group.diode.name} := 1" if @key_group.diode
         @callback << '  end if'
       end
 
-      if @conf[:features] && @conf[:features][:round_robin]
+      if @conf.fetch(:features, {}).fetch(:midi_select, {})
+        @callback << "  if ($button_#{@conf[:features][:midi_select][:group_selector]} = 1)"
+        @callback << "    $selected_group := #{@key_group.conf[:index]}"
+        @callback << "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', @key_group.name)}"
+        # @callback << "    $button_#{@conf[:features][:midi_select][:group_selector]} := 0"
+        @callback << '  end if'
+      end
+
+      if @conf.fetch(:features, {}).fetch(:round_robin, {}) != {}
         @callback << "{ RR Mode: #{@conf[:features][:round_robin][:mode]} }"
-        @callback << " $#{@conf[:key_group_name]}_round_robin_next := ($#{@conf[:key_group_name]}_round_robin_next+1) mod $#{@conf[:key_group_name]}_round_robin_max"
+        @callback << " $#{@key_group.name}_round_robin_next := ($#{@key_group.name}_round_robin_next+1) mod $#{@key_group.name}_round_robin_max"
         case @conf[:features][:round_robin][:mode]
         when 'group'
           if @conf[:features][:osc2_color]
@@ -363,21 +372,21 @@ module Beaotic
 
             @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
             @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
-            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]})-1]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]})-1]"
             @callback << '  else'
-            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@conf[:key_group_name]}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
             @callback << '  end if'
-            @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
-            @callback << "  allow_group(%#{@conf[:key_group_name]}_#{name}_k_groups_osc2[$#{@conf[:key_group_name]}_round_robin_next])"
+            @callback << "  change_velo($EVENT_ID, $#{@key_group.name}_new_velocity)"
+            @callback << "  allow_group(%#{@key_group.name}_#{name}_k_groups_osc2[$#{@key_group.name}_round_robin_next])"
           end
         when 'velocity'
             # @conf[:features][:osc2_color] NOT YET SUPPORTED FOR VELOCITY-BASED ROUND-ROBIN
             @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
-            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[$#{@key_group.name}_round_robin_next]"
             @callback << '  else'
-            @callback << "    $#{@conf[:key_group_name]}_new_velocity := %velocity_splits_#{split_count}[$#{@conf[:key_group_name]}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[$#{@key_group.name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
             @callback << '  end if'
-            @callback << "  change_velo($EVENT_ID, $#{@conf[:key_group_name]}_new_velocity)"
+            @callback << "  change_velo($EVENT_ID, $#{@key_group.name}_new_velocity)"
         end
       end
       @callback << 'end if'
