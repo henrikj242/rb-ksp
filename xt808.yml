@@ -94,12 +94,13 @@ pan: &default_pan
   ui_control:
     mouse_behaviour: -500
 
-# These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
   osc_drift:
     function: KEY_GROUP_osc_drift
+    intensity: 148000
   vel_start:
-    function: none
+    function: none #KEY_GROUP_vel_start
+    intensity: 895000
   vel_vca:
     function: none
 

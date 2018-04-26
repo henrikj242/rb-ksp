@@ -201,7 +201,7 @@ module Beaotic
       statements << "function #{@conf[:name]}_osc_drift"
       k_groups.each do |k_group|
         statements << "  if (#{osc_drift_button.name} = 1)"
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 148000, #{k_group}, find_mod(#{k_group}, \"RVB_PITCH\"), -1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][:osc_drift][:intensity]}, #{k_group}, find_mod(#{k_group}, \"RVB_PITCH\"), -1)"
         statements << "  else "
         statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"RVB_PITCH\"), -1)"
         statements << '  end if'
