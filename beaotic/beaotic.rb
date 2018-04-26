@@ -120,7 +120,7 @@ module Beaotic
     end
 
     def default_functions
-      pitch_functions
+      pitch_functions + osc_drift_function
       # volume_functions
       # pan_functions
       # output_assign_functions
@@ -185,7 +185,28 @@ module Beaotic
         statements << "  call #{@conf[:name]}_#{affected_key[:name]}_pitch"
       end
       statements << "end function \n"
-      statements
+    end
+
+    def k_groups
+      k_groups = []
+      # puts @conf[:keys].inspect
+      # exit
+      @conf[:keys].each { |key| key[:k_groups].each_pair{ |_, k_grps| k_grps.map { |k_group| k_groups << k_group } } }
+      k_groups
+    end
+
+    def osc_drift_function
+      osc_drift_button = edit_buttons.select{ |button| button.identifier == "#{@conf[:name]}_osc_drift" }.first
+      statements = []
+      statements << "function #{@conf[:name]}_osc_drift"
+      k_groups.each do |k_group|
+        statements << "  if (#{osc_drift_button.name} = 1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 148000, #{k_group}, find_mod(#{k_group}, \"RVB_PITCH\"), -1)"
+        statements << "  else "
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"RVB_PITCH\"), -1)"
+        statements << '  end if'
+      end
+      statements << 'end function'
     end
 
     def feature_functions

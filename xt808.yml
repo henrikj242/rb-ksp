@@ -36,6 +36,9 @@ features: &default_features
     view:
       selector: note_edit
       panels: [main, mix]
+#  osc_drift: true
+#  vel_to_start: true
+#  vel_to_vca: true
 
 pitch: &default_pitch
   name: pitch
@@ -94,7 +97,7 @@ pan: &default_pan
 # These appear the same on all key groups, so not needed in the config
 default_buttons: &default_buttons
   osc_drift:
-    function: none # KEY_GROUP_pitch
+    function: KEY_GROUP_osc_drift
   vel_start:
     function: none
   vel_vca:
