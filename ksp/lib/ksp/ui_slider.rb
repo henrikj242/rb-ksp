@@ -1,5 +1,7 @@
 module Ksp
   class UiSlider < UiControl
+    attr_accessor :label
+    attr_reader :name, :identifier, :conf
 
     def initialize(identifer, conf)
       @directory = '_gui'

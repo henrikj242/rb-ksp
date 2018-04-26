@@ -168,9 +168,11 @@ puts '  ' + logo.set_position(9, 271)
 
 puts '{ Accent slider }'
 accent = Ksp::CustomFader.new('accent', @conf[:accent].merge(orientation: 'horizontal'))
-
 Ksp::Variable.print_declare(2, accent.declare)
 puts '  ' + accent.set_position(564, 320)
+accent.label = Ksp::UiImage.new('label_accent')
+Ksp::Variable.print_declare(2, accent.label.declare)
+puts '  ' + accent.label.set_position(564, 300)
 
 puts 'end on'
 # END ON INIT ===============
