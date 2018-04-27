@@ -22,7 +22,7 @@ accent: &accent
   default_val: 0
   max_val: 12000
   ui_control:
-    mouse_behaviour: 900
+    mouse_behaviour: 1000
 
 features: &default_features
   accent:
@@ -99,10 +99,11 @@ default_buttons: &default_buttons
     function: KEY_GROUP_osc_drift
     intensity: 148000
   vel_start:
-    function: none #KEY_GROUP_vel_start
+    function: KEY_GROUP_vel_start
     intensity: 895000
   vel_vca:
-    function: none
+    function: KEY_GROUP_vel_vca
+    intensity: 300000
 
 # -----------------------------------------------------------------------------
 #    Key Groups
@@ -117,6 +118,7 @@ key_groups:
         entries: 5
       osc2_color: impact_color
       osc2_decay: impact_decay
+      pitch_osc2: bd_pitch_impact
       link_decays:
         knobs: [decay, impact_decay]
         button: link_decays
@@ -189,7 +191,7 @@ key_groups:
       link_decays:
         function: KEY_GROUP_link_decays_1
       pitch_impact:
-        function: none # pitch
+        function: KEY_GROUP_pitch_osc2
   - name: sd1
     features:
       <<: *default_features
@@ -243,6 +245,7 @@ key_groups:
       link_decays:
         knobs: [decay, snappy_decay]
         button: link_decays
+      pitch_osc2: sd2_pitch_snappy
     keys:
       - name: sd_1
         midi_note: 48
@@ -276,14 +279,10 @@ key_groups:
           osc2: !ruby/range 73..77
     knobs:
       - <<: *default_pitch
-#        affected_keys: !ruby/range 0..5
       - <<: *default_hold
-#        affected_keys: !ruby/range 0..5
       - <<: *default_decay
-#        affected_keys: !ruby/range 0..5
         function: KEY_GROUP_link_decays_1
       - name: snappy_balance
-#        affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 500
         max_val: 1000
@@ -291,7 +290,6 @@ key_groups:
         ui_control:
           mouse_behaviour: -500
       - name: snappy_color
-#        affected_keys:  !ruby/range 0..5
         min_val: 1
         default_val: 24
         max_val: 32
@@ -310,7 +308,7 @@ key_groups:
       link_decays:
         function: KEY_GROUP_link_decays_1
       pitch_snappy:
-        function: none # pitch
+        function: KEY_GROUP_pitch_osc2
   - name: hh1
     features:
       <<: *default_features

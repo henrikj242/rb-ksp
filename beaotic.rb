@@ -162,7 +162,7 @@ puts '  ' + button_note_edit.name + ' := 0'
 key_groups.select{ |kg| kg.name != 'bd' }.map{ |g| g.main_panel_elements.map{ |elem| puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)" } }
 
 puts '{ Logo }'
-logo = Ksp::UiImage.new('logo', {})
+logo = Ksp::UiImage.new('logo', {add_to_height: 2})
 Ksp::Variable.print_declare 2, logo.declare
 puts '  ' + logo.set_position(9, 271)
 

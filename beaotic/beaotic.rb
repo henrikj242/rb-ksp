@@ -120,7 +120,7 @@ module Beaotic
     end
 
     def default_functions
-      pitch_functions + osc_drift_function
+      pitch_functions + osc_drift_function + vel_start_function + vel_vca_function
       # volume_functions
       # pan_functions
       # output_assign_functions
@@ -163,13 +163,21 @@ module Beaotic
       mix_knob = "500000"
       statements = []
       statements << "function #{@conf[:name]}_#{affected_key[:name]}_pitch"
-      affected_key[:k_groups].keys.each do |osc|
-        affected_key[:k_groups][osc].each do |k_group|
-          statements << "  set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
+
+      # we always pitch osc1
+      affected_key[:k_groups][:osc1].each do |k_group|
+        statements << "  set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
+      end
+      # we only pitch osc 2 if feature is enabled and button is pressed
+      if @conf.fetch(:features, {}).fetch(:pitch_osc2, {}) != {}
+        activator = edit_buttons.select{ |button| button.identifier == @conf[:features][:pitch_osc2] }.first
+        statements << "  if (#{activator.name} = 1)"
+        affected_key[:k_groups][:osc2].each do |k_group|
+          statements << "    set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
         end
+        statements << '  end if'
       end
       statements << "end function"
-      statements
     end
 
     def pitch_functions
@@ -179,7 +187,6 @@ module Beaotic
           statements << statement
         end
       end
-
       statements << "function #{@conf[:name]}_pitch"
       @conf[:keys].each do |affected_key|
         statements << "  call #{@conf[:name]}_#{affected_key[:name]}_pitch"
@@ -189,8 +196,6 @@ module Beaotic
 
     def k_groups
       k_groups = []
-      # puts @conf[:keys].inspect
-      # exit
       @conf[:keys].each { |key| key[:k_groups].each_pair{ |_, k_grps| k_grps.map { |k_group| k_groups << k_group } } }
       k_groups
     end
@@ -209,13 +214,62 @@ module Beaotic
       statements << 'end function'
     end
 
+    def vel_start_function
+      vel_start_button = edit_buttons.select{ |button| button.identifier == "#{@conf[:name]}_vel_start" }.first
+      statements = []
+      statements << "function #{@conf[:name]}_vel_start"
+      k_groups.each do |k_group|
+        statements << "  if (#{vel_start_button.name} = 1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][:vel_start][:intensity]}, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
+        statements << "  else "
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
+        statements << '  end if'
+      end
+      statements << 'end function'
+    end
+
+    def vel_vca_function
+      vel_vca_button = edit_buttons.select{ |button| button.identifier == "#{@conf[:name]}_vel_vca" }.first
+      statements = []
+      statements << "function #{@conf[:name]}_vel_vca"
+      k_groups.each do |k_group|
+        statements << "  if (#{vel_vca_button.name} = 1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][:vel_vca][:intensity]}, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
+        statements << "  else "
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
+        statements << '  end if'
+      end
+      statements << 'end function'
+    end
+
+    def pitch_osc2_function
+      main_knob = "$knob_#{@conf[:name]}_pitch"
+      mix_knob = 500000
+      statements = ["function #{name}_pitch_osc2"]
+      activator = edit_buttons.select{ |button| button.identifier == @conf[:features][:pitch_osc2] }.first
+      statements << "  if (#{activator.name} = 1)"
+      @conf[:keys].each do |key|
+        key[:k_groups][:osc2].each do |k_group|
+          statements << "    set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
+        end
+      end
+      statements << '  else'
+      @conf[:keys].each do |key|
+        key[:k_groups][:osc2].each do |k_group|
+          statements << "    set_engine_par($ENGINE_PAR_TUNE, 500000, #{k_group}, -1, -1)"
+        end
+      end
+      statements << '  end if'
+      statements << 'end function'
+    end
+
     def feature_functions
       statements = []
-      # if @conf[:features].include?(:osc2_decay)
-      #   osc2_decay_function.map{ |statement| statements << statement }
-      # end
       if @conf[:features].include?(:link_decays)
         link_decays_functions.map{ |statement| statements << statement }
+      end
+      if @conf[:features].include?(:pitch_osc2)
+        pitch_osc2_function.map{ |statement| statements << statement }
       end
       statements
     end
@@ -239,25 +293,6 @@ module Beaotic
       statements << "end function"
       statements
     end
-
-    # def osc2_decay_function
-    #   decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_decay" }.first
-    #   osc2_decay_knob = @knobs.select{ |knob| knob.identifier == "#{name}_#{@conf[:features][:osc2_decay]}" }.first
-    #   osc2_link_decays_button = @edit_buttons.select{ |button| button.identifier == "#{name}_link_decays" }.first
-    #
-    #   statements = [" { osc2_decay_function here. source var: #{osc2_decay_knob.name} } "]
-    #   statements << "function #{osc2_decay_knob.identifier}"
-    #   statements << "  if (#{osc2_link_decays_button.name} = 1)"
-    #   statements << "    #{decay_knob.name} := #{osc2_decay_knob.name}"
-    #   statements << "  end if"
-    #   # @conf[:k_groups][:osc2].each do |k_group|
-    #   #   statements << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\")"
-    #   #   @conf[:k_groups][osc2].map { |k_group| statements << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1)" "disallow_group()"}
-    #   # end
-    #
-    #   statements << 'end function'
-    #   statements
-    # end
 
     def set_keys
       extra_options = {
@@ -283,8 +318,6 @@ module Beaotic
       @name = conf[:name]
       @callback = []
       @off_callback = []
-      # puts @conf.inspect
-      # exit
     end
 
     # There are a few ways we can support round robin and the "color" setting.
@@ -365,7 +398,6 @@ module Beaotic
 
       # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
       if @conf.fetch(:features, {}).fetch(:accent, {}) != {}
-      # if @conf[:features] && @conf[:features][:accent][:velocity_threshold]
         @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
         @callback << '    change_vol($EVENT_ID, $fader_accent, 0)'
         @callback << "    #{@key_group.diode.name} := 2" if @key_group.diode
@@ -378,7 +410,6 @@ module Beaotic
         @callback << "  if ($button_#{@conf[:features][:midi_select][:group_selector]} = 1)"
         @callback << "    $selected_group := #{@key_group.conf[:index]}"
         @callback << "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', @key_group.name)}"
-        # @callback << "    $button_#{@conf[:features][:midi_select][:group_selector]} := 0"
         @callback << '  end if'
       end
 
