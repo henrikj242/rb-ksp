@@ -120,7 +120,7 @@ module Beaotic
     end
 
     def default_functions
-      pitch_functions + osc_drift_function + vel_start_function + vel_vca_function
+      pitch_functions + default_edit_button(:osc_drift) +  default_edit_button(:vel_start) + default_edit_button(:vel_vca)
       # volume_functions
       # pan_functions
       # output_assign_functions
@@ -200,43 +200,15 @@ module Beaotic
       k_groups
     end
 
-    def osc_drift_function
-      osc_drift_button = edit_buttons.select{ |button| button.identifier == "#{@conf[:name]}_osc_drift" }.first
+    def default_edit_button(button_name)
+      button = edit_buttons.select{ |edit_button| edit_button.identifier == "#{@conf[:name]}_#{button_name}" }.first
       statements = []
-      statements << "function #{@conf[:name]}_osc_drift"
+      statements << "function #{@conf[:name]}_#{button_name}"
       k_groups.each do |k_group|
-        statements << "  if (#{osc_drift_button.name} = 1)"
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][:osc_drift][:intensity]}, #{k_group}, find_mod(#{k_group}, \"RVB_PITCH\"), -1)"
+        statements << "  if (#{button.name} = 1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][button_name][:intensity]}, #{k_group}, find_mod(#{k_group}, \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
         statements << "  else "
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"RVB_PITCH\"), -1)"
-        statements << '  end if'
-      end
-      statements << 'end function'
-    end
-
-    def vel_start_function
-      vel_start_button = edit_buttons.select{ |button| button.identifier == "#{@conf[:name]}_vel_start" }.first
-      statements = []
-      statements << "function #{@conf[:name]}_vel_start"
-      k_groups.each do |k_group|
-        statements << "  if (#{vel_start_button.name} = 1)"
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][:vel_start][:intensity]}, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
-        statements << "  else "
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
-        statements << '  end if'
-      end
-      statements << 'end function'
-    end
-
-    def vel_vca_function
-      vel_vca_button = edit_buttons.select{ |button| button.identifier == "#{@conf[:name]}_vel_vca" }.first
-      statements = []
-      statements << "function #{@conf[:name]}_vel_vca"
-      k_groups.each do |k_group|
-        statements << "  if (#{vel_vca_button.name} = 1)"
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][:vel_vca][:intensity]}, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
-        statements << "  else "
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"VEL_PITCH\"), -1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
         statements << '  end if'
       end
       statements << 'end function'

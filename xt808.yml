@@ -97,12 +97,15 @@ pan: &default_pan
 default_buttons: &default_buttons
   osc_drift:
     function: KEY_GROUP_osc_drift
+    modulator: RVB_PITCH
     intensity: 148000
   vel_start:
     function: KEY_GROUP_vel_start
+    modulator: VEL_PITCH
     intensity: 895000
   vel_vca:
     function: KEY_GROUP_vel_vca
+    modulator: VEL_PITCH
     intensity: 300000
 
 # -----------------------------------------------------------------------------
