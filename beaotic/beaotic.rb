@@ -278,6 +278,76 @@ module Beaotic
         @keys.last.set_off_callback
       end
     end
+
+    def print
+      puts '  ' + "declare $#{name}_round_robin_next := 1"
+      puts '  ' + "declare $#{name}_round_robin_max := #{conf[:features][:round_robin][:entries]}"
+      puts '  ' + "declare $#{name}_new_velocity"
+
+      keys.each do |key|
+        key.set_k_groups.each do |statement|
+          puts '  ' + statement
+        end
+      end
+
+      title_image.declare.each do |statememt|
+        puts '  '  + statememt
+      end
+      puts '  ' + title_image.set_position(82, 0)
+
+      # diode.declare.each do |statememt|
+      #   puts '  '  + statememt
+      # end
+      # puts '  ' + diode.set_position(93 + key_group_index * 36, 249)
+
+      y = 84
+      knobs.each_with_index do |knob, knob_index|
+        knob.declare.each do |statement|
+          puts '  ' + statement
+        end
+        x = knob.conf[:position] ?
+                19 + (knob.conf[:position][0] * 78) :
+                19 + (knob_index * 78)
+        puts '  ' + knob.set_position(x, y)
+        knob.label.declare.each do |statement|
+          puts '  ' + statement
+        end
+        puts '  ' + knob.label.set_position(x-16, y - 41)
+        puts ''
+      end
+
+      x = 18
+      y = 179
+      edit_buttons.each do |button|
+        button.declare.each do |statement|
+          puts '  ' + statement
+        end
+        puts '  ' + button.set_position(x, y)
+        x += 51
+      end
+
+      x = 65
+      y = 179
+      edit_button_dividers.each do |divider|
+        divider.declare.each do |statement|
+          puts '  ' + statement
+        end
+        puts '  ' + divider.set_position(x, y)
+        x += 51
+      end
+
+      # puts '{ Global buttons // group_select }'
+      # button = group_select_buttons[key_group_index]
+      # button.declare.each do |statement|
+      #   puts '  ' + statement
+      # end
+      # puts '  ' + button.set_position(83 + key_group_index * 36, 226)
+
+      main_panel.each do |statement|
+        puts '  ' + statement
+      end
+      puts ''
+    end
   end
 
   class Key
@@ -324,9 +394,9 @@ module Beaotic
       statements
     end
 
-    def allow_groups
+    def allow_groups(osc = :osc1)
       statements = []
-      @conf[:k_groups][:osc1].map do |k_group_id|
+      @conf[:k_groups][osc].map do |k_group_id|
         statements << "allow_group(#{k_group_id})"
       end
       statements
@@ -346,14 +416,14 @@ module Beaotic
       statements
     end
 
-    def split_count
-      splits = if @conf[:features][:osc2_color] && @conf[:features][:round_robin] && @conf[:features][:round_robin][:mode] == 'group'
-        osc2_color_conf[:max_val]
-      elsif @conf[:features][:osc2_color] && @conf[:features][:round_robin] && @conf[:features][:round_robin][:mode] == 'velocity'
-        # not yet supported
-      elsif @conf[:features][:round_robin] && @conf[:features][:round_robin][:mode] == 'velocity'
-        @conf[:features][:round_robin][:entries]
-      end
+    def split_count(split_target)
+      splits = case split_target
+               when :color
+                 osc2_color_conf[:max_val]
+               when :round_robin
+                 @conf[:features][:round_robin][:entries]
+               end
+
       (splits.to_i * 2).to_s unless @conf[:features][:accent][:velocity_threshold].nil?
     end
 
@@ -386,32 +456,32 @@ module Beaotic
       end
 
       if @conf.fetch(:features, {}).fetch(:round_robin, {}) != {}
-        @callback << "{ RR Mode: #{@conf[:features][:round_robin][:mode]} }"
         @callback << " $#{@key_group.name}_round_robin_next := ($#{@key_group.name}_round_robin_next+1) mod $#{@key_group.name}_round_robin_max"
-        case @conf[:features][:round_robin][:mode]
-        when 'group'
-          if @conf[:features][:osc2_color]
-            disallow_groups.map{ |statement| @callback << '  ' + statement }
-            allow_groups.map{ |statement| @callback << '  ' + statement }
 
+        if @conf[:features][:round_robin][:mode].include?('group')
+          if @conf[:features][:osc2_color] # TODO: Seems like we should have an else branch for this
+            disallow_groups.map{ |statement| @callback << '  ' + statement }
             @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
             @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
-            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]})-1]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:color)}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]})-1]"
             @callback << '  else'
-            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:color)}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
             @callback << '  end if'
-            @callback << "  change_velo($EVENT_ID, $#{@key_group.name}_new_velocity)"
             @callback << "  allow_group(%#{@key_group.name}_#{name}_k_groups_osc2[$#{@key_group.name}_round_robin_next])"
+            @callback << "  play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
           end
-        when 'velocity'
-            # @conf[:features][:osc2_color] NOT YET SUPPORTED FOR VELOCITY-BASED ROUND-ROBIN
-            @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
-            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[$#{@key_group.name}_round_robin_next]"
-            @callback << '  else'
-            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count}[$#{@key_group.name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
-            @callback << '  end if'
-            @callback << "  change_velo($EVENT_ID, $#{@key_group.name}_new_velocity)"
         end
+        if @conf[:features][:round_robin][:mode].include?('velocity')
+          disallow_groups.map{ |statement| @callback << '  ' + statement }
+          allow_groups(:osc1).map{ |statement| @callback << '  ' + statement }
+          @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
+          @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{@key_group.name}_round_robin_next]"
+          @callback << '  else'
+          @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{@key_group.name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
+          @callback << '  end if'
+          @callback << "  play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
+        end
+        @callback << "  change_note($EVENT_ID, 0)"
       end
       @callback << 'end if'
     end

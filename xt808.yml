@@ -28,7 +28,7 @@ features: &default_features
   accent:
     <<: *accent
   round_robin:
-    mode: velocity
+    mode: [velocity]
     entries: 5
   midi_select:
     group_selector: midi_select
@@ -117,7 +117,7 @@ key_groups:
     features:
       <<: *default_features
       round_robin:
-        mode: group
+        mode: [velocity, group]
         entries: 5
       osc2_color: impact_color
       osc2_decay: impact_decay
@@ -241,7 +241,7 @@ key_groups:
     features:
       <<: *default_features
       round_robin:
-        mode: group
+        mode: [velocity, group]
         entries: 5
       osc2_color: snappy_color
       osc2_decay: snappy_decay

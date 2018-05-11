@@ -59,74 +59,19 @@ end
 
 puts '  ' + 'declare $selected_group := 0'
 
-key_groups.each_with_index do |key_group, key_group_index|
-  puts '  ' + "declare $#{key_group.name}_round_robin_next := 1"
-  puts '  ' + "declare $#{key_group.name}_round_robin_max := #{key_group.conf[:features][:round_robin][:entries]}"
-  puts '  ' + "declare $#{key_group.name}_new_velocity"
-
-  key_group.keys.each do |key|
-    key.set_k_groups.each do |statement|
-      puts '  ' + statement
-    end
-  end
-
-  key_group.title_image.declare.each do |statememt|
-    puts '  '  + statememt
-  end
-  puts '  ' + key_group.title_image.set_position(82, 0)
-
+key_groups.each do |key_group|
+  key_group.print
   key_group.diode.declare.each do |statememt|
     puts '  '  + statememt
   end
-  puts '  ' + key_group.diode.set_position(93 + key_group_index * 36, 249)
-
-  y = 84
-  key_group.knobs.each_with_index do |knob, knob_index|
-    knob.declare.each do |statement|
-      puts '  ' + statement
-    end
-    x = knob.conf[:position] ?
-            19 + (knob.conf[:position][0] * 78) :
-            19 + (knob_index * 78)
-    puts '  ' + knob.set_position(x, y)
-    knob.label.declare.each do |statement|
-      puts '  ' + statement
-    end
-    puts '  ' + knob.label.set_position(x-16, y - 41)
-    puts ''
-  end
-
-  x = 18
-  y = 179
-  key_group.edit_buttons.each do |button|
-    button.declare.each do |statement|
-      puts '  ' + statement
-    end
-    puts '  ' + button.set_position(x, y)
-    x += 51
-  end
-
-  x = 65
-  y = 179
-  key_group.edit_button_dividers.each do |divider|
-    divider.declare.each do |statement|
-      puts '  ' + statement
-    end
-    puts '  ' + divider.set_position(x, y)
-    x += 51
-  end
+  puts '  ' + key_group.diode.set_position(93 + key_group.conf[:index] * 36, 249)
 
   puts '{ Global buttons // group_select }'
-  button = group_select_buttons[key_group_index]
+  button = group_select_buttons[key_group.conf[:index]]
   button.declare.each do |statement|
     puts '  ' + statement
   end
-  puts '  ' + button.set_position(83 + key_group_index * 36, 226)
-
-  key_group.main_panel.each do |statement|
-    puts '  ' + statement
-  end
-  puts ''
+  puts '  ' + button.set_position(83 + key_group.conf[:index] * 36, 226)
 end
 
 # Global stuff ===============
@@ -176,6 +121,8 @@ puts '  ' + accent.label.set_position(564, 300)
 
 puts 'end on'
 # END ON INIT ===============
+
+
 
 # GROUP SELECT ===============
 key_groups.each do |key_group|
