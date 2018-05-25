@@ -282,7 +282,9 @@ module Beaotic
     def print
       puts '  ' + "declare $#{name}_round_robin_next := 1"
       puts '  ' + "declare $#{name}_round_robin_max := #{conf[:features][:round_robin][:entries]}"
+      puts '  ' + "declare $#{name}_new_event"
       puts '  ' + "declare $#{name}_new_velocity"
+      puts '  ' + "declare @#{name}_message"
 
       keys.each do |key|
         key.set_k_groups.each do |statement|
@@ -436,6 +438,7 @@ module Beaotic
 
     def set_callback
       @callback << "if ($EVENT_NOTE = #{midi_note})"
+      @callback << "  @#{@key_group.name}_message := \"\""
       set_decay.map{ |statement| @callback << '  ' + statement }
 
       # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
@@ -468,7 +471,9 @@ module Beaotic
             @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:color)}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
             @callback << '  end if'
             @callback << "  allow_group(%#{@key_group.name}_#{name}_k_groups_osc2[$#{@key_group.name}_round_robin_next])"
-            @callback << "  play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
+            @callback << "  $#{@key_group.name}_new_event := play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
+            @callback << "  @#{@key_group.name}_message := \"osc2: \" & get_event_par($#{@key_group.name}_new_event, $EVENT_PAR_ZONE_ID)"
+            @callback << "  change_vol($#{@key_group.name}_new_event, $fader_accent, 0)"
           end
         end
         if @conf[:features][:round_robin][:mode].include?('velocity')
@@ -479,8 +484,11 @@ module Beaotic
           @callback << '  else'
           @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{@key_group.name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
           @callback << '  end if'
-          @callback << "  play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
+          @callback << "  $#{@key_group.name}_new_event := play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
+          @callback << "  @#{@key_group.name}_message := @#{@key_group.name}_message & \" osc1: \" & get_event_par($#{@key_group.name}_new_event, $EVENT_PAR_ZONE_ID)"
+          @callback << "  change_vol($#{@key_group.name}_new_event, $fader_accent, 0)"
         end
+        @callback << "  message(@#{@key_group.name}_message)"
         @callback << "  change_note($EVENT_ID, 0)"
       end
       @callback << 'end if'

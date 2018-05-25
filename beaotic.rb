@@ -49,7 +49,7 @@ puts '  ' + "set_script_title(\"#{project_name}\")"
 puts '  ' + "set_ui_height_px(#{@conf[:perf_view][:height_px]})"
 # puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
 puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
-puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "icon_hejo")'
+puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")'
 
 # puts '  ' + "declare ui_knob $accent(1, #{@conf[:accent][:volume_boost_max].to_i * 1000}, 1)"
 
@@ -107,7 +107,7 @@ puts '  ' + button_note_edit.name + ' := 0'
 key_groups.select{ |kg| kg.name != 'bd' }.map{ |g| g.main_panel_elements.map{ |elem| puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)" } }
 
 puts '{ Logo }'
-logo = Ksp::UiImage.new('logo', {add_to_height: 2})
+logo = Ksp::UiImage.new('img_logo', {add_to_height: 2})
 Ksp::Variable.print_declare 2, logo.declare
 puts '  ' + logo.set_position(9, 271)
 
