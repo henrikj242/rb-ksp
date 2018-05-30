@@ -23,7 +23,7 @@ module Ksp
     # set_image stuff
 
     def callback
-      return [] if @conf[:function] == 'none'
+      # return [] if @conf[:function] == 'none'
 
       statements = ["on ui_control(#{name})"]
       message = "callback: #{name}"
@@ -41,11 +41,15 @@ module Ksp
           end
         end
       elsif @conf[:function]
-        statements << "  call #{@conf[:function].gsub(/^KEY_GROUP/, @conf[:key_group_name])}"
+        if @conf[:function] == 'none'
+          statements << '{ no finctionality applied }'
+        else
+          statements << "  call #{@conf[:function].gsub(/^KEY_GROUP/, @conf[:key_group_name])}"
+        end
       else
         statements << "  call #{@identifier}"
       end
-      # statements << "message (\"#{message}\")"
+      statements << "message (\"#{message} val: \" & #{name})"
       statements << 'end on'
       statements
     end
