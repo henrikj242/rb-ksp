@@ -5,4 +5,5 @@ module Beaotic
   require_relative './key'
   require_relative './image'
   require_relative './key_group'
+  require_relative './main_panel'
 end

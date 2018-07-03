@@ -38,6 +38,8 @@ key_group_indexes = {}
   key_group_indexes[key_group_conf[:name]] = idx
 end
 
+# pp key_groups
+# exit(0)
 
 puts "{ Created by: #{ENV['USER'] || ENV['USERNAME']} at #{Time.now} }"
 # ==========   ON INIT
@@ -104,7 +106,13 @@ end
 puts '  ' + button_note_edit.set_position(550, 224)
 puts '  ' + button_note_edit.name + ' := 0'
 
-key_groups.select{ |kg| kg.name != 'bd' }.map{ |g| g.main_panel_elements.map{ |elem| puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)" } }
+key_groups.select do |kg|
+  kg.name != 'bd'
+end.map do |g|
+  g.main_panel.elements.map do |elem|
+    puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
+  end
+end
 
 puts '{ Logo }'
 logo = Ksp::UiImage.new('img_logo', {add_to_height: 2})
@@ -126,10 +134,10 @@ puts 'end on'
 
 # GROUP SELECT ===============
 key_groups.each do |key_group|
-  key_group.main_panel_hide.each do |statement|
+  key_group.main_panel.hide.each do |statement|
     puts statement
   end
-  key_group.main_panel_show.each do |statement|
+  key_group.main_panel.show.each do |statement|
     puts statement
   end
 end
@@ -182,10 +190,10 @@ end
 
 # declare ui callbacks
 key_groups.each do |key_group|
-  key_group.knobs.each do |knob|
+  key_group.main_panel.knobs.each do |knob|
     puts knob.callback
   end
-  key_group.edit_buttons.each do |button|
+  key_group.main_panel.edit_buttons.each do |button|
     puts button.callback
   end
   key_group.mix_panel.statements.each do |statement|
