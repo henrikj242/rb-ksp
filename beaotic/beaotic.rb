@@ -74,6 +74,10 @@ module Beaotic
       statements << "end function"
     end
 
+    def mix_panel
+
+    end
+
     def functions
       default_functions + feature_functions
     end
@@ -206,9 +210,12 @@ module Beaotic
       statements << "function #{@conf[:name]}_#{button_name}"
       k_groups.each do |k_group|
         statements << "  if (#{button.name} = 1)"
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, #{@conf[:edit_buttons][button_name][:intensity]}, #{k_group}, find_mod(#{k_group}, \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, " \
+          "#{@conf[:edit_buttons][button_name][:intensity]}, #{k_group}, "\
+          "find_mod(#{k_group}, \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
         statements << "  else "
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
+        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, "\
+          " \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
         statements << '  end if'
       end
       statements << 'end function'
@@ -444,14 +451,13 @@ module Beaotic
       # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
       if @conf.fetch(:features, {}).fetch(:accent, {}) != {}
         @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
-        @callback << '    change_vol($EVENT_ID, $fader_accent, 0)'
         @callback << "    #{@key_group.diode.name} := 2" if @key_group.diode
         @callback << "  else"
         @callback << "    #{@key_group.diode.name} := 1" if @key_group.diode
         @callback << '  end if'
       end
 
-      if @conf.fetch(:features, {}).fetch(:midi_select, {})
+      if @conf.fetch(:features, {}).fetch(:midi_select, {}) != {}
         @callback << "  if ($button_#{@conf[:features][:midi_select][:group_selector]} = 1)"
         @callback << "    $selected_group := #{@key_group.conf[:index]}"
         @callback << "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', @key_group.name)}"
@@ -466,14 +472,15 @@ module Beaotic
             disallow_groups.map{ |statement| @callback << '  ' + statement }
             @callback << "{ color_max #{osc2_color_conf[:max_val]} }"
             @callback << "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})"
-            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:color)}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]})-1]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:color)}[$knob_#{@key_group.name}_#{osc2_color_conf[:name]} - 1]"
             @callback << '  else'
-            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:color)}[($knob_#{@key_group.name}_#{osc2_color_conf[:name]} + #{osc2_color_conf[:max_val]})-1]"
+            @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:color)}[$knob_#{@key_group.name}_#{osc2_color_conf[:name]}  - 1 + #{osc2_color_conf[:max_val]}]"
             @callback << '  end if'
             @callback << "  allow_group(%#{@key_group.name}_#{name}_k_groups_osc2[$#{@key_group.name}_round_robin_next])"
             @callback << "  $#{@key_group.name}_new_event := play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
-            @callback << "  @#{@key_group.name}_message := \"osc2: \" & get_event_par($#{@key_group.name}_new_event, $EVENT_PAR_ZONE_ID)"
             @callback << "  change_vol($#{@key_group.name}_new_event, $fader_accent, 0)"
+            @callback << "  wait(1)"
+            @callback << "  @#{@key_group.name}_message := \"osc2: \" & get_event_par($#{@key_group.name}_new_event, $EVENT_PAR_ZONE_ID)"
           end
         end
         if @conf[:features][:round_robin][:mode].include?('velocity')
@@ -485,8 +492,9 @@ module Beaotic
           @callback << "    $#{@key_group.name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{@key_group.name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]"
           @callback << '  end if'
           @callback << "  $#{@key_group.name}_new_event := play_note($EVENT_NOTE, $#{@key_group.name}_new_velocity, 0, -1)"
-          @callback << "  @#{@key_group.name}_message := @#{@key_group.name}_message & \" osc1: \" & get_event_par($#{@key_group.name}_new_event, $EVENT_PAR_ZONE_ID)"
           @callback << "  change_vol($#{@key_group.name}_new_event, $fader_accent, 0)"
+          @callback << "  wait(1)"
+          @callback << "  @#{@key_group.name}_message := @#{@key_group.name}_message & \" osc1: \" & get_event_par($#{@key_group.name}_new_event, $EVENT_PAR_ZONE_ID)"
         end
         @callback << "  message(@#{@key_group.name}_message)"
         @callback << "  change_note($EVENT_ID, 0)"
