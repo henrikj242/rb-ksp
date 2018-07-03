@@ -17,11 +17,6 @@ module Ksp
 
     @callback_statements = []
 
-    # make_persistent
-    # set_position_px
-    # show / hide
-    # set_image stuff
-
     def callback
       # return [] if @conf[:function] == 'none'
 

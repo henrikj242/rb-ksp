@@ -9,24 +9,7 @@ module Beaotic
 
       @main_panel = MainPanel.new(@conf)
       @elements = @elements
-      # @main_panel.set_knobs
-      # @main_panel.set_edit_buttons
-
-      # @edit_button_dividers = @main_panel.edit_button_dividers
-
-      # # @conf[:knobs].each_index do |index|
-      # #   if @conf[:knobs][index][:affected_keys].nil?
-      # #     @conf[:knobs][index][:affected_keys] = 0..@conf[:keys].count-1
-      # #   end
-      # # end
-      # # @functions = []
-      # # @knobs = []
-      # # @edit_buttons = []
-      # # @edit_button_dividers = []
-      # # @main_panel_name = "%panel_main_#{name}"
-      # # @main_panel_elements = []
       @keys = []
-      # set_title_image
       set_diode
       set_mix_panel
       set_keys
@@ -41,33 +24,6 @@ module Beaotic
       @diode = Ksp::CustomDiode.new(name, levels: 3)
     end
 
-    # def main_panel
-      # @main_panel_elements = @knobs.map(&:name) +
-      #     @knobs.map{ |knob| knob.label.name if knob.label } +
-      #     @edit_buttons.map(&:name) +
-      #     @edit_button_dividers.map(&:name)
-      # @main_panel_elements << @title_image.name
-      # statements = ["declare #{@main_panel_name}[#{@main_panel_elements.count}]"]
-      # @main_panel_elements.each_with_index { |elem, idx | statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})" }
-      # statements
-    # end
-
-    # def main_panel_hide
-    #   statements = ["function hide_panel_main_#{name}"]
-    #   @main_panel_elements.each do |elem|
-    #     statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
-    #   end
-    #   statements << "end function"
-    # end
-    #
-    # def main_panel_show
-    #   statements = ["function show_panel_main_#{name}"]
-    #   @main_panel_elements.each do |elem|
-    #     statements << "  hide_part(#{elem}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
-    #   end
-    #   statements << "end function"
-    # end
-
     def set_mix_panel
       @mix_panel = MixPanel.new
     end
@@ -76,39 +32,8 @@ module Beaotic
       default_functions + feature_functions
     end
 
-    # def set_knobs
-    #   @conf[:knobs].each do |knob_conf|
-    #     knob_identifier = "#{name}_#{knob_conf[:name]}"
-    #     @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf.merge(key_group_name: name))
-    #     knob_conf[:affected_keys].each do |ak|
-    #       label = "label_#{knob_conf[:name]}"
-    #       @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
-    #       @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
-    #       if @conf[:keys][ak][:k_groups][:osc2]
-    #         @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
-    #       end
-    #     end
-    #     # @knobs.last.set_callback()
-    #   end
-    # end
-    #
-    # def set_edit_buttons
-    #   @conf[:edit_buttons].each do |k, v|
-    #     button_identifier = "#{name}_#{k}"
-    #     v = v.merge(image: "button_#{k}", key_group_name: name)
-    #     @edit_buttons << Ksp::CustomButton.new(button_identifier, v)
-    #
-    #     v = v.merge(image: "img_edit_button_divider", add_to_height: 1)
-    #     divider_identifier = "#{name}_#{k}"
-    #     @edit_button_dividers << Ksp::UiImage.new(divider_identifier, v)
-    #   end
-    # end
-
     def default_functions
       pitch_functions + default_edit_button(:osc_drift) +  default_edit_button(:vel_start) + default_edit_button(:vel_vca)
-      # volume_functions
-      # pan_functions
-      # output_assign_functions
     end
 
 
@@ -262,7 +187,6 @@ module Beaotic
 
       @conf[:keys].each_with_index do |key, idx|
         @keys << Beaotic::Key.new(self, idx, key.merge(extra_options))
-
         @keys.last.set_callback
         @keys.last.set_off_callback
       end
@@ -285,11 +209,6 @@ module Beaotic
         puts '  '  + statememt
       end
       puts '  ' + main_panel.title_image.set_position(82, 0)
-
-      # diode.declare.each do |statememt|
-      #   puts '  '  + statememt
-      # end
-      # puts '  ' + diode.set_position(93 + key_group_index * 36, 249)
 
       y = 84
       main_panel.knobs.each_with_index do |knob, knob_index|
@@ -326,13 +245,6 @@ module Beaotic
         puts '  ' + divider.set_position(x, y)
         x += 51
       end
-
-      # puts '{ Global buttons // group_select }'
-      # button = group_select_buttons[key_group_index]
-      # button.declare.each do |statement|
-      #   puts '  ' + statement
-      # end
-      # puts '  ' + button.set_position(83 + key_group_index * 36, 226)
 
       main_panel.statements.each do |statement|
         puts '  ' + statement
