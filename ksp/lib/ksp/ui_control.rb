@@ -42,7 +42,7 @@ module Ksp
         end
       elsif @conf[:function]
         if @conf[:function] == 'none'
-          statements << '{ no finctionality applied }'
+          statements << '{ no functionality applied }'
         else
           statements << "  call #{@conf[:function].gsub(/^KEY_GROUP/, @conf[:key_group_name])}"
         end

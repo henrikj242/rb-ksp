@@ -188,7 +188,10 @@ key_groups.each do |key_group|
   key_group.edit_buttons.each do |button|
     puts button.callback
   end
-  puts "on ui_control ($button_group_#{key_group.name})"
+  key_group.mix_panel.statements.each do |statement|
+    puts statement
+  end
+  puts "on ui_control($button_group_#{key_group.name})"
   puts "  $selected_group := #{key_group_indexes[key_group.name]}"
   puts "  call select_group_#{key_group.name}"
   puts 'end on'
