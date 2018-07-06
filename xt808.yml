@@ -250,32 +250,32 @@ key_groups:
         button: link_decays
       pitch_osc2: sd2_pitch_snappy
     keys:
-      - name: sd_1
+      - name: sd_7
         midi_note: 48
         k_groups:
           osc1: [42]
           osc2: !ruby/range 43..47
-      - name: sd_2
+      - name: sd_8
         midi_note: 49
         k_groups:
           osc1: [48]
           osc2: !ruby/range 49..53
-      - name: sd_3
+      - name: sd_9
         midi_note: 50
         k_groups:
           osc1: [54]
           osc2: !ruby/range 55..59
-      - name: sd_4
+      - name: sd_10
         midi_note: 51
         k_groups:
           osc1: [60]
           osc2: !ruby/range 61..65
-      - name: sd_5
+      - name: sd_11
         midi_note: 52
         k_groups:
           osc1: [66]
           osc2: !ruby/range 67..71
-      - name: sd_6
+      - name: sd_12
         midi_note: 53
         k_groups:
           osc1: [72]
@@ -316,15 +316,15 @@ key_groups:
     features:
       <<: *default_features
     keys:
-      - name: chha
+      - name: hh1_chha
         midi_note: 54
         k_groups:
           osc1: [78]
-      - name: chhb
+      - name: hh1_chhb
         midi_note: 56
         k_groups:
           osc1: [79]
-      - name: ohh
+      - name: hh1_ohh
         midi_note: 58
         k_groups:
           osc1: [80]

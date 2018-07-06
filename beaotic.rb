@@ -1,5 +1,7 @@
 #! /usr/bin/ruby
 
+# ./beaotic.rb xt808  > ../WORK\ XT-808\ Kit/Resources/scripts/xt808.txt
+
 require 'time'
 require 'yaml'
 require 'pp'
@@ -195,9 +197,6 @@ key_groups.each do |key_group|
   end
   key_group.main_panel.edit_buttons.each do |button|
     puts button.callback
-  end
-  key_group.mix_panel.statements.each do |statement|
-    puts statement
   end
   puts "on ui_control($button_group_#{key_group.name})"
   puts "  $selected_group := #{key_group_indexes[key_group.name]}"

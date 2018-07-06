@@ -19,13 +19,12 @@ module Beaotic
       @conf[:name]
     end
 
-
     def set_diode
       @diode = Ksp::CustomDiode.new(name, levels: 3)
     end
 
     def set_mix_panel
-      @mix_panel = MixPanel.new
+      @mix_panel = MixPanel.new(name, @conf[:keys])
     end
 
     def functions
@@ -247,6 +246,11 @@ module Beaotic
       end
 
       main_panel.statements.each do |statement|
+        puts '  ' + statement
+      end
+      puts ''
+
+      mix_panel.statements.each do |statement|
         puts '  ' + statement
       end
       puts ''
