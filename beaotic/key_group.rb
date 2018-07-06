@@ -164,7 +164,6 @@ module Beaotic
       knob_identifiers = @conf[:features][:link_decays][:knobs].map{ |knob| "#{name}_#{knob}" }
       link_decay_knobs = main_panel.knobs.select{ |knob| knob_identifiers.include?(knob.identifier) }
       statements = []
-      # statements << "{ #{link_decay_knobs.inspect} }"
       statements << "function #{name}_link_decays_1"
       statements << "  if (#{link_decays_button.name} = 1)"
       link_decay_knobs[1..-1].map{ |knob| statements << "    #{knob.name} := #{link_decay_knobs[0].name}" }

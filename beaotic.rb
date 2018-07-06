@@ -26,7 +26,6 @@ end
 key_groups = []
 group_select_buttons = []
 key_group_indexes = {}
-# Populate ruby elements
 @conf[:key_groups].each_with_index do |key_group_conf, idx|
   key_group_conf = key_group_conf.merge(index: idx)
   key_groups << Beaotic::KeyGroup.new(key_group_conf)
@@ -40,8 +39,10 @@ key_group_indexes = {}
   key_group_indexes[key_group_conf[:name]] = idx
 end
 
-# pp key_groups
-# exit(0)
+if ARGV[1] == 'inspect'
+  pp key_groups
+  exit(0)
+end
 
 puts "{ Created by: #{ENV['USER'] || ENV['USERNAME']} at #{Time.now} }"
 # ==========   ON INIT
@@ -131,7 +132,6 @@ puts '  ' + accent.label.set_position(564, 300)
 
 puts 'end on'
 # END ON INIT ===============
-
 
 
 # GROUP SELECT ===============

@@ -15,11 +15,7 @@ module Ksp
       @label = ui_image
     end
 
-    @callback_statements = []
-
     def callback
-      # return [] if @conf[:function] == 'none'
-
       statements = ["on ui_control(#{name})"]
       message = "callback: #{name}"
       if @conf[:function] == 'inline'
