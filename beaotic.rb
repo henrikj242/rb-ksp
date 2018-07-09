@@ -1,5 +1,7 @@
 #! /usr/bin/ruby
 
+# run this script from where the yml-file is located
+# point the output to the where your nkr file gets its scripts from
 # ./beaotic.rb xt808  > ../WORK\ XT-808\ Kit/Resources/scripts/xt808.txt
 
 require 'time'
@@ -9,13 +11,15 @@ require_relative 'lib'
 $LOAD_PATH.unshift './ksp/lib/'
 require 'ksp'
 require_relative 'beaotic/beaotic'
-debug = false
 
 project_name = ARGV[0]
-conf_file = yaml_file("#{File.dirname(__FILE__)}/#{project_name}")
+conf_file = "./#{project_name}.yml"
 @conf = parse_config(conf_file)
 
-pp @conf if debug
+debug_file = File.new("./#{project_name}.debug", 'w')
+
+debug_file.puts "# [DEBUG] { Created by: #{ENV['USER'] || ENV['USERNAME']} at #{Time.now} }"
+PP::pp @conf, debug_file
 
 if ARGV[1] == 'img-txt'
   img = Beaotic::Image.new(@conf[:perf_view])
@@ -39,10 +43,8 @@ key_group_indexes = {}
   key_group_indexes[key_group_conf[:name]] = idx
 end
 
-if ARGV[1] == 'inspect'
-  pp key_groups
-  exit(0)
-end
+debug_file.puts "# [DEBUG] { Created by: #{ENV['USER'] || ENV['USERNAME']} at #{Time.now} }"
+PP::pp key_groups, debug_file
 
 puts "{ Created by: #{ENV['USER'] || ENV['USERNAME']} at #{Time.now} }"
 # ==========   ON INIT
@@ -55,8 +57,7 @@ puts '  ' + "set_ui_height_px(#{@conf[:perf_view][:height_px]})"
 # puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "_reference_group")'
 puts '  ' + 'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")'
 puts '  ' + 'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")'
-
-# puts '  ' + "declare ui_knob $accent(1, #{@conf[:accent][:volume_boost_max].to_i * 1000}, 1)"
+# puts '  ' + 'declare $active_panel := ' + key_groups.first.name # puts '  ' + "declare ui_knob $accent(1, #{@conf[:accent][:volume_boost_max].to_i * 1000}, 1)"
 
 Ksp::Utility.split_lists_declare.each do |statement|
   puts '  ' + statement
@@ -109,11 +110,16 @@ end
 puts '  ' + button_note_edit.set_position(550, 224)
 puts '  ' + button_note_edit.name + ' := 0'
 
-key_groups.select do |kg|
-  kg.name != 'bd'
-end.map do |g|
-  g.main_panel.elements.map do |elem|
-    puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
+key_groups.each do |kg|
+  if kg.name != 'bd'
+    kg.main_panel.elements.each do |elem|
+      puts "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
+    end
+  end
+    kg.mix_panel.channels.each do |channel|
+    channel.elements.each do |elem|
+      puts "  hide_part(#{elem.name}, $HIDE_WHOLE_CONTROL)"
+    end
   end
 end
 
@@ -142,21 +148,30 @@ key_groups.each do |key_group|
   key_group.main_panel.show.each do |statement|
     puts statement
   end
+  key_group.mix_panel.hide.each do |statement|
+    puts statement
+  end
+  key_group.mix_panel.show.each do |statement|
+    puts statement
+  end
 end
 
 puts 'function set_display'
 key_groups.each do |key_group|
   puts '  ' + "call hide_panel_main_#{key_group.name}"
+  puts '  ' + "call hide_panel_mix_#{key_group.name}"
 end
-puts '  ' + 'if ($button_note_edit = 0)'
 puts '  ' + '  select ($selected_group)'
   key_groups.each_with_index do |key_group, key_group_idx|
     puts '  ' + "    case #{key_group_idx}"
     puts '  ' + "      message(\"selecting #{key_group.name}\")"
-    puts '  ' + "      call show_panel_main_#{key_group.name}"
+    puts '  ' + '      if ($button_note_edit = 0)'
+    puts '  ' + "        call show_panel_main_#{key_group.name}"
+    puts '  ' + '      else'
+    puts '  ' + "        call show_panel_mix_#{key_group.name}"
+    puts '  ' + '      end if'
   end
 puts '  ' + '  end select'
-puts '  ' + 'end if'
 puts 'end function'
 
 global_key_group_functions = []

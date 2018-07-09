@@ -108,12 +108,22 @@ default_buttons: &default_buttons
     modulator: VEL_PITCH
     intensity: 300000
 
+skin_offsets: &skin_offsets
+  - ~     # 0
+  - ~     # 1
+  - 420   # 2
+  - 840   # 3
+  - 1260  # 4
+  - ~     # 5
+  - 1680  # 6
+
 # -----------------------------------------------------------------------------
 #    Key Groups
 # -----------------------------------------------------------------------------
 
 key_groups:
   - name: bd
+    skin_offsets: *skin_offsets
     features:
       <<: *default_features
       round_robin:
@@ -196,6 +206,7 @@ key_groups:
       pitch_impact:
         function: KEY_GROUP_pitch_osc2
   - name: sd1
+    skin_offsets: *skin_offsets
     features:
       <<: *default_features
     keys:
@@ -238,6 +249,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: sd2
+    skin_offsets: *skin_offsets
     features:
       <<: *default_features
       round_robin:
@@ -313,6 +325,7 @@ key_groups:
       pitch_snappy:
         function: KEY_GROUP_pitch_osc2
   - name: hh1
+    skin_offsets: *skin_offsets
     features:
       <<: *default_features
     keys:

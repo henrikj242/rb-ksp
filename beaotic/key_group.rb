@@ -23,8 +23,12 @@ module Beaotic
       @diode = Ksp::CustomDiode.new(name, levels: 3)
     end
 
+    def skin_offset
+      @conf[:skin_offsets][@conf[:keys].count]
+    end
+
     def set_mix_panel
-      @mix_panel = MixPanel.new(name, @conf[:keys])
+      @mix_panel = MixPanel.new(name, @conf[:keys], skin_offset)
     end
 
     def functions

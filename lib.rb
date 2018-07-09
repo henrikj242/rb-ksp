@@ -20,10 +20,6 @@ def parse_config(conf_file)
   symbolize(YAML::load_file(conf_file))
 end
 
-def yaml_file(filename)
-  "#{filename}.yml"
-end
-
 def text_file(filename)
   "#{filename}.txt"
 end

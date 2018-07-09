@@ -21,7 +21,6 @@ module Beaotic
       @edit_button_dividers = []
       @main_panel_name = "%panel_main_#{name}"
       @elements = []
-
       @title_image = Ksp::UiImage.new("title_#{name}", image: "title_#{name}")
 
       set_knobs
@@ -57,6 +56,7 @@ module Beaotic
 
     def show
       statements = ["function show_panel_main_#{name}"]
+      statements << '  set_skin_offset(0)'
       @elements.each do |elem|
         statements << "  hide_part(#{elem}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
       end
