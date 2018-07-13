@@ -75,7 +75,7 @@ module Beaotic
             @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
           end
         end
-        # @knobs.last.set_callback()
+        @knobs.last.set_callback(ui_control_callback(@knobs.last))
       end
     end
 
@@ -89,6 +89,36 @@ module Beaotic
         divider_identifier = "#{name}_#{k}"
         @edit_button_dividers << Ksp::UiImage.new(divider_identifier, v)
       end
+    end
+
+    def ui_control_callback(ui_control)
+      statements = ["on ui_control(#{ui_control.name})"]
+      message = "callback: #{ui_control.name}"
+      if ui_control.conf[:function] == 'inline'
+        ui_control.k_groups.keys.each do |osc|
+          ui_control.k_groups[osc].each do |k_group|
+            if ui_control.conf[:modulator]
+              message += " modulator: #{ui_control.conf[:modulator]}"
+              statements << "  $mod_idx_#{ui_control.identifier} := find_mod(#{k_group}, \"#{ui_control.conf[:modulator]}\")"
+            else
+              statements << "  $mod_idx_#{ui_control.identifier} := -1"
+            end
+            message += " param: #{ui_control.conf[:parameter]}"
+            statements << "  set_engine_par(#{ui_control.conf[:parameter]}, #{ui_control.name}, #{k_group}, $mod_idx_#{ui_control.identifier}, -1)"
+          end
+        end
+      elsif ui_control.conf[:function]
+        if ui_control.conf[:function] == 'none'
+          statements << '{ no functionality applied }'
+        else
+          statements << "  call #{ui_control.conf[:function].gsub(/^KEY_GROUP/, ui_control.conf[:key_group_name])}"
+        end
+      else
+        statements << "  call #{ui_control.identifier}"
+      end
+      statements << "message (\"#{message} val: \" & #{ui_control.name})"
+      statements << 'end on'
+      statements
     end
   end
 end

@@ -1,7 +1,6 @@
 module Ksp
   class UiControl < Variable
-    attr_reader :name
-    attr_accessor :callbacks
+    attr_reader :name, :callback
 
     def set_position(x, y)
       "move_control_px(#{name}, #{x}, #{y})"
@@ -15,34 +14,8 @@ module Ksp
       @label = ui_image
     end
 
-    def callback
-      statements = ["on ui_control(#{name})"]
-      message = "callback: #{name}"
-      if @conf[:function] == 'inline'
-        k_groups.keys.each do |osc|
-          k_groups[osc].each do |k_group|
-            if @conf[:modulator]
-              message += " modulator: #{@conf[:modulator]}"
-              statements << "  $mod_idx_#{@identifier} := find_mod(#{k_group}, \"#{@conf[:modulator]}\")"
-            else
-              statements << "  $mod_idx_#{@identifier} := -1"
-            end
-            message += " param: #{@conf[:parameter]}"
-            statements << "  set_engine_par(#{@conf[:parameter]}, #{name}, #{k_group}, $mod_idx_#{@identifier}, -1)"
-          end
-        end
-      elsif @conf[:function]
-        if @conf[:function] == 'none'
-          statements << '{ no functionality applied }'
-        else
-          statements << "  call #{@conf[:function].gsub(/^KEY_GROUP/, @conf[:key_group_name])}"
-        end
-      else
-        statements << "  call #{@identifier}"
-      end
-      statements << "message (\"#{message} val: \" & #{name})"
-      statements << 'end on'
-      statements
+    def set_callback(callback)
+      @callback = callback
     end
   end
 end
