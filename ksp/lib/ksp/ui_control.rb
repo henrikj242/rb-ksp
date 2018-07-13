@@ -17,5 +17,16 @@ module Ksp
     def set_callback(callback)
       @callback = callback
     end
+
+    def xy=(x, y)
+      @x, @y = x, y
+    end
+
+    def statements
+      super + [
+          set_position(@x, @y)
+      ]
+    end
+
   end
 end

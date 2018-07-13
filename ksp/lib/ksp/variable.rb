@@ -10,7 +10,7 @@ module Ksp
         default_value: nil,
         arr_length: nil
     )
-      @type = type.to_s
+      @type = type
       @name = name(name)
       @persistent = !!persistent
       @arr_length = arr_length
@@ -28,7 +28,7 @@ module Ksp
         "%#{name}"
       when 'string_array'
         "!#{name}"
-      else ''
+      else
         ''
       end
     end

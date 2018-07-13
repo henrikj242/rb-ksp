@@ -60,7 +60,7 @@ Such a command should look for a file name xt808.yml, process it and save the ge
 # Class hierachy #
 ```
 Ksp::
-    Variable::
+    Variable
         constant 
         integer 
         string

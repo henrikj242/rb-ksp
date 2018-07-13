@@ -10,6 +10,7 @@ module Beaotic
     def initialize(key_group_conf)
       @conf = key_group_conf
 
+      # affect all keys if none specified
       @conf[:knobs].each_index do |index|
         if @conf[:knobs][index][:affected_keys].nil?
           @conf[:knobs][index][:affected_keys] = 0..@conf[:keys].count-1

@@ -1,6 +1,7 @@
 module Beaotic
-  $LOAD_PATH.unshift '../ksp/lib/'
+  $LOAD_PATH.unshift './ksp/lib/'
   require 'ksp'
+  require_relative './instrument'
   require_relative './key'
   require_relative './image'
   require_relative './key_group'
