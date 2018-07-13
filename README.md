@@ -57,4 +57,44 @@ Something like this...
 
 Such a command should look for a file name xt808.yml, process it and save the generated code in xt808.txt
 
+# Class hierachy #
+```
+Ksp::
+    Variable::
+        constant 
+        integer 
+        string
+        integer_array
+        string_array        
+        UiControl
+            # Built-in types
+            UiSlider
+            UiSwitch
+            UiMenu
+            UiMenuItem
+            ...
+            # Custom types
+            UiImage
+            UiDiode
+            UiButton
+            UiVerticalFader
+            UiHorizontalFader
+            UiKnob                        
+    ImageSize
+            
+Beaotic::
+    # Organizational
+    Instrument
+    KeyGroup
+    MainPanel
+    MixPanel
+    MixChannel
+    Key        
+    OnNoteCallback
+    OnReleaseCallback
+    Function
+```    
+
+
+
 [beaotic]: https://beaotic.com
