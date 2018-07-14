@@ -1,9 +1,22 @@
 module Ksp
   class UiControl < Variable
+    attr_accessor :picture
     attr_reader :name, :callback
 
-    def set_position(x, y)
-      "move_control_px(#{name}, #{x}, #{y})"
+    def initialize(type:, name:, persistent: true,
+                   args: nil, default_value: nil)
+      super(
+          type: type, name: name, persistent: persistent,
+          args: args, default_value: default_value
+      )
+    end
+
+    def set_picture
+      "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"#{@picture}\")"
+    end
+
+    def set_position
+      "move_control_px(#{name}, #{@x}, #{@y})"
     end
 
     def hide
@@ -18,15 +31,16 @@ module Ksp
       @callback = callback
     end
 
-    def xy=(x, y)
+    def xy(x, y)
       @x, @y = x, y
     end
 
     def statements
       super + [
-          set_position(@x, @y)
+          set_picture,
+          set_position,
+          hide
       ]
     end
-
   end
 end

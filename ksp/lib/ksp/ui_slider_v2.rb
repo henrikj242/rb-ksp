@@ -7,7 +7,6 @@ module Ksp
       super(
           type: 'ui_slider',
           name: name,
-          persistent: true,
           args: args,
           default_value: default_value
       )
@@ -20,7 +19,6 @@ module Ksp
       #     osc2: []
       # }
     end
-
 
 
     # def declare

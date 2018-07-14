@@ -1,7 +1,4 @@
-#! /usr/bin/ruby
-require 'time'
-require 'yaml'
-require 'pp'
+#! /usr/bin/env ruby
 
 require_relative 'beaotic/beaotic'
 

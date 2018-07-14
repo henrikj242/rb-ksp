@@ -5,7 +5,7 @@ module Beaotic
       @conf = conf
       @name = conf[:name]
       @base_x = 80 + (idx * 76)
-      set_elements
+      # set_elements
     end
 
     def set_title_image

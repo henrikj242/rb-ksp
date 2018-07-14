@@ -80,19 +80,23 @@ Ksp::
             UiVerticalFader
             UiHorizontalFader
             UiKnob                        
+    Script
+      .on_init
+      .on_ui_controls
+      .on_note_callback
+      .on_release_callback
+      .functions
     ImageSize
             
 Beaotic::
-    # Organizational
     Instrument
     KeyGroup
-    MainPanel
-    MixPanel
-    MixChannel
-    Key        
-    OnNoteCallback
-    OnReleaseCallback
-    Function
+      .MainPanel
+        .knobs
+        .edit_buttons
+      .MixPanel
+        .MixChannel
+      .Keys        
 ```    
 
 

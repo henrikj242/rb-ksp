@@ -170,14 +170,10 @@ key_groups:
           osc2: !ruby/range 31..35
     knobs:
       - <<: *default_pitch
-#        affected_keys: !ruby/range 0..5
       - <<: *default_hold
-#        affected_keys: !ruby/range 0..5
       - <<: *default_decay
-#        affected_keys: !ruby/range 0..5
         function: KEY_GROUP_link_decays_1
       - name: impact_level
-#        affected_keys:  !ruby/range 0..5
         affected_oscs: [osc2]
         min_val: 1
         default_val: 500
@@ -186,7 +182,6 @@ key_groups:
         ui_control:
           mouse_behaviour: -500
       - name: impact_color
-#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc2]
         min_val: 1
         default_val: 24
@@ -196,7 +191,6 @@ key_groups:
           mouse_behaviour: -500
       - <<: *default_decay
         name: impact_decay
-#        affected_keys:  !ruby/range 0..5
         affected_oscs: [osc2]
         function: KEY_GROUP_link_decays_2
       - <<: *default_level

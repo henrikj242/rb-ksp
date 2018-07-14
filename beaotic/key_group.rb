@@ -1,18 +1,12 @@
 module Beaotic
   class KeyGroup
-    attr :conf, :knobs, :edit_buttons, :edit_button_dividers, :mix_panel,
+    attr_accessor :conf
+    attr :knobs, :edit_buttons, :edit_button_dividers, :mix_panel,
          :title_image, :diode, :backdrops, :keys, :round_robin_entries,
          :main_panel_elements, :main_panel
 
-    def initialize(key_group_conf)
-      @conf = key_group_conf
-      set_main_panel
-
-      @elements = @elements
+    def initialize
       @keys = []
-      set_diode
-      set_mix_panel
-      set_keys
     end
 
     def name
@@ -211,27 +205,17 @@ module Beaotic
           statements << statement
         end
       end
-
-      main_panel.title_image.declare.each do |statememt|
-        statements << statememt
+      main_panel.title_image.declare.each do |statement|
+        statements << statement
       end
-      statements << main_panel.title_image.set_position(82, 0)
+      statements << main_panel.title_image.set_position
 
-      y = 84
-      main_panel.knobs.each_with_index do |knob, knob_index|
-        knob.declare.each do |statement|
-          statements << statement
-        end
-        x = knob.conf[:position] ?
-                19 + (knob.conf[:position][0] * 78) :
-                19 + (knob_index * 78)
-        statements << knob.set_position(x, y)
-        knob.label.declare.each do |statement|
-          statements <<  statement
-        end
-        statements <<  knob.label.set_position(x-16, y - 41)
+      main_panel.knobs.each do |knob|
+        statements += knob.statements
         statements <<  ''
       end
+
+      return statements.map { |statement| '  ' + statement } + [" { INCOMPLETE } "]
 
       x = 18
       y = 179

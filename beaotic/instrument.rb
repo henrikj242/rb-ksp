@@ -3,19 +3,31 @@ module Beaotic
     def initialize(project_name)
       @conf = parse_config("./#{project_name}.yml")
       @debug_file = File.new("./#{project_name}.debug", 'w')
-      @script = Script.new(@conf)
-
       @key_groups = []
-      populate_key_groups(@script)
+      @on_init = [
+          'message("")',
+          'make_perfview',
+          "set_script_title(\"#{@conf[:global][:project_name]}\")",
+          "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
+          'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")',
+          'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")',
+      ].map { |line|  '  ' + line}
+      populate_key_groups
+      @script = Ksp::Script.new
+      @script.on_init = @on_init
     end
 
-    def populate_key_groups(script)
+    def populate_key_groups
       @conf[:key_groups].each_with_index do |key_group_conf, idx|
         key_group_conf = key_group_conf.merge(index: idx)
-        @key_groups << Beaotic::KeyGroup.new(key_group_conf)
-      end
-      @key_groups.each do |key_group|
-        script.on_init += key_group.statements
+        key_group = Beaotic::KeyGroup.new
+        key_group.conf = key_group_conf
+        key_group.set_main_panel
+        # key_group.set_diode
+        # key_group.set_mix_panel
+        # key_group.set_keys
+        @key_groups << key_group
+        @on_init += key_group.statements
       end
     end
 
@@ -58,42 +70,6 @@ module Beaotic
 
     def parse_config(conf_file)
       symbolize(YAML::load_file(conf_file))
-    end
-
-  end
-
-  class Script
-    attr_accessor(
-      :on_init,
-      :functions,
-      :on_ui_control_callbacks,
-      :on_note_callback,
-      :on_release_callback
-    )
-    attr_reader :conf
-
-    def initialize(conf)
-      @conf = conf
-      @on_init = [
-          'message("")',
-          'make_perfview',
-          "set_script_title(\"#{conf[:global][:project_name]}\")",
-          "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
-          'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")',
-          'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")',
-      ].map { |line|  '  ' + line}
-      @functions = []
-      @on_ui_control_callbacks = []
-      @on_note_callback = []
-      @on_release_callback = []
-    end
-
-    def statements
-      ['on init'] + @on_init + ['end on'] +
-      @functions.map(&:statements) +
-      @on_ui_control_callbacks.map(&:statements) +
-      ['on note'] + @on_note_callback + ['end on'] +
-      ['on release'] + @on_release_callback + ['end on']
     end
   end
 end

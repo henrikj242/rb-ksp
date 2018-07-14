@@ -1,21 +1,11 @@
 module Beaotic
-  class Knob < UiSlider
-    attr_accessor :k_groups
+  class Knob < Ksp::UiSliderV2
+    attr_reader :name, :label
 
-    def initialize(identifier, conf)
-      super(
-        identifier,
-        name: "knob_#{identifier}",
-
-      )
-      # @name = "$knob_#{@identifier}"
+    def initialize(name:, diameter: 48, label:, min_val:, default_val:, max_val:)
+      super(name: name, args: [min_val, max_val], default_value: default_val)
+      @picture = "knob_#{diameter}"
+      @label = Ksp::UiImage.new(name: "label_#{name}", image: "label_#{label}")
     end
-
-    def declare
-      statements = super
-      statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"knob_48\")"
-      statements << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_MOUSE_BEHAVIOUR, -500)"
-    end
-
   end
 end
