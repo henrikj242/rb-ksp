@@ -3,7 +3,7 @@ module Ksp
     # attr_accessor :label
     # attr_reader :name, :identifier, :conf
 
-    def initialize(name: '', args: nil, default_value: nil)
+    def initialize(name:, args: nil, default_value: nil)
       super(
           type: 'ui_slider',
           name: name,

@@ -2,23 +2,16 @@ module Ksp
   class Variable
     attr_reader :type, :name
 
-    def initialize(
-        type: '',
-        name: '',
-        persistent: false,
-        args: nil,
-        default_value: nil,
-        arr_length: nil
-    )
+    def initialize(type:,name:,persistent: false,args: nil,default_value: nil,arr_length: nil)
       @type = type
-      @name = name(name)
+      @name = get_name(name)
       @persistent = !!persistent
       @arr_length = arr_length
       @args = args
       @default_value = default_value
     end
 
-    def name(name)
+    def get_name(name)
       case @type
       when 'constant', 'integer', /ui_+/
         "$#{name}"
