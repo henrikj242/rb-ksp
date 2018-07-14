@@ -1,5 +1,6 @@
 require 'ksp/version'
 require 'ksp/script'
+require 'ksp/function'
 require 'ksp/variable'
 require 'ksp/integer'
 require 'ksp/ui_control'

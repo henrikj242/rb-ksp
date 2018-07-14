@@ -5,22 +5,18 @@ module Ksp
 
     def initialize(picture: nil, name:)
       super(name: name, persistent: false)
-      @gui_directory = '_gui'
       @picture = picture || "image_#{name}"
     end
 
-    def set_dimensions(width: nil, height: nil, add_to_width: nil, add_to_height: nil)
-      image_size = ImageSize.path("#{@gui_directory}/#{@picture}.png")
-      @width = width || image_size.width + add_to_width.to_i
-      @height = height || image_size.height  + add_to_height.to_i
-    end
+    # def set_dimensions(width: nil, height: nil, add_to_width: nil, add_to_height: nil)
+    #   image_size = ImageSize.path("#{@gui_directory}/#{@picture}.png")
+    #   @width = width || image_size.width + add_to_width.to_i
+    #   @height = height || image_size.height  + add_to_height.to_i
+    # end
 
-    def statements
-      super + [
-          "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_WIDTH,#{@width})",
-          "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_HEIGHT,#{@height})"
-      ]
-    end
+    # def statements
+    #   super
+    # end
 
     # def initialize_obsolete(identifier, conf = {})
     #   @gui_directory = '_gui'

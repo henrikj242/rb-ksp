@@ -9,6 +9,12 @@ module Ksp
       @arr_length = arr_length
       @args = args
       @default_value = default_value
+      @custom_statements = []
+    end
+
+    def add_custom_statements(statements)
+      @custom_statements += statements
+      self
     end
 
     def get_name(name)

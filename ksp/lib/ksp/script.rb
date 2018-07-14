@@ -5,7 +5,7 @@ module Ksp
         :functions,
         :on_ui_control_callbacks,
         :on_note_callback,
-        :on_release_callback
+        :on_release_callback,
     )
 
     def initialize

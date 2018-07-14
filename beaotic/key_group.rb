@@ -23,6 +23,10 @@ module Beaotic
 
     def set_main_panel
       @main_panel = MainPanel.new(@conf)
+      @main_panel.set_knobs
+      # @main_panel.set_edit_buttons
+      @main_panel.set_main_panel_elements
+      @main_panel.set_functions
     end
 
     def set_mix_panel
@@ -252,7 +256,7 @@ module Beaotic
     end
 
     def print
-      statements.each { |statement| puts statement }
+      # statements.each { |statement| puts statement }
     #   puts '  ' + "declare $#{name}_round_robin_next := 1"
     #   puts '  ' + "declare $#{name}_round_robin_max := #{conf[:features][:round_robin][:entries]}"
     #   puts '  ' + "declare $#{name}_new_event"

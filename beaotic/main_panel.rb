@@ -5,7 +5,8 @@ module Beaotic
                 :edit_buttons,
                 :edit_button_dividers,
                 :title_image,
-                :elements
+                :elements,
+                :functions
 
     def initialize(key_group_conf)
       @conf = key_group_conf
@@ -24,10 +25,7 @@ module Beaotic
       @elements = []
       @title_image = Ksp::UiImage.new(name: "title_#{name}", picture: "title_#{name}")
       @title_image.xy(82, 0)
-      @title_image.set_dimensions
-      set_knobs
-      # set_edit_buttons
-      # set_main_panel_elements
+      # @title_image.set_dimensions
     end
 
     def name
@@ -36,10 +34,14 @@ module Beaotic
 
     def set_main_panel_elements
       @elements = @knobs.map(&:name) +
-          @knobs.map{ |knob| knob.label.name if knob.label } +
-          @edit_buttons.map(&:name) +
-          @edit_button_dividers.map(&:name)
+          @knobs.map{ |knob| knob.label.name if knob.label } # +
+          # @edit_buttons.map(&:name) +
+          # @edit_button_dividers.map(&:name)
       @elements << @title_image.name
+    end
+
+    def set_functions
+      @functions = [hide, show]
     end
 
     def statements
@@ -49,20 +51,18 @@ module Beaotic
     end
 
     def hide
-      statements = ["function hide_panel_main_#{name}"]
-      @elements.each do |elem|
-        statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
-      end
-      statements << "end function"
+      f = Ksp::Function.new("hide_panel_main_#{name}")
+      f.append(@elements.map {|element| "hide_part(#{element}, $HIDE_WHOLE_CONTROL)" })
     end
 
     def show
-      statements = ["function show_panel_main_#{name}"]
-      statements << '  set_skin_offset(0)'
-      @elements.each do |elem|
-        statements << "  hide_part(#{elem}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
-      end
-      statements << "end function"
+      f = Ksp::Function.new("show_panel_main_#{name}")
+      f.set_body(['set_skin_offset(0)'])
+      f.append(
+          @elements.map do |element|
+            "hide_part(#{element}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
+          end
+      )
     end
 
     def set_knobs
@@ -80,7 +80,9 @@ module Beaotic
                 19 + (knob_conf[:position][0] * 78) :
                 19 + (idx * 78)
         knob.xy(x, y)
+        knob.label_offset
         @knobs << knob
+
       end
     end
 
