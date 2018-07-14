@@ -205,10 +205,12 @@ module Beaotic
           statements << statement
         end
       end
-      main_panel.title_image.declare.each do |statement|
-        statements << statement
-      end
-      statements << main_panel.title_image.set_position
+      # main_panel.title_image.declare.each do |statement|
+      #   statements << statement
+      # end
+      # statements << main_panel.title_image.set_position
+
+      statements += main_panel.title_image.statements
 
       main_panel.knobs.each do |knob|
         statements += knob.statements

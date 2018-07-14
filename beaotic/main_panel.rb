@@ -22,8 +22,9 @@ module Beaotic
       @edit_button_dividers = []
       @main_panel_name = "%panel_main_#{name}"
       @elements = []
-      @title_image = Ksp::UiImage.new(name: "title_#{name}", image: "title_#{name}")
+      @title_image = Ksp::UiImage.new(name: "title_#{name}", picture: "title_#{name}")
       @title_image.xy(82, 0)
+      @title_image.set_dimensions
       set_knobs
       # set_edit_buttons
       # set_main_panel_elements
@@ -67,7 +68,6 @@ module Beaotic
     def set_knobs
       y = 84
       @conf[:knobs].each_with_index do |knob_conf, idx|
-        # knob_identifier = "#{name}_#{knob_conf[:name]}"
         knob = Beaotic::Knob.new(
             name: "#{name}_#{knob_conf[:name]}",
             diameter: 48,
@@ -81,17 +81,6 @@ module Beaotic
                 19 + (idx * 78)
         knob.xy(x, y)
         @knobs << knob
-
-        # @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf.merge(key_group_name: name))
-        # knob_conf[:affected_keys].each do |ak|
-        #   label = "label_#{knob_conf[:name]}"
-        #   @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
-        #   @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
-        #   if @conf[:keys][ak][:k_groups][:osc2]
-        #     @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
-        #   end
-        # end
-        # @knobs.last.set_callback(ui_control_callback(@knobs.last))
       end
     end
 

@@ -5,7 +5,7 @@ module Beaotic
       @debug_file = File.new("./#{project_name}.debug", 'w')
       @key_groups = []
       @on_init = [
-          'message("")',
+          'message("Hello world")',
           'make_perfview',
           "set_script_title(\"#{@conf[:global][:project_name]}\")",
           "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
