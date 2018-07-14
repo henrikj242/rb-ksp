@@ -86,21 +86,21 @@ module Beaotic
       end
     end
 
-    def set_knobs_old
-      @conf[:knobs].each do |knob_conf|
-        knob_identifier = "#{name}_#{knob_conf[:name]}"
-        @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf.merge(key_group_name: name))
-        knob_conf[:affected_keys].each do |ak|
-          label = "label_#{knob_conf[:name]}"
-          @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
-          @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
-          if @conf[:keys][ak][:k_groups][:osc2]
-            @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
-          end
-        end
-        @knobs.last.set_callback(ui_control_callback(@knobs.last))
-      end
-    end
+    # def set_knobs_old
+    #   @conf[:knobs].each do |knob_conf|
+    #     knob_identifier = "#{name}_#{knob_conf[:name]}"
+    #     @knobs << Ksp::CustomKnob.new(knob_identifier, knob_conf.merge(key_group_name: name))
+    #     knob_conf[:affected_keys].each do |ak|
+    #       label = "label_#{knob_conf[:name]}"
+    #       @knobs.last.label = Ksp::UiImage.new("label_#{knob_identifier}", image: label)
+    #       @knobs.last.k_groups[:osc1] += @conf[:keys][ak][:k_groups][:osc1]
+    #       if @conf[:keys][ak][:k_groups][:osc2]
+    #         @knobs.last.k_groups[:osc2] += @conf[:keys][ak][:k_groups][:osc2]
+    #       end
+    #     end
+    #     @knobs.last.set_callback(ui_control_callback(@knobs.last))
+    #   end
+    # end
 
     def set_edit_buttons
       @conf[:edit_buttons].each do |k, v|

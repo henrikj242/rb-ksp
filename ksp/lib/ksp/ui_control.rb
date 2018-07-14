@@ -4,12 +4,19 @@ module Ksp
     attr_reader :name, :callback
 
     def initialize(type:, name:, persistent: true,
-                   args: nil, default_value: nil)
+                   args: nil, default_value: nil,
+                   visible: true, text: '')
       super(
           type: type, name: name, persistent: persistent,
           args: args, default_value: default_value
       )
       @gui_directory = '_gui'
+      @visible = visible
+      @text = text
+    end
+
+    def set_text
+      "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_TEXT,\"#{@text}\")"
     end
 
     def set_picture
@@ -42,10 +49,6 @@ module Ksp
       ]
     end
 
-    # def label=(ui_image)
-    #   @label = ui_image
-    # end
-
     def set_callback(callback)
       @callback = callback
     end
@@ -58,7 +61,9 @@ module Ksp
       super +
           [set_picture] +
           set_dimensions +
-          [set_position]
+          [set_position] +
+          [set_text]
+          (@visible ? [] : [hide])
     end
   end
 end

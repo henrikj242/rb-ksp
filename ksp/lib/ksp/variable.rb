@@ -91,7 +91,7 @@ module Ksp
           declare,
           assign_default_value,
           persist
-      ]
+      ] + @custom_statements
     end
   end
 end

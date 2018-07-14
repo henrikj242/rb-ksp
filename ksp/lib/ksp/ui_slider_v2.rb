@@ -3,12 +3,13 @@ module Ksp
     # attr_accessor :label
     # attr_reader :name, :identifier, :conf
 
-    def initialize(name:, args: nil, default_value: nil)
+    def initialize(name:, args: nil, default_value: nil, visible: true)
       super(
           type: 'ui_slider',
           name: name,
           args: args,
-          default_value: default_value
+          default_value: default_value,
+          visible: visible
       )
 
       # @directory = '_gui'

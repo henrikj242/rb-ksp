@@ -33,7 +33,7 @@ module Beaotic
       # statements = ['{ Global buttons // midi_select }']
       button_midi_select = Ksp::UiSwitch.new(
         name: 'midi_select',
-        default_value: 0
+        default_value: 0,
       )
       button_midi_select.picture = 'button_midi_select'
       # button_midi_select = Ksp::CustomButton.new(
@@ -69,7 +69,7 @@ module Beaotic
 
     def set_on_init
       @on_init = [
-          'message("Hello world")',
+          "message(\"Built by Ksp::Beaotic at #{Time.now}\")",
           'make_perfview',
           "set_script_title(\"#{@conf[:global][:project_name]}\")",
           "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
@@ -88,6 +88,8 @@ module Beaotic
           kg.main_panel.elements.each do |elem|
             @on_init << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
           end
+        else
+          ''
         end
         # kg.mix_panel.channels.each do |channel|
         #   channel.elements.each do |elem|
