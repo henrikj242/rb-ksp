@@ -23,11 +23,11 @@ module Beaotic
     end
 
     def on_note_callback
-      @key_groups.map(&:diode_on_callbacks).flatten
+      @key_groups.map(&:on_note_callbacks).flatten
     end
 
     def on_release_callback
-      @key_groups.map(&:diode_off_callbacks).flatten
+      @key_groups.map(&:on_release_callbacks).flatten
     end
 
     def on_ui_control_callbacks
@@ -98,12 +98,12 @@ module Beaotic
     def on_init
       statements = [
         "message(\"Built by Ksp::Beaotic at #{Time.now}\")",
-        'make_perfview',
+        "make_perfview",
         "set_script_title(\"#{@conf[:global][:project_name]}\")",
         "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
-        'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")',
-        'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")',
-        'declare $selected_group := 0',
+        "set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, \"wallpaper\")",
+        "set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, \"img_icon_hejo\")",
+        "declare $selected_group := 0",
       ].map { |line|  '  ' + line }
       statements += global_buttons.map do |button|
         button.statements.map { |line|  '  ' + line }
@@ -142,11 +142,11 @@ module Beaotic
         set_display.append [
           "    case #{key_group_idx}",
           "      message(\"selecting #{key_group.name}\")",
-          '      if ($button_note_edit = 0)',
+          "      if ($button_note_edit = 0)",
           "        call show_panel_main_#{key_group.name}",
-          '      else',
+          "      else",
           "        call show_panel_mix_#{key_group.name}",
-          '      end if'
+          "      end if"
         ]
       end
       set_display.append ['  end select']

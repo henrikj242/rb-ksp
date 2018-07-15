@@ -199,19 +199,31 @@ module Beaotic
       # end
     end
 
-    def diode_on_callbacks
+    def on_note_callbacks
+
+      # Listen for notes beonging to the key_group
+      ["if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)"] +
+
+      # Activate the key_group diode
       [
-          "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
-          "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
-          "    #{@diode.name} := 2",
-          "  else",
-          "    #{@diode.name} := 1",
-          "  end if",
-          "end if"
-      ]
+        "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+        "    #{@diode.name} := 2",
+        "  else",
+        "    #{@diode.name} := 1",
+        "  end if"
+      ] +
+
+      # Select the key_group if Midi Select is enabled
+      [
+        "  if ($button_#{@conf[:features][:midi_select][:group_selector]} = 1)",
+        "    $selected_group := #{@conf[:index]}",
+        "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', name)}",
+        "  end if"
+      ] +
+      ["end if"]
     end
 
-    def diode_off_callbacks
+    def on_release_callbacks
       [
           "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
           "    #{@diode.name} := 0",
