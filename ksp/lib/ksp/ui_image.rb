@@ -3,9 +3,15 @@ module Ksp
     attr_reader :name
     attr :image_size
 
-    def initialize(picture: nil, name:)
-      super(name: name, persistent: false)
-      @picture = picture || "image_#{name}"
+    def initialize(
+        picture:,
+        name:
+    )
+      super(
+        name:       name,
+        persistent: false,
+        picture:    picture
+      )
     end
 
     # def set_dimensions(width: nil, height: nil, add_to_width: nil, add_to_height: nil)

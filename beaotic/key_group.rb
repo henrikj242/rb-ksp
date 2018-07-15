@@ -25,7 +25,7 @@ module Beaotic
     def set_main_panel
       @main_panel = MainPanel.new(@conf)
       @main_panel.set_knobs
-      # @main_panel.set_edit_buttons
+      @main_panel.set_edit_buttons
       @main_panel.set_main_panel_elements
       @main_panel.set_functions
     end
@@ -209,41 +209,22 @@ module Beaotic
           statements << statement
         end
       end
-      # main_panel.title_image.declare.each do |statement|
-      #   statements << statement
-      # end
-      # statements << main_panel.title_image.set_position
-
       statements += main_panel.title_image.statements
+      statements += @diode.statements
 
       main_panel.knobs.each do |knob|
         statements += knob.statements
-        statements <<  ''
       end
 
-      statements += @diode.statements
+      main_panel.edit_buttons.each do |button|
+        statements += button.statements
+      end
+
+      main_panel.edit_button_dividers.each do |divider|
+        statements += divider.statements
+      end
 
       return statements.map { |statement| '  ' + statement } + [" { INCOMPLETE } "]
-
-      x = 18
-      y = 179
-      main_panel.edit_buttons.each do |button|
-        button.declare.each do |statement|
-          statements <<  statement
-        end
-        statements <<  button.set_position(x, y)
-        x += 51
-      end
-
-      x = 65
-      y = 179
-      main_panel.edit_button_dividers.each do |divider|
-        divider.declare.each do |statement|
-          statements << statement
-        end
-        statements << divider.set_position(x, y)
-        x += 51
-      end
 
       main_panel.statements.each do |statement|
         statements << statement

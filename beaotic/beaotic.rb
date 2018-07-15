@@ -9,6 +9,7 @@ module Beaotic
   require_relative './instrument'
   require_relative './knob'
   require_relative './diode'
+  require_relative './button'
   require_relative './key'
   require_relative './image'
   require_relative './key_group'

@@ -24,13 +24,14 @@ module Ksp
       @text = text
       @picture = picture
       @callback = UiControlCallback.new(self)
+      set_dimensions
     end
 
-    def set_text
+    def text
       "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_TEXT,\"#{@text}\")"
     end
 
-    def set_picture
+    def picture
       if @picture.nil?
         ""
       else
@@ -38,7 +39,7 @@ module Ksp
       end
     end
 
-    def set_position
+    def position
       "move_control_px(#{name}, #{@x}, #{@y})"
     end
 
@@ -55,19 +56,19 @@ module Ksp
     end
 
     def set_dimensions(width: nil, height: nil, add_to_width: nil, add_to_height: nil)
-      return [] if @picture.nil?
-      image_size = ImageSize.path("#{@gui_directory}/#{@picture}.png")
-      @width = width || image_size.width + add_to_width.to_i
-      @height = height || image_size.height  + add_to_height.to_i
+      unless @picture.nil?
+        image_size = ImageSize.path("#{@gui_directory}/#{@picture}.png")
+        @width = width || image_size.width + add_to_width.to_i
+        @height = height || image_size.height  + add_to_height.to_i
+      end
+    end
+
+    def dimensions
       [
           "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_WIDTH, #{@width})",
           "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_HEIGHT, #{@height})"
       ]
     end
-
-    # def set_callback(callback)
-    #   @callback = callback
-    # end
 
     def xy(x, y)
       @x, @y = x, y
@@ -75,10 +76,10 @@ module Ksp
 
     def statements
       super +
-          [set_picture] +
-          set_dimensions +
-          [set_position] +
-          [set_text] +
+          [picture] +
+          dimensions +
+          [position] +
+          [text] +
           (@visible ? [] : [hide])
     end
   end

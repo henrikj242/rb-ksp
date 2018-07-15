@@ -23,9 +23,11 @@ module Beaotic
       @edit_button_dividers = []
       @main_panel_name = "%panel_main_#{name}"
       @elements = []
-      @title_image = Ksp::UiImage.new(name: "title_#{name}", picture: "title_#{name}")
+      @title_image = Ksp::UiImage.new(
+        name:     "title_#{name}",
+        picture:  "title_#{name}"
+      )
       @title_image.xy(82, 0)
-      # @title_image.set_dimensions
     end
 
     def name
@@ -34,9 +36,9 @@ module Beaotic
 
     def set_main_panel_elements
       @elements = @knobs.map(&:name) +
-          @knobs.map{ |knob| knob.label.name if knob.label } # +
-          # @edit_buttons.map(&:name) +
-          # @edit_button_dividers.map(&:name)
+          @knobs.map{ |knob| knob.label.name if knob.label } +
+          @edit_buttons.map(&:name) +
+          @edit_button_dividers.map(&:name)
       @elements << @title_image.name
     end
 
@@ -108,7 +110,28 @@ module Beaotic
     #   end
     # end
 
+
     def set_edit_buttons
+      y = 179
+      idx = 0
+      @conf[:edit_buttons].each do |button_name, button_conf|
+        @edit_buttons << Beaotic::Button.new(
+          name:     "button_#{name}_#{button_name}",
+          picture:  "button_#{button_name}"
+        )
+        @edit_buttons.last.xy(18 + (idx * 51), y)
+
+        @edit_button_dividers << Ksp::UiImage.new(
+          picture: 'img_edit_button_divider',
+          name:     "img_#{name}_#{button_name}_divider"
+        )
+        @edit_button_dividers.last.set_dimensions(add_to_height: 1)
+        @edit_button_dividers.last.xy(65 + (idx * 51), y)
+        idx += 1
+      end
+    end
+
+    def set_edit_buttons_old
       @conf[:edit_buttons].each do |k, v|
         button_identifier = "#{name}_#{k}"
         v = v.merge(image: "button_#{k}", key_group_name: name)
