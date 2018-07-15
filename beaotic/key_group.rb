@@ -1,11 +1,12 @@
 module Beaotic
   class KeyGroup
-    attr_accessor :conf
+    attr_reader :conf
     attr :knobs, :edit_buttons, :edit_button_dividers, :mix_panel,
          :title_image, :diode, :backdrops, :keys, :round_robin_entries,
          :main_panel_elements, :main_panel
 
-    def initialize
+    def initialize(conf)
+      @conf = conf
       @functions = []
       @keys = []
     end
@@ -225,87 +226,13 @@ module Beaotic
         statements += divider.statements
       end
 
-      # main_panel.statements.each do |statement|
-      #   statements << statement
-      # end
-      # statements << ''
-      #
-
       mix_panel.channels.each do |channel|
         channel.elements.each do |element|
           statements += element.statements
         end
       end
 
-      statements << ''
-
       statements.map { |statement| '  ' + statement }
-    end
-
-    def print
-      # statements.each { |statement| puts statement }
-    #   puts '  ' + "declare $#{name}_round_robin_next := 1"
-    #   puts '  ' + "declare $#{name}_round_robin_max := #{conf[:features][:round_robin][:entries]}"
-    #   puts '  ' + "declare $#{name}_new_event"
-    #   puts '  ' + "declare $#{name}_new_velocity"
-    #   puts '  ' + "declare @#{name}_message"
-    #
-    #   keys.each do |key|
-    #     key.set_k_groups.each do |statement|
-    #       puts '  ' + statement
-    #     end
-    #   end
-    #
-    #   main_panel.title_image.declare.each do |statememt|
-    #     puts '  '  + statememt
-    #   end
-    #   puts '  ' + main_panel.title_image.set_position(82, 0)
-    #
-    #   y = 84
-    #   main_panel.knobs.each_with_index do |knob, knob_index|
-    #     knob.declare.each do |statement|
-    #       puts '  ' + statement
-    #     end
-    #     x = knob.conf[:position] ?
-    #             19 + (knob.conf[:position][0] * 78) :
-    #             19 + (knob_index * 78)
-    #     puts '  ' + knob.set_position(x, y)
-    #     knob.label.declare.each do |statement|
-    #       puts '  ' + statement
-    #     end
-    #     puts '  ' + knob.label.set_position(x-16, y - 41)
-    #     puts ''
-    #   end
-    #
-    #   x = 18
-    #   y = 179
-    #   main_panel.edit_buttons.each do |button|
-    #     button.declare.each do |statement|
-    #       puts '  ' + statement
-    #     end
-    #     puts '  ' + button.set_position(x, y)
-    #     x += 51
-    #   end
-    #
-    #   x = 65
-    #   y = 179
-    #   main_panel.edit_button_dividers.each do |divider|
-    #     divider.declare.each do |statement|
-    #       puts '  ' + statement
-    #     end
-    #     puts '  ' + divider.set_position(x, y)
-    #     x += 51
-    #   end
-    #
-    #   main_panel.statements.each do |statement|
-    #     puts '  ' + statement
-    #   end
-    #   puts ''
-    #
-    #   mix_panel.statements.each do |statement|
-    #     puts '  ' + statement
-    #   end
-    #   puts ''
     end
   end
 end

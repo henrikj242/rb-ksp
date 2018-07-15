@@ -27,8 +27,7 @@ module Beaotic
     def populate_key_groups
       @conf[:key_groups].each_with_index do |key_group_conf, idx|
         key_group_conf = key_group_conf.merge(index: idx)
-        key_group = Beaotic::KeyGroup.new
-        key_group.conf = key_group_conf
+        key_group = Beaotic::KeyGroup.new(key_group_conf)
         key_group.set_main_panel
         key_group.set_diode
         key_group.diode.xy(95 + (idx * 36), 250)
@@ -55,13 +54,15 @@ module Beaotic
       button_midi_select = Ksp::UiSwitch.new(
         name: 'button_midi_select',
         default_value: 1,
-        picture: 'button_midi_select'
+        picture: 'button_midi_select',
+        persistent: false
       )
       button_midi_select.xy(1, 224)
       button_note_edit = Ksp::UiSwitch.new(
         name: 'button_note_edit',
         default_value: 0,
-        picture: 'button_note_edit'
+        picture: 'button_note_edit',
+        persistent: false
       )
       button_note_edit.xy(550, 224)
       button_note_edit.callback.body = [

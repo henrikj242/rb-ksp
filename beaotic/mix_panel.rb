@@ -5,7 +5,7 @@ module Beaotic
       @conf = conf
       @name = "panel_mix_#{@conf[:name]}"
       @keys = @conf[:keys]
-      @skin_offset = @conf[:skin_offsets][@conf[:keys].count]
+      @skin_offset = @conf[:skin_offsets][@keys.count]
       @channels = set_channels
       # @volume_faders = []
       # @pan_faders = []
@@ -51,7 +51,7 @@ module Beaotic
 
     def show
       f = Ksp::Function.new("show_#{name}")
-      f.set_body(['set_skin_offset(0)'])
+      f.set_body(["set_skin_offset(#{@skin_offset})"])
       @channels.each do |channel|
         channel.elements.each do |element|
           f.append([element.show])
