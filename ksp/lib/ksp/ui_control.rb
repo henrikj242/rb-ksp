@@ -23,7 +23,7 @@ module Ksp
       @visible = visible
       @text = text
       @picture = picture
-      @callback = UiControlCallback.new(self)
+      @callback = UiControlCallback.new(@name)
       set_dimensions
     end
 
@@ -63,11 +63,12 @@ module Ksp
       end
     end
 
-    def dimensions
-      [
-          "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_WIDTH, #{@width})",
-          "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_HEIGHT, #{@height})"
-      ]
+    def width
+      "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_WIDTH, #{@width})"
+    end
+
+    def height
+      "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_HEIGHT, #{@height})"
     end
 
     def xy(x, y)
@@ -75,12 +76,13 @@ module Ksp
     end
 
     def statements
-      super +
-          [picture] +
-          dimensions +
-          [position] +
-          [text] +
-          (@visible ? [] : [hide])
+      super + [
+        picture,
+        width,
+        height,
+        position,
+        text
+      ] + (@visible ? [] : [hide])
     end
   end
 end

@@ -18,6 +18,16 @@ module Beaotic
 
       @script.functions += global_functions
       @script.on_ui_control_callbacks = on_ui_control_callbacks
+      @script.on_note_callback = on_note_callback
+      @script.on_release_callback = on_release_callback
+    end
+
+    def on_note_callback
+      @key_groups.map(&:diode_on_callbacks).flatten
+    end
+
+    def on_release_callback
+      @key_groups.map(&:diode_off_callbacks).flatten
     end
 
     def on_ui_control_callbacks
@@ -32,7 +42,7 @@ module Beaotic
         key_group.set_diode
         key_group.diode.xy(95 + (idx * 36), 250)
         key_group.set_mix_panel
-        # key_group.set_keys
+        key_group.set_keys
         @key_groups << key_group
       end
     end

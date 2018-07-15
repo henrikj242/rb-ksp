@@ -19,10 +19,6 @@ module Beaotic
       @diode = Beaotic::Diode.new(name: "diode_#{name}", levels: 3)
     end
 
-    # def skin_offset
-    #   @conf[:skin_offsets][@conf[:keys].count]
-    # end
-
     def set_main_panel
       @main_panel = MainPanel.new(@conf)
       @main_panel.set_knobs
@@ -186,16 +182,41 @@ module Beaotic
     end
 
     def set_keys
-      extra_options = {
-          key_group_name: name
-      }
-      extra_options[:features] = @conf[:features] if @conf[:features]
-
-      @conf[:keys].each_with_index do |key, idx|
-        @keys << Beaotic::Key.new(self, idx, key.merge(extra_options))
-        @keys.last.set_callback
-        @keys.last.set_off_callback
+      @conf[:keys].each do |key_conf|
+        @keys << Beaotic::Key.new(key_conf)
+        # @callbacks[key_conf[:name]]
       end
+
+      # extra_options = {
+      #     key_group_name: name
+      # }
+      # extra_options[:features] = @conf[:features] if @conf[:features]
+      #
+      # @conf[:keys].each_with_index do |key, idx|
+      #   @keys << Beaotic::Key.new(self, idx, key.merge(extra_options))
+      #   @keys.last.set_callback
+      #   @keys.last.set_off_callback
+      # end
+    end
+
+    def diode_on_callbacks
+      [
+          "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
+          "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+          "    #{@diode.name} := 2",
+          "  else",
+          "    #{@diode.name} := 1",
+          "  end if",
+          "end if"
+      ]
+    end
+
+    def diode_off_callbacks
+      [
+          "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
+          "    #{@diode.name} := 0",
+          "end if"
+      ]
     end
 
     def statements
@@ -206,7 +227,15 @@ module Beaotic
         "declare $#{name}_new_velocity",
         "declare @#{name}_message",
       ]
-      keys.each do |key|
+
+      statements += Ksp::Variable.new(
+        type: 'integer_array',
+        name: "#{name}_midi_notes",
+        arr_length: @keys.count,
+        default_value: @keys.map(&:midi_note)
+      ).statements
+
+      @keys.each do |key|
         key.set_k_groups.each do |statement|
           statements << statement
         end

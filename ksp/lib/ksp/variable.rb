@@ -46,8 +46,27 @@ module Ksp
       end
     end
 
+    def quote(var)
+      if var.is_a?(String)
+        "\"#{var}\""
+      else
+        var
+      end
+    end
+
     def assign_default_value
-      @default_value.nil? ? "" : "#{@name} := #{@default_value}"
+      case @type
+      when /(integer|string)_array$/
+        if @default_value.nil?
+          ""
+        else
+          @default_value.map.with_index do |element, idx|
+            "#{@name}[#{idx}] := #{quote(element)}"
+          end.join("\n  ")
+        end
+      else
+        @default_value.nil? ? "" : "#{@name} := #{@default_value}"
+      end
     end
 
     def default_value

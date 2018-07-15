@@ -1,7 +1,22 @@
 module Beaotic
   class Key
-    attr :midi_note, :name, :callback, :off_callback
-    def initialize(key_group, idx, conf)
+    # attr :midi_note, :name, :callback, :off_callback
+
+    attr_accessor :midi_note
+
+    def initialize(key_conf = {})
+      # Example conf:
+      # - name: sd_8
+      #   midi_note: 49
+      #   k_groups:
+      #     osc1: [48]
+      #     osc2: !ruby/range 49..53
+
+      @conf = key_conf
+      @midi_note = key_conf[:midi_note]
+    end
+
+    def initialize_old(key_group, idx, conf)
       @key_group = key_group
       @idx = idx
       @conf = conf
@@ -26,14 +41,27 @@ module Beaotic
     # As long as we don't use more than 64 color variations and Accent, we always split colors across velocity.
     #
 
-
     def set_k_groups
-      statements = ["{ setting k_groups }"]
+      statements = []
       @conf[:k_groups].keys.each do |osc|
-        statements << "declare %#{@conf[:key_group_name]}_#{name}_k_groups_#{osc}[#{@conf[:k_groups][osc].count}] := (#{@conf[:k_groups][osc].join(', ')})"
+        var = Ksp::Variable.new(
+            type: 'integer_array',
+            name: "key_#{@conf[:midi_note]}_k_groups_#{osc}",
+            arr_length: @conf[:k_groups][osc].count,
+            default_value: @conf[:k_groups][osc]
+        )
+        statements += var.statements
       end
       statements
     end
+
+    # def set_k_groups_old
+    #   statements = ["{ setting k_groups }"]
+    #   @conf[:k_groups].keys.each do |osc|
+    #     statements << "declare %#{@conf[:key_group_name]}_#{name}_k_groups_#{osc}[#{@conf[:k_groups][osc].count}] := (#{@conf[:k_groups][osc].join(', ')})"
+    #   end
+    #   statements
+    # end
 
     def disallow_groups
       statements = []
