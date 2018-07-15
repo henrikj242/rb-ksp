@@ -15,7 +15,7 @@ module Beaotic
     end
 
     def set_diode
-      @diode = Ksp::CustomDiode.new(name, levels: 3)
+      @diode = Beaotic::Diode.new(name: "diode_#{name}", levels: 3)
     end
 
     def skin_offset
@@ -220,6 +220,8 @@ module Beaotic
         statements += knob.statements
         statements <<  ''
       end
+
+      statements += @diode.statements
 
       return statements.map { |statement| '  ' + statement } + [" { INCOMPLETE } "]
 

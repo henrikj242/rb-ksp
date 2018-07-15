@@ -28,7 +28,8 @@ module Beaotic
         key_group = Beaotic::KeyGroup.new
         key_group.conf = key_group_conf
         key_group.set_main_panel
-        # key_group.set_diode
+        key_group.set_diode
+        key_group.diode.xy(95 + (idx * 36), 250)
         # key_group.set_mix_panel
         # key_group.set_keys
         @key_groups << key_group
@@ -45,10 +46,6 @@ module Beaotic
             end
         )
         f.append(["call set_display"])
-        # @key_groups.each do |key_group_any|
-        #   val = key_group_any.name == key_group_to_choose.name ? 1 : 0
-        #   f.append(["$button_group_#{key_group_any.name} := #{val}]"])
-        # end
       end
     end
 
