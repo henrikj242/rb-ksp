@@ -3,16 +3,27 @@ module Ksp
     attr_accessor :picture
     attr_reader :name, :callback
 
-    def initialize(type:, name:, persistent: true,
-                   args: nil, default_value: nil,
-                   visible: true, text: '')
+    def initialize(
+          type:,
+          name:,
+          persistent:     true,
+          args:           nil,
+          default_value:  nil,
+          visible:        true,
+          text:           '',
+          picture:        nil
+    )
       super(
-          type: type, name: name, persistent: persistent,
-          args: args, default_value: default_value
+        type:           type,
+        name:           name,
+        persistent:     persistent,
+        args:           args,
+        default_value:  default_value
       )
       @gui_directory = '_gui'
       @visible = visible
       @text = text
+      @picture = picture
     end
 
     def set_text
@@ -20,7 +31,11 @@ module Ksp
     end
 
     def set_picture
-      "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"#{@picture}\")"
+      if @picture.nil?
+        ""
+      else
+        "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_PICTURE, \"#{@picture}\")"
+      end
     end
 
     def set_position
@@ -40,12 +55,13 @@ module Ksp
     end
 
     def set_dimensions(width: nil, height: nil, add_to_width: nil, add_to_height: nil)
+      return [] if @picture.nil?
       image_size = ImageSize.path("#{@gui_directory}/#{@picture}.png")
       @width = width || image_size.width + add_to_width.to_i
       @height = height || image_size.height  + add_to_height.to_i
       [
-          "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_WIDTH,#{@width})",
-          "set_control_par(get_ui_id(#{name}),     $CONTROL_PAR_HEIGHT,#{@height})"
+          "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_WIDTH, #{@width})",
+          "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_HEIGHT, #{@height})"
       ]
     end
 
@@ -62,7 +78,7 @@ module Ksp
           [set_picture] +
           set_dimensions +
           [set_position] +
-          [set_text]
+          [set_text] +
           (@visible ? [] : [hide])
     end
   end

@@ -30,41 +30,19 @@ module Beaotic
     end
 
     def global_buttons
-      # statements = ['{ Global buttons // midi_select }']
       button_midi_select = Ksp::UiSwitch.new(
         name: 'midi_select',
         default_value: 0,
+        picture: 'button_midi_select'
       )
-      button_midi_select.picture = 'button_midi_select'
-      # button_midi_select = Ksp::CustomButton.new(
-      #     'midi_select',
-      #     name: 'midi_select',
-      #     image: 'button_midi_select',
-      #     options: [:no_persist, :no_auto]
-      # )
       button_midi_select.xy(1, 224)
-      # button_midi_select.declare.each do |statement|
-      #   puts '  ' + statement
-      # end
-      # puts '  ' + button_midi_select.set_position(1, 224)
-      # puts '  ' + button_midi_select.name + ' := 0'
-
-      # puts '  $button_group_bd := 1'
-
-      # puts '{ Global buttons // note_edit }'
-      # button_note_edit = Ksp::CustomButton.new(
-      #     'note_edit',
-      #     name: 'note_edit',
-      #     image: 'button_note_edit',
-      #     function: 'set_display',
-      #     options: [:no_persist, :no_auto]
-      # )
-      # button_note_edit.declare.each do |statement|
-      #   puts '  ' + statement
-      # end
-      # puts '  ' + button_note_edit.set_position(550, 224)
-      # puts '  ' + button_note_edit.name + ' := 0'
-      [button_midi_select]
+      button_note_edit = Ksp::UiSwitch.new(
+          name: 'note_edit',
+          default_value: 0,
+          picture: 'button_note_edit'
+      )
+      button_note_edit.xy(550, 224)
+      [button_midi_select, button_note_edit]
     end
 
     def set_on_init

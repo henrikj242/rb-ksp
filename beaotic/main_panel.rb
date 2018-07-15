@@ -46,13 +46,19 @@ module Beaotic
 
     def statements
       statements = ["declare #{@main_panel_name}[#{@elements.count}]"]
-      @elements.each_with_index { |elem, idx | statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})" }
+      @elements.each_with_index do |elem, idx |
+        statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})"
+      end
       statements
     end
 
     def hide
       f = Ksp::Function.new("hide_panel_main_#{name}")
-      f.append(@elements.map {|element| "hide_part(#{element}, $HIDE_WHOLE_CONTROL)" })
+      f.append(
+          @elements.map do |element|
+            "hide_part(#{element}, $HIDE_WHOLE_CONTROL)"
+          end
+      )
     end
 
     def show
@@ -74,7 +80,8 @@ module Beaotic
             label: knob_conf[:name],
             min_val: knob_conf[:min_val],
             default_val: knob_conf[:default_val],
-            max_val: knob_conf[:max_val]
+            max_val: knob_conf[:max_val],
+            mouse_behaviour: knob_conf[:ui_control][:mouse_behaviour]
         )
         x = knob_conf[:position] ?
                 19 + (knob_conf[:position][0] * 78) :
@@ -82,7 +89,6 @@ module Beaotic
         knob.xy(x, y)
         knob.label_offset
         @knobs << knob
-
       end
     end
 
