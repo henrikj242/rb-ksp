@@ -18,9 +18,9 @@ module Beaotic
       @diode = Beaotic::Diode.new(name: "diode_#{name}", levels: 3)
     end
 
-    def skin_offset
-      @conf[:skin_offsets][@conf[:keys].count]
-    end
+    # def skin_offset
+    #   @conf[:skin_offsets][@conf[:keys].count]
+    # end
 
     def set_main_panel
       @main_panel = MainPanel.new(@conf)
@@ -31,7 +31,8 @@ module Beaotic
     end
 
     def set_mix_panel
-      @mix_panel = MixPanel.new(name, @conf[:keys], skin_offset)
+      @mix_panel = MixPanel.new(@conf)
+      @mix_panel.set_functions
     end
 
     def functions
@@ -224,17 +225,20 @@ module Beaotic
         statements += divider.statements
       end
 
-      return statements.map { |statement| '  ' + statement } + [" { INCOMPLETE } "]
+      # main_panel.statements.each do |statement|
+      #   statements << statement
+      # end
+      # statements << ''
+      #
 
-      main_panel.statements.each do |statement|
-        statements << statement
+      mix_panel.channels.each do |channel|
+        channel.elements.each do |element|
+          statements += element.statements
+        end
       end
+
       statements << ''
 
-      mix_panel.statements.each do |statement|
-        statements << statement
-      end
-      statements << ''
       statements.map { |statement| '  ' + statement }
     end
 

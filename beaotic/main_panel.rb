@@ -46,13 +46,13 @@ module Beaotic
       @functions = [hide, show]
     end
 
-    def statements
-      statements = ["declare #{@main_panel_name}[#{@elements.count}]"]
-      @elements.each_with_index do |elem, idx |
-        statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})"
-      end
-      statements
-    end
+    # def statements
+    #   statements = ["declare #{@main_panel_name}[#{@elements.count}]"]
+    #   @elements.each_with_index do |elem, idx |
+    #     statements << "#{@main_panel_name}[#{idx}] := get_ui_id(#{elem})"
+    #   end
+    #   statements
+    # end
 
     def hide
       f = Ksp::Function.new("hide_panel_main_#{name}")

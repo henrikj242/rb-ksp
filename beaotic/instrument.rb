@@ -11,9 +11,11 @@ module Beaotic
     def define_script
       @script = Ksp::Script.new
       @script.on_init = on_init
-      @script.functions += @key_groups.map do |key_group|
-        key_group.main_panel.functions
-      end.flatten
+      @key_groups.each do |key_group|
+        @script.functions += key_group.main_panel.functions.flatten
+        @script.functions += key_group.mix_panel.functions.flatten
+      end
+
       @script.functions += global_functions
       @script.on_ui_control_callbacks = on_ui_control_callbacks
     end
@@ -30,7 +32,7 @@ module Beaotic
         key_group.set_main_panel
         key_group.set_diode
         key_group.diode.xy(95 + (idx * 36), 250)
-        # key_group.set_mix_panel
+        key_group.set_mix_panel
         # key_group.set_keys
         @key_groups << key_group
       end
@@ -57,22 +59,25 @@ module Beaotic
       )
       button_midi_select.xy(1, 224)
       button_note_edit = Ksp::UiSwitch.new(
-          name: 'button_note_edit',
-          default_value: 0,
-          picture: 'button_note_edit'
+        name: 'button_note_edit',
+        default_value: 0,
+        picture: 'button_note_edit'
       )
       button_note_edit.xy(550, 224)
+      button_note_edit.callback.body = [
+        'call set_display'
+      ]
       buttons = [button_midi_select, button_note_edit]
       @key_groups.each_with_index do |key_group, idx|
         b = Ksp::UiSwitch.new(
-            name: "button_group_#{key_group.name}",
-            default_value: key_group.name == 'bd' ? 1 : 0,
-            picture: "button_group_#{key_group.name}"
+          name: "button_group_#{key_group.name}",
+          default_value: key_group.name == 'bd' ? 1 : 0,
+          picture: "button_group_#{key_group.name}"
         )
         b.xy(83 + (idx * 36), 226)
         b.callback.body = [
-            "$selected_group := #{idx}",
-            "call select_group_#{key_group.name}"
+          "$selected_group := #{idx}",
+          "call select_group_#{key_group.name}"
         ]
         buttons << b
       end
@@ -81,13 +86,13 @@ module Beaotic
 
     def on_init
       statements = [
-          "message(\"Built by Ksp::Beaotic at #{Time.now}\")",
-          'make_perfview',
-          "set_script_title(\"#{@conf[:global][:project_name]}\")",
-          "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
-          'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")',
-          'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")',
-          'declare $selected_group := 0',
+        "message(\"Built by Ksp::Beaotic at #{Time.now}\")",
+        'make_perfview',
+        "set_script_title(\"#{@conf[:global][:project_name]}\")",
+        "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
+        'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")',
+        'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")',
+        'declare $selected_group := 0',
       ].map { |line|  '  ' + line }
       statements += global_buttons.map do |button|
         button.statements.map { |line|  '  ' + line }
@@ -104,11 +109,11 @@ module Beaotic
         else
           ''
         end
-        # kg.mix_panel.channels.each do |channel|
-        #   channel.elements.each do |elem|
-        #     puts "  hide_part(#{elem.name}, $HIDE_WHOLE_CONTROL)"
-        #   end
-        # end
+        kg.mix_panel.channels.each do |channel|
+          channel.elements.each do |elem|
+            statements << "  hide_part(#{elem.name}, $HIDE_WHOLE_CONTROL)"
+          end
+        end
       end
       statements
     end
@@ -118,7 +123,7 @@ module Beaotic
       @key_groups.each do |key_group|
         set_display.append [
           "  call hide_panel_main_#{key_group.name}",
-          # "  call hide_panel_mix_#{key_group.name}"
+          "  call hide_panel_mix_#{key_group.name}"
         ]
       end
       set_display.append ['  select ($selected_group)']
@@ -128,8 +133,8 @@ module Beaotic
           "      message(\"selecting #{key_group.name}\")",
           '      if ($button_note_edit = 0)',
           "        call show_panel_main_#{key_group.name}",
-          # '      else',
-          # "        call show_panel_mix_#{key_group.name}",
+          '      else',
+          "        call show_panel_mix_#{key_group.name}",
           '      end if'
         ]
       end
