@@ -4,16 +4,22 @@ module Beaotic
       @conf = parse_config("./#{project_name}.yml")
       @debug_file = File.new("./#{project_name}.debug", 'w')
       @key_groups = []
-      set_on_init
+      populate_key_groups
+      define_script
     end
 
     def define_script
       @script = Ksp::Script.new
-      @script.on_init = @on_init
-      @script.functions = @key_groups.map do |key_group|
+      @script.on_init = on_init
+      @script.functions += @key_groups.map do |key_group|
         key_group.main_panel.functions
-      end.flatten +
-          [func_set_display]
+      end.flatten
+      @script.functions += global_functions
+      @script.on_ui_control_callbacks = on_ui_control_callbacks
+    end
+
+    def on_ui_control_callbacks
+      global_buttons.map { |b| b.callback }
     end
 
     def populate_key_groups
@@ -29,24 +35,55 @@ module Beaotic
       end
     end
 
+    def global_functions
+      [func_set_display] +
+      @key_groups.map do |key_group_to_choose|
+        f = Ksp::Function.new("select_group_#{key_group_to_choose.name}")
+        f.append(
+            @key_groups.map do |key_group_any|
+              "$button_group_#{key_group_any.name} := #{key_group_any.name == key_group_to_choose.name ? 1 : 0}"
+            end
+        )
+        f.append(["call set_display"])
+        # @key_groups.each do |key_group_any|
+        #   val = key_group_any.name == key_group_to_choose.name ? 1 : 0
+        #   f.append(["$button_group_#{key_group_any.name} := #{val}]"])
+        # end
+      end
+    end
+
     def global_buttons
       button_midi_select = Ksp::UiSwitch.new(
-        name: 'midi_select',
-        default_value: 0,
+        name: 'button_midi_select',
+        default_value: 1,
         picture: 'button_midi_select'
       )
       button_midi_select.xy(1, 224)
       button_note_edit = Ksp::UiSwitch.new(
-          name: 'note_edit',
+          name: 'button_note_edit',
           default_value: 0,
           picture: 'button_note_edit'
       )
       button_note_edit.xy(550, 224)
-      [button_midi_select, button_note_edit]
+      buttons = [button_midi_select, button_note_edit]
+      @key_groups.each_with_index do |key_group, idx|
+        b = Ksp::UiSwitch.new(
+            name: "button_group_#{key_group.name}",
+            default_value: key_group.name == 'bd' ? 1 : 0,
+            picture: "button_group_#{key_group.name}"
+        )
+        b.xy(83 + (idx * 36), 226)
+        b.callback.body = [
+            "$selected_group := #{idx}",
+            "call select_group_#{key_group.name}"
+        ]
+        buttons << b
+      end
+      buttons
     end
 
-    def set_on_init
-      @on_init = [
+    def on_init
+      statements = [
           "message(\"Built by Ksp::Beaotic at #{Time.now}\")",
           'make_perfview',
           "set_script_title(\"#{@conf[:global][:project_name]}\")",
@@ -54,17 +91,18 @@ module Beaotic
           'set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, "wallpaper")',
           'set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, "img_icon_hejo")',
           'declare $selected_group := 0',
-          'declare $button_note_edit := 0'
       ].map { |line|  '  ' + line }
-      @on_init += global_buttons.map do |button|
+      statements += global_buttons.map do |button|
         button.statements.map { |line|  '  ' + line }
       end
-      populate_key_groups
-      @on_init += @key_groups.map(&:statements)
+      statements += @key_groups.map(&:statements)
+
+
+      # Hide everything except the BD Main Panel
       @key_groups.each do |kg|
         if kg.name != 'bd'
           kg.main_panel.elements.each do |elem|
-            @on_init << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
+            statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
           end
         else
           ''
@@ -75,6 +113,7 @@ module Beaotic
         #   end
         # end
       end
+      statements
     end
 
     def func_set_display

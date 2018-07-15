@@ -6,6 +6,7 @@ module Beaotic
          :main_panel_elements, :main_panel
 
     def initialize
+      @functions = []
       @keys = []
     end
 
@@ -40,7 +41,6 @@ module Beaotic
     def default_functions
       pitch_functions + default_edit_button(:osc_drift) +  default_edit_button(:vel_start) + default_edit_button(:vel_vca)
     end
-
 
     # def volume_functions
     #   statements = ["{ default volume functions }"]

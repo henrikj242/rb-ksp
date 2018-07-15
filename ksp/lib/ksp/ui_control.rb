@@ -1,7 +1,6 @@
 module Ksp
   class UiControl < Variable
-    attr_accessor :picture
-    attr_reader :name, :callback
+    attr_accessor :callback
 
     def initialize(
           type:,
@@ -24,6 +23,7 @@ module Ksp
       @visible = visible
       @text = text
       @picture = picture
+      @callback = UiControlCallback.new(self)
     end
 
     def set_text
@@ -65,9 +65,9 @@ module Ksp
       ]
     end
 
-    def set_callback(callback)
-      @callback = callback
-    end
+    # def set_callback(callback)
+    #   @callback = callback
+    # end
 
     def xy(x, y)
       @x, @y = x, y
