@@ -6,7 +6,7 @@ module Beaotic
       @name = "panel_mix_#{@conf[:name]}"
       @keys = @conf[:keys]
       @skin_offset = @conf[:skin_offsets][@keys.count]
-      @channels = set_channels
+      set_channels
       # @volume_faders = []
       # @pan_faders = []
       # @pitch_knobs = []
@@ -25,17 +25,27 @@ module Beaotic
     end
 
     def set_channels
-      channels = []
+      @channels = []
       @keys.each_with_index do |key, idx|
-        ch_base_x = 80 + (idx * 76)
-        channels << MixChannel.new(key, ch_base_x)
+        ch = MixChannel.new(key[:name], 80 + (idx * 76))
+        ch.elements = [
+            ch.set_title_image,
+            ch.set_pitch_knob(-200000, 0, 200000),
+            ch.set_level_knob(-100, 0, 100),
+            ch.set_pan_knob(-100, 0, 100)
+        ]
+        @channels << ch
       end
-      channels
     end
 
     def init
       statements = ["{ I am the Mix Panel }"]
-      @channels.each { |ch| ch.statements.each { |statement| statements << statement } }
+      @channels.each do |ch|
+        ch.elements.each do |element|
+          statements += element.statemens
+        end
+      end
+      # @channels.each { |ch| ch.statements.each { |statement| statements << statement } }
       statements
     end
 
@@ -55,6 +65,7 @@ module Beaotic
       @channels.each do |channel|
         channel.elements.each do |element|
           f.append([element.show])
+          # f.append(["hide_part(#{element.name}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"])
         end
       end
       f

@@ -83,7 +83,8 @@ module Beaotic
             min_val: knob_conf[:min_val],
             default_val: knob_conf[:default_val],
             max_val: knob_conf[:max_val],
-            mouse_behaviour: knob_conf[:ui_control][:mouse_behaviour]
+            mouse_behaviour: knob_conf[:ui_control][:mouse_behaviour],
+            visible: name == 'bd'
         )
         x = knob_conf[:position] ?
                 19 + (knob_conf[:position][0] * 78) :

@@ -83,7 +83,8 @@ module Beaotic
         b = Ksp::UiSwitch.new(
           name: "button_group_#{key_group.name}",
           default_value: key_group.name == 'bd' ? 1 : 0,
-          picture: "button_group_#{key_group.name}"
+          picture: "button_group_#{key_group.name}",
+          persistent: false
         )
         b.xy(83 + (idx * 36), 226)
         b.callback.body = [

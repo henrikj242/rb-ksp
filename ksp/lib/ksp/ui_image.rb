@@ -4,13 +4,15 @@ module Ksp
     attr :image_size
 
     def initialize(
-        picture:,
-        name:
+      name:,
+      picture:,
+      visible:  true
     )
       super(
         name:       name,
         persistent: false,
-        picture:    picture
+        picture:    picture,
+        visible:    visible
       )
     end
 

@@ -75,8 +75,14 @@ module Ksp
       @x, @y = x, y
     end
 
+    def label
+      if @label
+        @label.statements
+      end
+    end
+
     def statements
-      super + [
+      super + label + [
         picture,
         width,
         height,

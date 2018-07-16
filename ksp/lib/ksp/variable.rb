@@ -12,10 +12,10 @@ module Ksp
       @custom_statements = []
     end
 
-    def add_custom_statements(statements)
-      @custom_statements += statements
-      self
-    end
+    # def add_custom_statements(statements)
+    #   @custom_statements += statements
+    #   self
+    # end
 
     def get_name(name)
       case @type
@@ -83,11 +83,11 @@ module Ksp
       end
     end
 
-    def self.print_declare(indent, variable)
-      variable.each do |statement|
-        puts ' ' * indent + statement
-      end
-    end
+    # def self.print_declare(indent, variable)
+    #   variable.each do |statement|
+    #     puts ' ' * indent + statement
+    #   end
+    # end
 
     def name=(name)
       @name = name
@@ -110,7 +110,7 @@ module Ksp
           declare,
           assign_default_value,
           persist
-      ] + @custom_statements
+      ]
     end
   end
 end
