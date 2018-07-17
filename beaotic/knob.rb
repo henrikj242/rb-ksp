@@ -40,7 +40,7 @@ module Beaotic
     end
 
     def statements
-      super + @label.statements
+      super # + @label.statements
     end
   end
 end

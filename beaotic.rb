@@ -3,7 +3,7 @@
 # run this script from where the yml-file is located
 # point the output to the where your nkr file gets its scripts from
 # For example...
-# ./beaotic_old_1.rb xt808  > ../WORK\ XT-808\ Kit/Resources/scripts/xt808.txt
+# ./beaotic.rb > ../WORK\ XT-808\ Kit/Resources/scripts/xt808.txt
 
 require_relative 'beaotic/beaotic'
 

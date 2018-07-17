@@ -27,12 +27,13 @@ module Beaotic
     def set_channels
       @channels = []
       @keys.each_with_index do |key, idx|
-        ch = MixChannel.new(key[:name], 80 + (idx * 76))
+        ch = MixChannel.new(key[:name], 82 + (idx * 78))
         ch.elements = [
             ch.set_title_image,
             ch.set_pitch_knob(-200000, 0, 200000),
             ch.set_level_knob(-100, 0, 100),
-            ch.set_pan_knob(-100, 0, 100)
+            ch.set_pan_knob(-100, 0, 100),
+            ch.set_pitch_mode_button
         ]
         @channels << ch
       end

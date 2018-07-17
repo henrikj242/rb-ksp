@@ -1,6 +1,6 @@
 module Ksp
   class UiControl < Variable
-    attr_accessor :callback
+    attr_accessor :callback, :label
 
     def initialize(
           type:,
@@ -75,14 +75,12 @@ module Ksp
       @x, @y = x, y
     end
 
-    def label
-      if @label
-        @label.statements
-      end
+    def label_statements
+      @label&.statements.to_a
     end
 
     def statements
-      super + label + [
+      super + label_statements + [
         picture,
         width,
         height,

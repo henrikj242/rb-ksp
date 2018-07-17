@@ -13,52 +13,64 @@ module Beaotic
         name:     "title_mix_#{@name}",
         picture:  "title_mix_#{@name}"
       )
-      title_img.xy(@base_x + 5, 0)
+      title_img.xy(@base_x, 0)
       title_img
     end
 
     def set_pitch_knob(min_val, default_val, max_val)
       knob = Knob.new(
-        name: "knob_#{@name}_pitch",
-        diameter: 44,
-        label: "pitch",
-        min_val: min_val,
-        default_val: default_val,
-        max_val: max_val,
-        visible: false
+        name:         "knob_#{@name}_pitch",
+        diameter:     44,
+        label:        "pitch",
+        min_val:      min_val,
+        default_val:  default_val,
+        max_val:      max_val,
+        visible:      false
       )
-      knob.xy(@base_x + 22, 46)
-      knob.label_offset(-16, -16)
+      knob.xy(@base_x + 19, 46)
+      knob.label_offset(-18, -42)
       knob
+    end
+
+    def set_pitch_mode_button
+      button = Beaotic::Button.new(
+        name:           "#{@name}_relative",
+        persistent:     true,
+        default_value:  0,
+        visible:        false,
+        picture:        "button_pitch_mode"
+      )
+      button.xy(@base_x, 99)
+      button
     end
 
     def set_level_knob(min_val, default_val, max_val)
       knob = Knob.new(
-        name: "knob_#{@name}_level",
-        diameter: 24,
-        label: "level",
-        min_val: min_val,
-        default_val: default_val,
-        max_val: max_val,
-        visible: false
+        name:         "knob_#{@name}_level",
+        diameter:     24,
+        label:        "mix_level",
+        min_val:      min_val,
+        default_val:  default_val,
+        max_val:      max_val,
+        visible:      false
       )
-      knob.xy(@base_x + 22, 149)
-      knob.label_offset(-10, -10)
+      knob.xy(@base_x + 8, 155)
+      knob.label_offset(-2, -23)
       knob
     end
 
     def set_pan_knob(min_val, default_val, max_val)
       knob = Knob.new(
-        name: "knob_#{@name}_pan",
-        diameter: 24,
-        label: "pan",
-        min_val: min_val,
-        default_val: default_val,
-        max_val: max_val,
-        visible: false
+        name:         "knob_#{@name}_pan",
+        diameter:     24,
+        label:        "mix_pan",
+        min_val:      min_val,
+        default_val:  default_val,
+        max_val:      max_val,
+        visible:      false
       )
-      knob.xy(@base_x + 50, 149)
-      knob.label_offset(-10, -10)
+      knob.xy(@base_x + 48, 155)
+      knob.label_offset(-2, -23)
       knob
     end
   end
