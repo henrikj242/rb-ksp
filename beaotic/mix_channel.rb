@@ -73,5 +73,11 @@ module Beaotic
       knob.label_offset(-2, -23)
       knob
     end
+
+    def set_diode
+      diode = Beaotic::Diode.new(name: "diode_#{@name}", levels: 3)
+      diode.xy(@base_x + 34, 207)
+      diode
+    end
   end
 end

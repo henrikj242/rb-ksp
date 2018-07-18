@@ -40,36 +40,6 @@ module Beaotic
       pitch_functions + default_edit_button(:osc_drift) +  default_edit_button(:vel_start) + default_edit_button(:vel_vca)
     end
 
-    # def volume_functions
-    #   statements = ["{ default volume functions }"]
-    #   @conf[:keys].each do |affected_key|
-    #     mix_volume_function(affected_key).map do |statement|
-    #       statements << statement
-    #     end
-    #   end
-    #
-    #   statements << "function set_volume_#{@conf[:name]}"
-    #   @conf[:keys].each do |affected_key|
-    #     statements << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} "
-    #   end
-    #   statements << "end function"
-    #   statements
-    # end
-    #
-    # def mix_volume_function(affected_key)
-    #   main_knob = "$knob_#{@conf[:name]}_volume"
-    #   mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_volume"
-    #   statements = []
-    #   statements << "function #{@conf[:name]}_#{affected_key[:name]}_volume"
-    #   affected_key[:k_groups].keys.each do |osc|
-    #     affected_key[:k_groups][osc].each do |k_group|
-    #       statements << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
-    #     end
-    #   end
-    #   statements << "end function"
-    #   statements
-    # end
-
     def mix_pitch_function(affected_key)
       main_knob = "$knob_#{@conf[:name]}_pitch"
       # mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_pitch"
@@ -200,6 +170,18 @@ module Beaotic
     end
 
     def on_note_callbacks
+      # Listen for individual notes in the key_group
+      @conf[:keys].map do |key|
+        [
+          "if ($EVENT_NOTE = #{key[:midi_note]})",
+          "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+          "    $diode_#{key[:name]} := 2",
+          "  else",
+          "    $diode_#{key[:name]} := 1",
+          "  end if",
+          "end if"
+        ].join("\n")
+      end +
 
       # Listen for notes beonging to the key_group
       ["if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)"] +
@@ -224,6 +206,13 @@ module Beaotic
     end
 
     def on_release_callbacks
+      @conf[:keys].map do |key|
+        [
+            "if ($EVENT_NOTE = #{key[:midi_note]})",
+            "  $diode_#{key[:name]} := 0",
+            "end if"
+        ].join("\n")
+      end +
       [
           "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
           "    #{@diode.name} := 0",
@@ -275,5 +264,37 @@ module Beaotic
 
       statements.map { |statement| '  ' + statement }
     end
+
+    # def volume_functions
+    #   statements = ["{ default volume functions }"]
+    #   @conf[:keys].each do |affected_key|
+    #     mix_volume_function(affected_key).map do |statement|
+    #       statements << statement
+    #     end
+    #   end
+    #
+    #   statements << "function set_volume_#{@conf[:name]}"
+    #   @conf[:keys].each do |affected_key|
+    #     statements << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} "
+    #   end
+    #   statements << "end function"
+    #   statements
+    # end
+    #
+    # def mix_volume_function(affected_key)
+    #   main_knob = "$knob_#{@conf[:name]}_volume"
+    #   mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_volume"
+    #   statements = []
+    #   statements << "function #{@conf[:name]}_#{affected_key[:name]}_volume"
+    #   affected_key[:k_groups].keys.each do |osc|
+    #     affected_key[:k_groups][osc].each do |k_group|
+    #       statements << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
+    #     end
+    #   end
+    #   statements << "end function"
+    #   statements
+    # end
+
+
   end
 end
