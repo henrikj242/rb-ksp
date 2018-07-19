@@ -32,15 +32,18 @@ module Beaotic
       @mix_panel.set_functions
     end
 
-    def functions
+    def functions_obsolete
       default_functions + feature_functions
     end
 
-    def default_functions
-      pitch_functions + default_edit_button(:osc_drift) +  default_edit_button(:vel_start) + default_edit_button(:vel_vca)
+    def default_functions_obsolete
+      pitch_functions +
+          default_edit_button(:osc_drift) +
+          default_edit_button(:vel_start) +
+          default_edit_button(:vel_vca)
     end
 
-    def mix_pitch_function(affected_key)
+    def mix_pitch_function_obsolete(affected_key)
       main_knob = "$knob_#{@conf[:name]}_pitch"
       # mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_pitch"
       mix_knob = "500000"
@@ -63,7 +66,7 @@ module Beaotic
       statements << "end function"
     end
 
-    def pitch_functions
+    def pitch_functions_obsolete
       statements = ["{ default pitch functions }\n"]
       @conf[:keys].each do |affected_key|
         mix_pitch_function(affected_key).each do |statement|
@@ -77,13 +80,13 @@ module Beaotic
       statements << "end function \n"
     end
 
-    def k_groups
+    def k_groups_obsolete
       k_groups = []
       @conf[:keys].each { |key| key[:k_groups].each_pair{ |_, k_grps| k_grps.map { |k_group| k_groups << k_group } } }
       k_groups
     end
 
-    def default_edit_button(button_name)
+    def default_edit_button_obsolete(button_name)
       button = main_panel.edit_buttons.select{ |edit_button| edit_button.identifier == "#{@conf[:name]}_#{button_name}" }.first
       statements = []
       statements << "function #{@conf[:name]}_#{button_name}"
@@ -100,7 +103,7 @@ module Beaotic
       statements << 'end function'
     end
 
-    def pitch_osc2_function
+    def pitch_osc2_function_obsolete
       main_knob = "$knob_#{@conf[:name]}_pitch"
       mix_knob = 500000
       statements = ["function #{name}_pitch_osc2"]
@@ -132,7 +135,7 @@ module Beaotic
       statements
     end
 
-    def link_decays_functions
+    def link_decays_functions_obsolete
       button_identifer = "#{name}_#{@conf[:features][:link_decays][:button]}"
       link_decays_button = main_panel.edit_buttons.select{ |button| button.identifier == button_identifer }.first
       knob_identifiers = @conf[:features][:link_decays][:knobs].map{ |knob| "#{name}_#{knob}" }
@@ -169,40 +172,104 @@ module Beaotic
       # end
     end
 
+    def callback_key_round_robin(key_conf)
+      statements = []
+      if @conf.fetch(:features, {}).fetch(:round_robin, {}) != {}
+        round_robin_modes = @conf[:features][:round_robin][:mode]
+        statements += [
+            " $#{name}_round_robin_next := ($#{name}_round_robin_next+1) mod $#{name}_round_robin_max"
+        ]
+        if round_robin_modes.include?('velocity')
+          key_conf[:k_groups][:osc2]&.map do |k_group|
+            statements << "disallow_group(#{k_group})"
+          end
+          key_conf[:k_groups][:osc1].map do |k_group_id|
+            statements << "allow_group(#{k_group_id})"
+          end
+        end
+      end
+      statements
+    end
+
+    def osc2_color_conf
+      @conf[:knobs].select{ |k| k[:name] == @conf[:features][:osc2_color] }.first
+    end
+
+    def split_count(split_target)
+      splits = case split_target
+               when :color
+                 osc2_color_conf[:max_val]
+               when :round_robin
+                 @conf[:features][:round_robin][:entries]
+               end
+
+      (splits.to_i * 2).to_s unless @conf[:features][:accent][:velocity_threshold].nil?
+    end
+
+    def dest_velocity
+      # TODO: We currently assume that Round Robin and Accent should always be supported although we should not just expect this
+      # Change velocity OSC1 if round_robin or accent is supported
+      [
+        "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})",
+        "    $#{name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{name}_round_robin_next]",
+        "  else",
+        "    $#{name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]",
+        "    ",
+        "  end if",
+        "  $#{name}_new_event := play_note($EVENT_NOTE, $#{name}_new_velocity, 0, -1)",
+        # "  change_vol($#{@key_group.name}_new_event, $fader_accent, 0)",
+        "  wait(1)",
+        "  @#{name}_message := @#{name}_message & \" osc1: \" & get_event_par($#{name}_new_event, $EVENT_PAR_ZONE_ID)"
+      ]
+    end
+
+    def callback_key_diode(key_conf)
+      [
+        "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+        "    $diode_#{key_conf[:name]} := 2",
+        "  else",
+        "    $diode_#{key_conf[:name]} := 1",
+        "  end if"
+      ]
+    end
+
     def on_note_callbacks
+      statements = []
       # Listen for individual notes in the key_group
       @conf[:keys].map do |key|
-        [
+        statements << [
           "if ($EVENT_NOTE = #{key[:midi_note]})",
-          "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
-          "    $diode_#{key[:name]} := 2",
-          "  else",
-          "    $diode_#{key[:name]} := 1",
-          "  end if",
+          callback_key_diode(key).map{ |stm| '  ' + stm },
+          callback_key_round_robin(key).map{ |stm| '  ' + stm },
+          dest_velocity.map{ |stm| '  ' + stm },
           "end if"
         ].join("\n")
-      end +
+      end
 
-      # Listen for notes beonging to the key_group
-      ["if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)"] +
+      # Listen for notes belonging to the key_group
+      statements += [
+          "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)"
+      ]
 
       # Activate the key_group diode
-      [
+      statements += [
         "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
         "    #{@diode.name} := 2",
         "  else",
         "    #{@diode.name} := 1",
         "  end if"
-      ] +
+      ]
 
       # Select the key_group if Midi Select is enabled
-      [
+      statements += [
         "  if ($button_#{@conf[:features][:midi_select][:group_selector]} = 1)",
         "    $selected_group := #{@conf[:index]}",
         "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', name)}",
         "  end if"
-      ] +
-      ["end if"]
+      ]
+      statements += [
+        "end if"
+      ]
     end
 
     def on_release_callbacks

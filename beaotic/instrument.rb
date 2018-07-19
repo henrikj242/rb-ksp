@@ -106,6 +106,9 @@ module Beaotic
         "set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, \"img_icon_hejo\")",
         "declare $selected_group := 0",
       ].map { |line|  '  ' + line }
+
+      statements += Ksp::Utility.split_lists_declare.map{ |line| '  ' + line }
+
       statements += global_buttons.map do |button|
         button.statements.map { |line|  '  ' + line }
       end

@@ -111,26 +111,26 @@ module Beaotic
     # Round Robin and our Color-concept become quite intertwined, as also mentioned in comment above.
     # TODO: Make prettier!
 
-    def set_callback
+    def set_callback_obsolete
       @callback << "if ($EVENT_NOTE = #{midi_note})"
       @callback << "  @#{@key_group.name}_message := \"\""
       set_decay.map{ |statement| @callback << '  ' + statement }
 
       # We can use the change_vol function to relatively change the volume of the individual event for Accent-strikes
-      if @conf.fetch(:features, {}).fetch(:accent, {}) != {}
-        @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
-        @callback << "    #{@key_group.diode.name} := 2" if @key_group.diode
-        @callback << "  else"
-        @callback << "    #{@key_group.diode.name} := 1" if @key_group.diode
-        @callback << '  end if'
-      end
+      # if @conf.fetch(:features, {}).fetch(:accent, {}) != {}
+      #   @callback << "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})"
+      #   @callback << "    #{@key_group.diode.name} := 2" if @key_group.diode
+      #   @callback << "  else"
+      #   @callback << "    #{@key_group.diode.name} := 1" if @key_group.diode
+      #   @callback << '  end if'
+      # end
 
-      if @conf.fetch(:features, {}).fetch(:midi_select, {}) != {}
-        @callback << "  if ($button_#{@conf[:features][:midi_select][:group_selector]} = 1)"
-        @callback << "    $selected_group := #{@key_group.conf[:index]}"
-        @callback << "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', @key_group.name)}"
-        @callback << '  end if'
-      end
+      # if @conf.fetch(:features, {}).fetch(:midi_select, {}) != {}
+      #   @callback << "  if ($button_#{@conf[:features][:midi_select][:group_selector]} = 1)"
+      #   @callback << "    $selected_group := #{@key_group.conf[:index]}"
+      #   @callback << "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', @key_group.name)}"
+      #   @callback << '  end if'
+      # end
 
       if @conf.fetch(:features, {}).fetch(:round_robin, {}) != {}
         @callback << " $#{@key_group.name}_round_robin_next := ($#{@key_group.name}_round_robin_next+1) mod $#{@key_group.name}_round_robin_max"
