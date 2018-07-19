@@ -47,7 +47,6 @@ module Beaotic
           statements += element.statemens
         end
       end
-      # @channels.each { |ch| ch.statements.each { |statement| statements << statement } }
       statements
     end
 
@@ -67,7 +66,6 @@ module Beaotic
       @channels.each do |channel|
         channel.elements.each do |element|
           f.append([element.show])
-          # f.append(["hide_part(#{element.name}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"])
         end
       end
       f

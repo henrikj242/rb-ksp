@@ -28,11 +28,11 @@ module Beaotic
     end
 
     def hide
-      super + "\n" + @label.hide
+      super + "\n  " + @label.hide
     end
 
     def show
-      super + "\n" + @label.show
+      super + "\n  " + @label.show
     end
 
     def label_offset(x = -17, y = -40)
@@ -40,7 +40,7 @@ module Beaotic
     end
 
     def statements
-      super # + @label.statements
+      super
     end
   end
 end
