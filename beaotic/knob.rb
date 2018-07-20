@@ -18,7 +18,7 @@ module Beaotic
           visible:  visible
       )
       super(
-        name: name,
+        name: "knob_#{name}",
         args: [min_val, max_val],
         default_value: default_val,
         visible: visible,

@@ -32,6 +32,8 @@ features: &default_features
   round_robin:
     mode: [velocity]
     entries: 5
+  velocity_to:
+    osc1: round_robin
   midi_select:
     group_selector: midi_select
     function: select_group_KEY_GROUP
@@ -131,6 +133,9 @@ key_groups:
       round_robin:
         mode: [velocity, group]
         entries: 5
+      velocity_to:
+        osc1: round_robin
+        osc2: osc2_color
       osc2_color: impact_color
       osc2_decay: impact_decay
       pitch_osc2: bd_pitch_impact
@@ -248,6 +253,9 @@ key_groups:
     skin_offsets: *skin_offsets
     features:
       <<: *default_features
+      velocity_to:
+        osc1: round_robin
+        osc2: osc2_color
       round_robin:
         mode: [velocity, group]
         entries: 5

@@ -175,18 +175,20 @@ module Beaotic
     def callback_key_round_robin(key_conf)
       statements = []
       if @conf.fetch(:features, {}).fetch(:round_robin, {}) != {}
-        round_robin_modes = @conf[:features][:round_robin][:mode]
-        statements += [
-            " $#{name}_round_robin_next := ($#{name}_round_robin_next+1) mod $#{name}_round_robin_max"
+        statements = [
+            "$#{name}_round_robin_next := ($#{name}_round_robin_next+1) mod $#{name}_round_robin_max"
         ]
-        if round_robin_modes.include?('velocity')
-          key_conf[:k_groups][:osc2]&.map do |k_group|
-            statements << "disallow_group(#{k_group})"
-          end
-          key_conf[:k_groups][:osc1].map do |k_group_id|
-            statements << "allow_group(#{k_group_id})"
-          end
-        end
+        # round_robin_modes = @conf[:features][:round_robin][:mode]
+        # if round_robin_modes.include?('velocity')
+        #   if @conf[:features][:osc2_color]
+        #     key_conf[:k_groups][:osc2]&.map do |k_group|
+        #       statements << "disallow_group(#{k_group})"
+        #     end
+        #   end
+        #   # key_conf[:k_groups][:osc1].map do |k_group_id|
+        #   #   statements << "allow_group(#{k_group_id})"
+        #   # end
+        # end
       end
       statements
     end
@@ -206,30 +208,69 @@ module Beaotic
       (splits.to_i * 2).to_s unless @conf[:features][:accent][:velocity_threshold].nil?
     end
 
-    def dest_velocity
-      # TODO: We currently assume that Round Robin and Accent should always be supported although we should not just expect this
-      # Change velocity OSC1 if round_robin or accent is supported
+    def disallow_all(key)
+      statements = []
+      key[:k_groups].each do |k, osc|
+        osc.each do |k_group_id|
+          statements << "disallow_group(#{k_group_id})"
+        end
+      end
+      statements
+    end
+
+    def allow(midi_note, osc_key, osc)
+      statements = ["{allowing ... }"]
+      case @conf[:features][:velocity_to][osc_key]
+      when 'round_robin'
+        osc.each do |k_group_id|
+          statements << "allow_group(#{k_group_id})"
+        end
+      when 'osc2_color'
+        statements << "allow_group(%key_#{midi_note}_k_groups_osc2[$#{name}_round_robin_next])"
+      end
+      statements
+    end
+
+    def dest_velocity(osc)
+      case @conf[:features][:velocity_to][osc]
+      when 'round_robin'
+        [
+          "if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})",
+          "  $#{name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{name}_round_robin_next]",
+          "else",
+          "  $#{name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]",
+          "end if",
+        ]
+      when 'osc2_color'
+        [
+          "if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})",
+          "  $#{name}_new_velocity := %velocity_splits_#{split_count(:color)}[$knob_#{name}_#{osc2_color_conf[:name]} - 1]",
+          "else",
+          "  $#{name}_new_velocity := %velocity_splits_#{split_count(:color)}[$knob_#{name}_#{osc2_color_conf[:name]}  - 1 + #{osc2_color_conf[:max_val]}]",
+          "end if"
+        ]
+      end
+    end
+
+    def play_new_velocity
       [
-        "  if ($EVENT_VELOCITY < #{@conf[:features][:accent][:velocity_threshold]})",
-        "    $#{name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{name}_round_robin_next]",
-        "  else",
-        "    $#{name}_new_velocity := %velocity_splits_#{split_count(:round_robin)}[$#{name}_round_robin_next + #{@conf[:features][:round_robin][:entries]}]",
-        "    ",
-        "  end if",
-        "  $#{name}_new_event := play_note($EVENT_NOTE, $#{name}_new_velocity, 0, -1)",
-        # "  change_vol($#{@key_group.name}_new_event, $fader_accent, 0)",
-        "  wait(1)",
-        "  @#{name}_message := @#{name}_message & \" osc1: \" & get_event_par($#{name}_new_event, $EVENT_PAR_ZONE_ID)"
+        "$#{name}_new_event := play_note($EVENT_NOTE, $#{name}_new_velocity, 0, -1)"
+      ]
+    end
+
+    def trash_org_note
+      [
+          "change_note($EVENT_ID, 0)"
       ]
     end
 
     def callback_key_diode(key_conf)
       [
-        "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
-        "    $diode_#{key_conf[:name]} := 2",
-        "  else",
-        "    $diode_#{key_conf[:name]} := 1",
-        "  end if"
+        "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+        "  $diode_#{key_conf[:name]} := 2",
+        "else",
+        "  $diode_#{key_conf[:name]} := 1",
+        "end if"
       ]
     end
 
@@ -241,9 +282,15 @@ module Beaotic
           "if ($EVENT_NOTE = #{key[:midi_note]})",
           callback_key_diode(key).map{ |stm| '  ' + stm },
           callback_key_round_robin(key).map{ |stm| '  ' + stm },
-          dest_velocity.map{ |stm| '  ' + stm },
+          disallow_all(key).map{ |stm| '  ' + stm },
+          key[:k_groups].map do |k, osc|
+            dest_velocity(k).map { |stm| '  ' + stm } +
+              allow(key[:midi_note], k, osc).map { |stm| '  ' + stm } +
+              play_new_velocity.map { |stm| '  ' + stm }
+          end,
+          "change_note($EVENT_ID, 0)",
           "end if"
-        ].join("\n")
+        ].join("\n  ")
       end
 
       # Listen for notes belonging to the key_group
