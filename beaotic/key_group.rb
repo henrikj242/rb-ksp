@@ -288,7 +288,6 @@ module Beaotic
               allow(key[:midi_note], k, osc).map { |stm| '  ' + stm } +
               play_new_velocity.map { |stm| '  ' + stm }
           end,
-          "change_note($EVENT_ID, 0)",
           "end if"
         ].join("\n  ")
       end
@@ -315,6 +314,7 @@ module Beaotic
         "  end if"
       ]
       statements += [
+        "change_note($EVENT_ID, 0)",
         "end if"
       ]
     end
