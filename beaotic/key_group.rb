@@ -172,23 +172,12 @@ module Beaotic
       # end
     end
 
-    def callback_key_round_robin(key_conf)
+    def callback_key_round_robin
       statements = []
       if @conf.fetch(:features, {}).fetch(:round_robin, {}) != {}
         statements = [
             "$#{name}_round_robin_next := ($#{name}_round_robin_next+1) mod $#{name}_round_robin_max"
         ]
-        # round_robin_modes = @conf[:features][:round_robin][:mode]
-        # if round_robin_modes.include?('velocity')
-        #   if @conf[:features][:osc2_color]
-        #     key_conf[:k_groups][:osc2]&.map do |k_group|
-        #       statements << "disallow_group(#{k_group})"
-        #     end
-        #   end
-        #   # key_conf[:k_groups][:osc1].map do |k_group_id|
-        #   #   statements << "allow_group(#{k_group_id})"
-        #   # end
-        # end
       end
       statements
     end
@@ -281,7 +270,7 @@ module Beaotic
         statements << [
           "if ($EVENT_NOTE = #{key[:midi_note]})",
           callback_key_diode(key).map{ |stm| '  ' + stm },
-          callback_key_round_robin(key).map{ |stm| '  ' + stm },
+          callback_key_round_robin.map{ |stm| '  ' + stm },
           disallow_all(key).map{ |stm| '  ' + stm },
           key[:k_groups].map do |k, osc|
             dest_velocity(k).map { |stm| '  ' + stm } +

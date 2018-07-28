@@ -79,5 +79,11 @@ module Beaotic
       diode.xy(@base_x + 34, 207)
       diode
     end
+
+    def set_output_menu
+      menu = Ksp::UiMenu.new(name: "output_menu_#{@name}", default_value_name: "Default", default_value: -1)
+      menu.xy(@base_x + 2, 186)
+      menu
+    end
   end
 end

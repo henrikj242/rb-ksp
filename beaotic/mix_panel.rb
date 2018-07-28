@@ -34,7 +34,8 @@ module Beaotic
             ch.set_level_knob(-100, 0, 100),
             ch.set_pan_knob(-100, 0, 100),
             ch.set_pitch_mode_button,
-            ch.set_diode
+            ch.set_diode,
+            ch.set_output_menu
         ]
         @channels << ch
       end
