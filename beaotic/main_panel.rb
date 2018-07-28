@@ -28,6 +28,7 @@ module Beaotic
         picture:  "title_#{name}"
       )
       @title_image.xy(82, 0)
+      @ui_control_callbacks = []
     end
 
     def name
@@ -91,9 +92,44 @@ module Beaotic
                 19 + (idx * 78)
         knob.xy(x, y)
         knob.label_offset
+        knob.add_callbacks(ui_control_callbacks(knob, knob_conf))
         @knobs << knob
       end
     end
+
+    def ui_control_callbacks(ui_control, conf)
+      statements = []
+      if conf[:trigger_on] == 'ui_control'
+        if conf[:function] == 'inline'
+          conf[:affected_keys].each do |aff_key_idx|
+            @conf[:keys][aff_key_idx][:k_groups].each do |osc, k_groups|
+              # next unless @conf[:affected_oscs].include? osc
+              k_groups.each do |k_group|
+                if conf[:modulator]
+                  modulator = "  find_mod(#{k_group},\"#{conf[:modulator]}\")"
+                else
+                  modulator = "  -1"
+                end
+                statements << "  set_engine_par(#{conf[:parameter]}, #{ui_control.name}, #{k_group}, #{modulator}, -1)"
+              end
+            end
+          end
+        end
+      end
+      statements
+    end
+
+    # def note_on_callbacks(ui_control, conf)
+    #   if 'note'.in? conf[:trigger_on]
+    #     statements = [
+    #
+    #     ]
+    #     @note_on_callbacks << statements
+    #
+    #     statements = []
+    #     @release_callbacks << statements
+    #   end
+    # end
 
     # def set_knobs_old
     #   @conf[:knobs].each do |knob_conf|

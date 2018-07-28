@@ -31,7 +31,8 @@ module Beaotic
     end
 
     def on_ui_control_callbacks
-      global_buttons.map { |b| b.callback }
+      @key_groups.map{|key_group| key_group.main_panel.knobs.map(&:callbacks) }.flatten +
+      global_buttons.map { |b| b.callbacks }
     end
 
     def populate_key_groups
@@ -75,7 +76,7 @@ module Beaotic
         persistent: false
       )
       button_note_edit.xy(550, 224)
-      button_note_edit.callback.body = [
+      button_note_edit.add_callbacks [
         'call set_display'
       ]
       buttons = [button_midi_select, button_note_edit]
@@ -87,7 +88,7 @@ module Beaotic
           persistent: false
         )
         b.xy(83 + (idx * 36), 226)
-        b.callback.body = [
+        b.add_callbacks [
           "$selected_group := #{idx}",
           "call select_group_#{key_group.name}"
         ]

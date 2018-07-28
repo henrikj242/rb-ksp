@@ -79,19 +79,19 @@ module Beaotic
       statements
     end
 
-    def set_decay
-      statements = []
-      # find knobs with callback: 'decay' and affected_keys including me based on my midi_note and idx
-      knobs = @key_group.main_panel.knobs.select{ |k| k.conf[:callback] == 'decay' && k.conf[:affected_keys].include?(@idx) }
-      knobs.each do |knob|
-        knob.conf[:affected_oscs].each do |affected_osc|
-          @conf[:k_groups][affected_osc.to_sym].each do |k_group|
-            statements << "set_engine_par(#{knob.conf[:parameter]}, #{knob.name}, #{k_group}, find_mod(#{k_group}, \"#{knob.conf[:modulator]}\"), -1)"
-          end
-        end
-      end
-      statements
-    end
+    # def set_decay
+    #   statements = []
+    #   # find knobs with callback: 'decay' and affected_keys including me based on my midi_note and idx
+    #   knobs = @key_group.main_panel.knobs.select{ |k| k.conf[:callback] == 'decay' && k.conf[:affected_keys].include?(@idx) }
+    #   knobs.each do |knob|
+    #     knob.conf[:affected_oscs].each do |affected_osc|
+    #       @conf[:k_groups][affected_osc.to_sym].each do |k_group|
+    #         statements << "set_engine_par(#{knob.conf[:parameter]}, #{knob.name}, #{k_group}, find_mod(#{k_group}, \"#{knob.conf[:modulator]}\"), -1)"
+    #       end
+    #     end
+    #   end
+    #   statements
+    # end
 
     def split_count(split_target)
       splits = case split_target

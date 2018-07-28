@@ -7,7 +7,13 @@
 
 require_relative 'beaotic/beaotic'
 
-b = Beaotic::Instrument.new('xt808')
+if ARGV[0] == 'img-txt'
+  Beaotic::Image.new.generate_txt_files
+  exit(0)
+else
+  b = Beaotic::Instrument.new('xt808')
+  b.var_dump
+  b.print
+end
 
-b.var_dump
-b.print
+

@@ -23,7 +23,7 @@ module Ksp
       @visible = visible
       @text = text
       @picture = picture
-      @callback = UiControlCallback.new(@name)
+      @callbacks = []
       set_dimensions
     end
 
@@ -73,6 +73,18 @@ module Ksp
 
     def xy(x, y)
       @x, @y = x, y
+    end
+
+    def add_callbacks(callback_statements = [])
+      @callbacks += callback_statements unless callback_statements.nil?
+    end
+
+    def callbacks
+      if @callbacks.count > 0
+        ["on ui_control(#{name})"] + @callbacks + ["end on"]
+      else
+        []
+      end
     end
 
     def label_statements

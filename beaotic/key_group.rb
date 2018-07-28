@@ -32,6 +32,12 @@ module Beaotic
       @mix_panel.set_functions
     end
 
+      # def set_callbacks
+      #   @main_panel.knobs.each do |knob|
+      #     knob.add_callbacks(ui_control_callbacks(knob, knob_conf))
+      #   end
+      # end
+
     def functions_obsolete
       default_functions + feature_functions
     end
@@ -247,12 +253,6 @@ module Beaotic
       ]
     end
 
-    def trash_org_note
-      [
-          "change_note($EVENT_ID, 0)"
-      ]
-    end
-
     def callback_key_diode(key_conf)
       [
         "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
@@ -263,28 +263,49 @@ module Beaotic
       ]
     end
 
+    # def set_decay
+    #   statements = []
+    #   # find knobs with callback: 'decay' and affected_keys including me based on my midi_note and idx
+    #   knobs = @key_group.main_panel.knobs.select{ |k| k.conf[:callback] == 'decay' && k.conf[:affected_keys].include?(@idx) }
+    #   knobs.each do |knob|
+    #     knob.conf[:affected_oscs].each do |affected_osc|
+    #       @conf[:k_groups][affected_osc.to_sym].each do |k_group|
+    #         statements << "set_engine_par(#{knob.conf[:parameter]}, #{knob.name}, #{k_group}, find_mod(#{k_group}, \"#{knob.conf[:modulator]}\"), -1)"
+    #       end
+    #     end
+    #   end
+    #   statements
+    # end
+
     def on_note_callbacks
       statements = []
       # Listen for individual notes in the key_group
       @conf[:keys].map do |key|
         statements << [
           "if ($EVENT_NOTE = #{key[:midi_note]})",
-          callback_key_diode(key).map{ |stm| '  ' + stm },
-          callback_key_round_robin.map{ |stm| '  ' + stm },
-          disallow_all(key).map{ |stm| '  ' + stm },
-          key[:k_groups].map do |k, osc|
-            dest_velocity(k).map { |stm| '  ' + stm } +
-              allow(key[:midi_note], k, osc).map { |stm| '  ' + stm } +
-              play_new_velocity.map { |stm| '  ' + stm }
-          end,
+            callback_key_diode(key).map{ |stm| '  ' + stm },
+            callback_key_round_robin.map{ |stm| '  ' + stm },
+            disallow_all(key).map{ |stm| '  ' + stm },
+            key[:k_groups].map do |k, osc|
+              dest_velocity(k).map { |stm| '  ' + stm } +
+                allow(key[:midi_note], k, osc).map { |stm| '  ' + stm } +
+                play_new_velocity.map { |stm| '  ' + stm }
+            end,
           "end if"
         ].join("\n  ")
       end
 
       # Listen for notes belonging to the key_group
       statements += [
-          "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)"
+        "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)"
       ]
+
+      # Note callbacks based on key_group knobs
+      @main_panel.knobs.each do |knob|
+        statements += [
+          "  "
+        ]
+      end
 
       # Activate the key_group diode
       statements += [
@@ -302,8 +323,10 @@ module Beaotic
         "    call #{@conf[:features][:midi_select][:function].gsub('KEY_GROUP', name)}",
         "  end if"
       ]
+
+      # Trash the original note event
       statements += [
-        "change_note($EVENT_ID, 0)",
+        "  change_note($EVENT_ID, 0)",
         "end if"
       ]
     end
@@ -318,7 +341,7 @@ module Beaotic
       end +
       [
           "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
-          "    #{@diode.name} := 0",
+          "  #{@diode.name} := 0",
           "end if"
       ]
     end

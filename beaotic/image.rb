@@ -1,7 +1,6 @@
 module Beaotic
   class Image
-    def initialize(conf)
-      @conf = conf
+    def initialize
       @directory = '_gui'
     end
 
@@ -40,14 +39,14 @@ module Beaotic
                        template number_of_animations: 1
                      when 'diode'
                        template number_of_animations: 3
-                     when 'button'
+                     when 'button', 'menu'
                        template number_of_animations: 6
                      when 'fader'
                        template number_of_animations: 41
                      when 'knob'
                        template number_of_animations: 101
                      when 'wallpaper'
-                       template number_of_animations: @conf[:wallpaper_animations]
+                       template number_of_animations: 5
                      else
                        {}
                      end

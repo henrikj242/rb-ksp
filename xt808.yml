@@ -51,6 +51,7 @@ pitch: &default_pitch
   max_val: 200000
   parameter: "$ENGINE_PAR_TUNE"
   function: KEY_GROUP_pitch
+  trigger_on: ui_control
   ui_control:
     mouse_behaviour: -500
 
@@ -62,6 +63,7 @@ hold: &default_hold
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_HOLD"
   function: inline
+  trigger_on: ui_control
   ui_control:
     mouse_behaviour: -500
 
@@ -74,7 +76,8 @@ decay: &default_decay
   max_val: 800000
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_DECAY"
-  function: none
+  function: inline
+  trigger_on: ui_control
   ui_control:
     mouse_behaviour: -500
 
@@ -84,6 +87,7 @@ level: &default_level
   default_val: 7000
   max_val: 10000
   function: none
+  trigger_on: ui_control
   position: [6]
   ui_control:
     mouse_behaviour: -500
@@ -94,6 +98,7 @@ pan: &default_pan
   default_val: 500000
   max_val: 1000000
   function: none
+  trigger_on: ui_control
   position: [7]
   ui_control:
     mouse_behaviour: -500
@@ -177,13 +182,14 @@ key_groups:
       - <<: *default_pitch
       - <<: *default_hold
       - <<: *default_decay
-        function: KEY_GROUP_link_decays_1
+        # function: KEY_GROUP_link_decays_1
       - name: impact_level
         affected_oscs: [osc2]
         min_val: 1
         default_val: 500
         max_val: 1000
         function: none # TODO: change this
+        trigger_on: ui_control
         ui_control:
           mouse_behaviour: -500
       - name: impact_color
@@ -192,12 +198,14 @@ key_groups:
         default_val: 24
         max_val: 32
         function: none
+        trigger_on: note
         ui_control:
           mouse_behaviour: -500
       - <<: *default_decay
         name: impact_decay
         affected_oscs: [osc2]
         function: KEY_GROUP_link_decays_2
+        trigger_on: note
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
@@ -237,13 +245,10 @@ key_groups:
           osc1: [41]
     knobs:
       - <<: *default_pitch
-#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc1]
       - <<: *default_hold
-#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc1]
       - <<: *default_decay
-#        affected_keys: !ruby/range 0..5
         affected_oscs: [osc1]
       - <<: *default_level
       - <<: *default_pan
@@ -300,12 +305,13 @@ key_groups:
       - <<: *default_pitch
       - <<: *default_hold
       - <<: *default_decay
-        function: KEY_GROUP_link_decays_1
+        # function: KEY_GROUP_link_decays_1
       - name: snappy_balance
         min_val: 1
         default_val: 500
         max_val: 1000
         function: none # TODO: change this
+        trigger_on: ui_control
         ui_control:
           mouse_behaviour: -500
       - name: snappy_color
@@ -313,13 +319,14 @@ key_groups:
         default_val: 24
         max_val: 32
         function: none
+        trigger_on: note
         ui_control:
           mouse_behaviour: -500
       - <<: *default_decay
         name: snappy_decay
         affected_oscs: [osc2]
-#        affected_keys:  !ruby/range 0..5
         function: KEY_GROUP_link_decays_2
+        trigger_on: note
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
@@ -347,7 +354,6 @@ key_groups:
           osc1: [80]
     knobs:
       - <<: *default_pitch
-        affected_keys: [0, 1, 2]
       - <<: *default_decay
         name: chh_decay
         affected_keys: [0, 1]
