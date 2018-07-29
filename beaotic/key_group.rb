@@ -35,8 +35,12 @@ module Beaotic
 
     def set_ui_callbacks
       @mix_panel.channels.each do |ch|
-        ch.pitch_knob.add_callbacks(["{ fancy callback }", "call #{ch.name}_pitch"])
-        ch.pitch_mode_button.add_callbacks([" { call da pitch fun } ", "call #{ch.name}_pitch"])
+        ch.pitch_knob.add_callbacks(
+            "call #{ch.name}_pitch"
+        )
+        ch.pitch_mode_button.add_callbacks(
+            "call #{ch.name}_pitch"
+        )
       end
     end
 
@@ -76,17 +80,6 @@ module Beaotic
       body = @conf[:keys].map{|key| "call #{name}_#{key[:name]}_pitch" }
       @functions << Ksp::Function.new("#{name}_pitch").set_body(body)
     end
-
-    # def feature_functions
-    #   statements = []
-    #   if @conf[:features].include?(:link_decays)
-    #     link_decays_functions.map{ |statement| statements << statement }
-    #   end
-    #   if @conf[:features].include?(:pitch_osc2)
-    #     pitch_osc2_function.map{ |statement| statements << statement }
-    #   end
-    #   statements
-    # end
 
     def set_keys
       @conf[:keys].each do |key_conf|

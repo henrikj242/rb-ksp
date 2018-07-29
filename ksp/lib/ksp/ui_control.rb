@@ -76,7 +76,11 @@ module Ksp
     end
 
     def add_callbacks(callback_statements = [])
-      @callbacks += callback_statements unless callback_statements.nil?
+      if callback_statements.is_a? String
+        @callbacks << callback_statements
+      elsif callback_statements.is_a? Array
+        @callbacks += callback_statements
+      end
     end
 
     def callbacks
