@@ -8,14 +8,7 @@ require 'ksp/ui_switch'
 require 'ksp/image_size'
 require 'ksp/ui_image'
 require 'ksp/ui_menu'
-require 'ksp/custom_button'
 require 'ksp/ui_slider'
-require 'ksp/ui_slider_v2'
-require 'ksp/custom_diode'
-require 'ksp/custom_knob'
-require 'ksp/custom_fader'
-require 'ksp/volume_fader'
-require 'ksp/pan_fader'
 
 module Ksp
 

@@ -1,5 +1,4 @@
 module Beaotic
-
   require 'time'
   require 'yaml'
   require 'pp'

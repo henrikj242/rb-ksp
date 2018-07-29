@@ -87,12 +87,6 @@ module Ksp
       end
     end
 
-    # def self.print_declare(indent, variable)
-    #   variable.each do |statement|
-    #     puts ' ' * indent + statement
-    #   end
-    # end
-
     def name=(name)
       @name = name
     end

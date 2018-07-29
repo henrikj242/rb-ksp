@@ -1,5 +1,5 @@
 module Beaotic
-  class Knob < Ksp::UiSliderV2
+  class Knob < Ksp::UiSlider
     attr_reader :name, :label
 
     def initialize(
@@ -18,12 +18,12 @@ module Beaotic
           visible:  visible
       )
       super(
-        name: "knob_#{name}",
-        args: [min_val, max_val],
-        default_value: default_val,
-        visible: visible,
-        mouse_behaviour: mouse_behaviour,
-        picture: "knob_#{diameter}"
+        name:             "knob_#{name}",
+        args:             [min_val, max_val],
+        default_value:    default_val,
+        visible:          visible,
+        mouse_behaviour:  mouse_behaviour,
+        picture:          "knob_#{diameter}"
       )
     end
 

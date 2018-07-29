@@ -65,15 +65,15 @@ module Beaotic
 
     def template(options = {})
       {
-          has_alpha_channel: options[:has_alpha_channel] || 'yes',
-          number_of_animations: options[:number_of_animations] || 1,
-          horizontal_animation: options[:horizontal_animation] || 'no',
-          vertical_resizable: options[:vertical_resizable] || 'no',
-          horizontal_resizable: options[:horizontal_resizable] || 'no',
-          fixed_top: options[:fixed_top] || 0,
-          fixed_bottom: options[:fixed_bottom] || 0,
-          fixed_left: options[:fixed_left] || 0,
-          fixed_right: options[:fixed_right] || 0,
+        has_alpha_channel: options[:has_alpha_channel] || 'yes',
+        number_of_animations: options[:number_of_animations] || 1,
+        horizontal_animation: options[:horizontal_animation] || 'no',
+        vertical_resizable: options[:vertical_resizable] || 'no',
+        horizontal_resizable: options[:horizontal_resizable] || 'no',
+        fixed_top: options[:fixed_top] || 0,
+        fixed_bottom: options[:fixed_bottom] || 0,
+        fixed_left: options[:fixed_left] || 0,
+        fixed_right: options[:fixed_right] || 0,
       }
     end
   end

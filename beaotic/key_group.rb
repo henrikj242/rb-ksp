@@ -44,23 +44,6 @@ module Beaotic
       end.flatten
     end
 
-      # def set_callbacks
-      #   @main_panel.knobs.each do |knob|
-      #     knob.add_callbacks(ui_control_callbacks(knob, knob_conf))
-      #   end
-      # end
-
-    def functions_obsolete
-      default_functions + feature_functions
-    end
-
-    def default_functions_obsolete
-      pitch_functions +
-          default_edit_button(:osc_drift) +
-          default_edit_button(:vel_start) +
-          default_edit_button(:vel_vca)
-    end
-
     def pitch_functions_mix
       statements = []
       @mix_panel.channels.each_with_index do |ch, idx|
@@ -85,133 +68,21 @@ module Beaotic
       @functions << Ksp::Function.new("#{name}_pitch").set_body(body)
     end
 
-    def mix_pitch_function_obsolete(affected_key)
-      main_knob = "$knob_#{@conf[:name]}_pitch"
-      # mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_pitch"
-      mix_knob = "500000"
-      statements = []
-      statements << "function #{@conf[:name]}_#{affected_key[:name]}_pitch"
-
-      # we always pitch osc1
-      affected_key[:k_groups][:osc1].each do |k_group|
-        statements << "  set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
-      end
-      # we only pitch osc 2 if feature is enabled and button is pressed
-      if @conf.fetch(:features, {}).fetch(:pitch_osc2, {}) != {}
-        activator = main_panel.edit_buttons.select{ |button| button.identifier == @conf[:features][:pitch_osc2] }.first
-        statements << "  if (#{activator.name} = 1)"
-        affected_key[:k_groups][:osc2].each do |k_group|
-          statements << "    set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
-        end
-        statements << '  end if'
-      end
-      statements << "end function"
-    end
-
-    def pitch_functions_obsolete
-      statements = ["{ default pitch functions }\n"]
-      @conf[:keys].each do |affected_key|
-        mix_pitch_function(affected_key).each do |statement|
-          statements << statement
-        end
-      end
-      statements << "function #{@conf[:name]}_pitch"
-      @conf[:keys].each do |affected_key|
-        statements << "  call #{@conf[:name]}_#{affected_key[:name]}_pitch"
-      end
-      statements << "end function \n"
-    end
-
-    def k_groups_obsolete
-      k_groups = []
-      @conf[:keys].each { |key| key[:k_groups].each_pair{ |_, k_grps| k_grps.map { |k_group| k_groups << k_group } } }
-      k_groups
-    end
-
-    def default_edit_button_obsolete(button_name)
-      button = main_panel.edit_buttons.select{ |edit_button| edit_button.identifier == "#{@conf[:name]}_#{button_name}" }.first
-      statements = []
-      statements << "function #{@conf[:name]}_#{button_name}"
-      k_groups.each do |k_group|
-        statements << "  if (#{button.name} = 1)"
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, " \
-          "#{@conf[:edit_buttons][button_name][:intensity]}, #{k_group}, "\
-          "find_mod(#{k_group}, \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
-        statements << "  else "
-        statements << "    set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, 0, #{k_group}, find_mod(#{k_group}, "\
-          " \"#{@conf[:edit_buttons][button_name][:modulator]}\"), -1)"
-        statements << '  end if'
-      end
-      statements << 'end function'
-    end
-
-    def pitch_osc2_function_obsolete
-      main_knob = "$knob_#{@conf[:name]}_pitch"
-      mix_knob = 500000
-      statements = ["function #{name}_pitch_osc2"]
-      activator = main_panel.edit_buttons.select{ |button| button.identifier == @conf[:features][:pitch_osc2] }.first
-      statements << "  if (#{activator.name} = 1)"
-      @conf[:keys].each do |key|
-        key[:k_groups][:osc2].each do |k_group|
-          statements << "    set_engine_par($ENGINE_PAR_TUNE, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
-        end
-      end
-      statements << '  else'
-      @conf[:keys].each do |key|
-        key[:k_groups][:osc2].each do |k_group|
-          statements << "    set_engine_par($ENGINE_PAR_TUNE, 500000, #{k_group}, -1, -1)"
-        end
-      end
-      statements << '  end if'
-      statements << 'end function'
-    end
-
-    def feature_functions
-      statements = []
-      if @conf[:features].include?(:link_decays)
-        link_decays_functions.map{ |statement| statements << statement }
-      end
-      if @conf[:features].include?(:pitch_osc2)
-        pitch_osc2_function.map{ |statement| statements << statement }
-      end
-      statements
-    end
-
-    def link_decays_functions_obsolete
-      button_identifer = "#{name}_#{@conf[:features][:link_decays][:button]}"
-      link_decays_button = main_panel.edit_buttons.select{ |button| button.identifier == button_identifer }.first
-      knob_identifiers = @conf[:features][:link_decays][:knobs].map{ |knob| "#{name}_#{knob}" }
-      link_decay_knobs = main_panel.knobs.select{ |knob| knob_identifiers.include?(knob.identifier) }
-      statements = []
-      statements << "function #{name}_link_decays_1"
-      statements << "  if (#{link_decays_button.name} = 1)"
-      link_decay_knobs[1..-1].map{ |knob| statements << "    #{knob.name} := #{link_decay_knobs[0].name}" }
-      statements << "  end if"
-      statements << "end function"
-      statements << "function #{name}_link_decays_2"
-      statements << "  if (#{link_decays_button.name} = 1)"
-      statements << "    #{link_decay_knobs[0].name} := #{link_decay_knobs[1].name}"
-      statements << "  end if"
-      statements << "end function"
-      statements
-    end
+    # def feature_functions
+    #   statements = []
+    #   if @conf[:features].include?(:link_decays)
+    #     link_decays_functions.map{ |statement| statements << statement }
+    #   end
+    #   if @conf[:features].include?(:pitch_osc2)
+    #     pitch_osc2_function.map{ |statement| statements << statement }
+    #   end
+    #   statements
+    # end
 
     def set_keys
       @conf[:keys].each do |key_conf|
         @keys << Beaotic::Key.new(key_conf)
-        # @callbacks[key_conf[:name]]
       end
-
-      # extra_options = {
-      #     key_group_name: name
-      # }
-      # extra_options[:features] = @conf[:features] if @conf[:features]
-      #
-      # @conf[:keys].each_with_index do |key, idx|
-      #   @keys << Beaotic::Key.new(self, idx, key.merge(extra_options))
-      #   @keys.last.set_callback
-      #   @keys.last.set_off_callback
-      # end
     end
 
     def callback_key_round_robin
@@ -298,20 +169,6 @@ module Beaotic
         "end if"
       ]
     end
-
-    # def set_decay
-    #   statements = []
-    #   # find knobs with callback: 'decay' and affected_keys including me based on my midi_note and idx
-    #   knobs = @key_group.main_panel.knobs.select{ |k| k.conf[:callback] == 'decay' && k.conf[:affected_keys].include?(@idx) }
-    #   knobs.each do |knob|
-    #     knob.conf[:affected_oscs].each do |affected_osc|
-    #       @conf[:k_groups][affected_osc.to_sym].each do |k_group|
-    #         statements << "set_engine_par(#{knob.conf[:parameter]}, #{knob.name}, #{k_group}, find_mod(#{k_group}, \"#{knob.conf[:modulator]}\"), -1)"
-    #       end
-    #     end
-    #   end
-    #   statements
-    # end
 
     def on_note_callbacks
       statements = []
@@ -426,37 +283,5 @@ module Beaotic
 
       statements.map { |statement| '  ' + statement }
     end
-
-    # def volume_functions
-    #   statements = ["{ default volume functions }"]
-    #   @conf[:keys].each do |affected_key|
-    #     mix_volume_function(affected_key).map do |statement|
-    #       statements << statement
-    #     end
-    #   end
-    #
-    #   statements << "function set_volume_#{@conf[:name]}"
-    #   @conf[:keys].each do |affected_key|
-    #     statements << "  call set_volume_#{@conf[:name]}_#{affected_key[:name]} "
-    #   end
-    #   statements << "end function"
-    #   statements
-    # end
-    #
-    # def mix_volume_function(affected_key)
-    #   main_knob = "$knob_#{@conf[:name]}_volume"
-    #   mix_knob = "$knob_#{@conf[:name]}_#{affected_key[:name]}_volume"
-    #   statements = []
-    #   statements << "function #{@conf[:name]}_#{affected_key[:name]}_volume"
-    #   affected_key[:k_groups].keys.each do |osc|
-    #     affected_key[:k_groups][osc].each do |k_group|
-    #       statements << "  set_engine_par($ENGINE_PAR_VOLUME, #{mix_knob} + #{main_knob}, #{k_group}, -1, -1)"
-    #     end
-    #   end
-    #   statements << "end function"
-    #   statements
-    # end
-
-
   end
 end

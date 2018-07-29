@@ -8,11 +8,11 @@ module Beaotic
       picture:
     )
       super(
-          name:           name,
-          persistent:     persistent,
-          default_value:  default_value,
-          visible:        visible,
-          picture:        picture
+        name:           name,
+        persistent:     persistent,
+        default_value:  default_value,
+        visible:        visible,
+        picture:        picture
       )
     end
   end
