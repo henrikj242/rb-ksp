@@ -30,6 +30,14 @@ module Beaotic
     def set_mix_panel
       @mix_panel = MixPanel.new(@conf)
       @mix_panel.set_functions
+      set_ui_callbacks
+    end
+
+    def set_ui_callbacks
+      @mix_panel.channels.each do |ch|
+        ch.pitch_knob.add_callbacks(["{ fancy callback }", "call #{ch.name}_pitch"])
+        ch.pitch_mode_button.add_callbacks([" { call da pitch fun } ", "call #{ch.name}_pitch"])
+      end
     end
 
     def functions
@@ -40,26 +48,27 @@ module Beaotic
 
     def ui_callbacks
       @mix_panel.channels.map do |ch|
-        ch.pitch_knob.callbacks
+        ch.pitch_knob.callbacks +
+        ch.pitch_mode_button.callbacks
       end.flatten
     end
 
     def pitch_functions_mix
-      statements = []
       @mix_panel.channels.each_with_index do |ch, idx|
-        @conf[:keys][idx][:k_groups].each do |osc, k_groups|
-          statements << "if (#{ch.pitch_mode_button.name} = 0) "
-          k_groups.each do |k_group|
-            statements << "  set_engine_par($ENGINE_PAR_TUNE, $knob_#{name}_pitch + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
-            statements << "message (\" & $knob_#{name}_pitch + #{ch.pitch_knob.name} &  \")"
+        @functions << Ksp::Function.new("#{ch.name}_pitch")
+          statements = [" message(\"#{@functions.last.name} got called\") "]
+          @conf[:keys][idx][:k_groups].each do |osc, k_groups|
+            statements << "if (#{ch.pitch_mode_button.name} = 1) " # 1 means absolute
+            k_groups.each do |k_group|
+              statements << "  set_engine_par($ENGINE_PAR_TUNE, 500000 + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
+            end
+            statements << "else "
+            k_groups.each do |k_group|
+              statements << "  set_engine_par($ENGINE_PAR_TUNE, $knob_#{name}_pitch + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
+            end
+            statements << "end if"
           end
-          statements << "else "
-          k_groups.each do |k_group|
-            statements << "  set_engine_par($ENGINE_PAR_TUNE, 500000 + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
-          end
-          statements << "end if"
-        end
-        @functions << Ksp::Function.new("#{name}_#{@conf[:keys][idx][:name]}_pitch").set_body(statements)
+        @functions.last.set_body(statements)
       end
     end
 

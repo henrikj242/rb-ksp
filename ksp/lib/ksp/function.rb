@@ -1,6 +1,6 @@
 module Ksp
   class Function
-    attr_reader :body
+    attr_reader :body, :name
 
     def initialize(name)
       @name = name

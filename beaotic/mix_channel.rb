@@ -1,6 +1,6 @@
 module Beaotic
   class MixChannel
-    attr_accessor :elements, :pitch_knob, :pitch_mode_button, :level_knob, :pan_knob, :output_menu
+    attr_accessor :elements, :pitch_knob, :pitch_mode_button, :level_knob, :pan_knob, :output_menu, :name
 
     def initialize(name, base_x)
       @name = name
@@ -29,7 +29,6 @@ module Beaotic
       )
       @pitch_knob.xy(@base_x + 19, 46)
       @pitch_knob.label_offset(-18, -42)
-      @pitch_knob.add_callbacks(["{ fancy callback }", "call #{@name}_pitch"])
       @pitch_knob
     end
 

@@ -1,6 +1,6 @@
 module Ksp
   class UiControl < Variable
-    attr_accessor :callback, :label
+    attr_accessor :label
 
     def initialize(
           type:,
