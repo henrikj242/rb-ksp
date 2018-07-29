@@ -14,6 +14,7 @@ module Beaotic
       @key_groups.each do |key_group|
         @script.functions += key_group.main_panel.functions.flatten
         @script.functions += key_group.mix_panel.functions.flatten
+        @script.functions += key_group.functions.flatten
       end
 
       @script.functions += global_functions
@@ -32,7 +33,8 @@ module Beaotic
 
     def on_ui_control_callbacks
       @key_groups.map{|key_group| key_group.main_panel.knobs.map(&:callbacks) }.flatten +
-      global_buttons.map { |b| b.callbacks }
+          @key_groups.map{|key_group| key_group.ui_callbacks}.flatten +
+          global_buttons.map { |b| b.callbacks }
     end
 
     def populate_key_groups

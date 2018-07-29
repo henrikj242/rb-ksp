@@ -16,7 +16,7 @@ module Beaotic
     end
 
     def set_diode
-      @diode = Beaotic::Diode.new(name: "diode_#{name}", levels: 3)
+      @diode = Beaotic::Diode.new(name: "#{name}", levels: 3)
     end
 
     def set_main_panel
@@ -30,6 +30,18 @@ module Beaotic
     def set_mix_panel
       @mix_panel = MixPanel.new(@conf)
       @mix_panel.set_functions
+    end
+
+    def functions
+      pitch_functions_mix
+      pitch_function_main
+      @functions
+    end
+
+    def ui_callbacks
+      @mix_panel.channels.map do |ch|
+        ch.pitch_knob.callbacks
+      end.flatten
     end
 
       # def set_callbacks
@@ -47,6 +59,30 @@ module Beaotic
           default_edit_button(:osc_drift) +
           default_edit_button(:vel_start) +
           default_edit_button(:vel_vca)
+    end
+
+    def pitch_functions_mix
+      statements = []
+      @mix_panel.channels.each_with_index do |ch, idx|
+        @conf[:keys][idx][:k_groups].each do |osc, k_groups|
+          statements << "if (#{ch.pitch_mode_button.name} = 0) "
+          k_groups.each do |k_group|
+            statements << "  set_engine_par($ENGINE_PAR_TUNE, $knob_#{name}_pitch + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
+            statements << "message (\" & $knob_#{name}_pitch + #{ch.pitch_knob.name} &  \")"
+          end
+          statements << "else "
+          k_groups.each do |k_group|
+            statements << "  set_engine_par($ENGINE_PAR_TUNE, 500000 + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
+          end
+          statements << "end if"
+        end
+        @functions << Ksp::Function.new("#{name}_#{@conf[:keys][idx][:name]}_pitch").set_body(statements)
+      end
+    end
+
+    def pitch_function_main
+      body = @conf[:keys].map{|key| "call #{name}_#{key[:name]}_pitch" }
+      @functions << Ksp::Function.new("#{name}_pitch").set_body(body)
     end
 
     def mix_pitch_function_obsolete(affected_key)
@@ -256,9 +292,9 @@ module Beaotic
     def callback_key_diode(key_conf)
       [
         "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
-        "  $diode_#{key_conf[:name]} := 2",
+        "  $diode_#{name}_#{key_conf[:name]} := 2",
         "else",
-        "  $diode_#{key_conf[:name]} := 1",
+        "  $diode_#{name}_#{key_conf[:name]} := 1",
         "end if"
       ]
     end
@@ -334,16 +370,16 @@ module Beaotic
     def on_release_callbacks
       @conf[:keys].map do |key|
         [
-            "if ($EVENT_NOTE = #{key[:midi_note]})",
-            "  $diode_#{key[:name]} := 0",
-            "end if"
-        ].join("\n")
+          "if ($EVENT_NOTE = #{key[:midi_note]})",
+          "  $diode_#{name}_#{key[:name]} := 0",
+          "end if"
+      ].join("\n")
       end +
       [
-          "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
-          "  #{@diode.name} := 0",
-          "end if"
-      ]
+        "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
+        "  #{@diode.name} := 0",
+        "end if"
+    ]
     end
 
     def statements
@@ -352,7 +388,7 @@ module Beaotic
         "declare $#{name}_round_robin_max := #{conf[:features][:round_robin][:entries]}",
         "declare $#{name}_new_event",
         "declare $#{name}_new_velocity",
-        "declare @#{name}_message",
+        "declare @#{name}_message"
       ]
 
       statements += Ksp::Variable.new(

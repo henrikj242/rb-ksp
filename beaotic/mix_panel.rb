@@ -4,20 +4,10 @@ module Beaotic
     def initialize(conf)
       @conf = conf
       @name = "panel_mix_#{@conf[:name]}"
+      @var_prefix = "#{@conf[:name]}"
       @keys = @conf[:keys]
       @skin_offset = @conf[:skin_offsets][@keys.count]
       set_channels
-      # @volume_faders = []
-      # @pan_faders = []
-      # @pitch_knobs = []
-      # @conf[:keys].each do |key_conf|
-      #   @volume_faders << Ksp::VolumeFader.new(name, key_conf)
-      # @pan_faders << PanFader.new(name, key_conf)
-      # pitch knob
-      # output menu
-      # diode
-      # end
-
     end
 
     def set_functions
@@ -27,10 +17,10 @@ module Beaotic
     def set_channels
       @channels = []
       @keys.each_with_index do |key, idx|
-        ch = MixChannel.new(key[:name], 82 + (idx * 78))
+        ch = MixChannel.new("#{@var_prefix}_#{key[:name]}", 82 + (idx * 78))
         ch.elements = [
             ch.set_title_image,
-            ch.set_pitch_knob(-200000, 0, 200000),
+            ch.set_pitch_knob(-250000, 0, 250000),
             ch.set_level_knob(-100, 0, 100),
             ch.set_pan_knob(-100, 0, 100),
             ch.set_pitch_mode_button,

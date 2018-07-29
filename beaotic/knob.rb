@@ -38,9 +38,5 @@ module Beaotic
     def label_offset(x = -17, y = -40)
       @label.xy(@x + x, @y + y)
     end
-
-    def statements
-      super
-    end
   end
 end

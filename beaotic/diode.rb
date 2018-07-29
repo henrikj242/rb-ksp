@@ -6,7 +6,7 @@ module Beaotic
       visible: true
     )
       super(
-        name: name,
+        name: "diode_#{name}",
         picture: 'diode',
         default_value: 0,
         args: [0, levels - 1],

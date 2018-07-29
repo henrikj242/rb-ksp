@@ -46,10 +46,10 @@ features: &default_features
 
 pitch: &default_pitch
   name: pitch
-  min_val: -200000
-  default_val: 0
-  max_val: 200000
-  parameter: "$ENGINE_PAR_TUNE"
+  min_val: -300000
+  default_val: 500000
+  max_val: 800000
+#  parameter: "$ENGINE_PAR_TUNE"
   function: KEY_GROUP_pitch
   trigger_on: ui_control
   ui_control:
@@ -339,15 +339,15 @@ key_groups:
     features:
       <<: *default_features
     keys:
-      - name: hh1_chha
+      - name: chha
         midi_note: 54
         k_groups:
           osc1: [78]
-      - name: hh1_chhb
+      - name: chhb
         midi_note: 56
         k_groups:
           osc1: [79]
-      - name: hh1_ohh
+      - name: ohh
         midi_note: 58
         k_groups:
           osc1: [80]
