@@ -11,10 +11,13 @@ module Beaotic
     def initialize(key_group_conf)
       @conf = key_group_conf
 
-      # affect all keys if none specified
+      # affect all keys/oscs if none specified
       @conf[:knobs].each_index do |index|
         if @conf[:knobs][index][:affected_keys].nil?
           @conf[:knobs][index][:affected_keys] = 0..@conf[:keys].count-1
+        end
+        if @conf[:knobs][index][:affected_oscs].nil?
+          @conf[:knobs][index][:affected_oscs] = %w[osc1 osc2]
         end
       end
 
@@ -103,14 +106,15 @@ module Beaotic
         if conf[:function] == 'inline'
           conf[:affected_keys].each do |aff_key_idx|
             @conf[:keys][aff_key_idx][:k_groups].each do |osc, k_groups|
-              # next unless @conf[:affected_oscs].include? osc
               k_groups.each do |k_group|
                 if conf[:modulator]
                   modulator = "  find_mod(#{k_group},\"#{conf[:modulator]}\")"
                 else
                   modulator = "  -1"
                 end
-                statements << "  set_engine_par(#{conf[:parameter]}, #{ui_control.name}, #{k_group}, #{modulator}, -1)"
+                if conf[:affected_oscs].include? osc.to_s
+                  statements << "  set_engine_par(#{conf[:parameter]}, #{ui_control.name}, #{k_group}, #{modulator}, -1)"
+                end
               end
             end
           end

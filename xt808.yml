@@ -59,7 +59,7 @@ hold: &default_hold
   name: hold
   min_val: 0
   default_val: 50000
-  max_val: 300000
+  max_val: 600000
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_HOLD"
   function: inline
@@ -70,7 +70,6 @@ hold: &default_hold
 decay: &default_decay
   name: decay
   callback: decay
-  affected_oscs: [osc1]
   min_val: 45000
   default_val: 700000
   max_val: 800000
