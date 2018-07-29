@@ -46,9 +46,9 @@ features: &default_features
 
 pitch: &default_pitch
   name: pitch
-  min_val: -300000
+  min_val: 250000
   default_val: 500000
-  max_val: 800000
+  max_val: 750000
 #  parameter: "$ENGINE_PAR_TUNE"
   function: KEY_GROUP_pitch
   trigger_on: ui_control
@@ -58,7 +58,7 @@ pitch: &default_pitch
 hold: &default_hold
   name: hold
   min_val: 0
-  default_val: 50000
+  default_val: 200000
   max_val: 600000
   modulator: "ENV_AHDSR"
   parameter: "$ENGINE_PAR_HOLD"

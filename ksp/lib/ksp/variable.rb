@@ -35,14 +35,18 @@ module Ksp
     def declare
       case @type
       when 'constant', 'integer', 'string'
-        "declare #{@name}"
+        ["declare #{@name}"]
       when /^ui_(button|slider|knob|menu|switch|level_meter|label|file_selector)$/
         args = !@args.nil? && @args.length > 0 ? '(' + @args.join(',') + ')' : ''
-        "declare #{@type} #{@name} #{args}"
+        s = ["declare #{@type} #{@name} #{args}"]
+        if (@type == 'ui_slider') && !@default_value.nil?
+          s << "set_control_par(get_ui_id(#{@name}), $CONTROL_PAR_DEFAULT_VALUE, #{@default_value})"
+        end
+        s
       when /(integer|string)_array$/
-        "declare #{@name}[#{@arr_length}]"
+        ["declare #{@name}[#{@arr_length}]"]
       else
-        ''
+        ['']
       end
     end
 
@@ -73,7 +77,7 @@ module Ksp
       # TODO: Add support for UI controls
       case @type
       when 'constant', 'integer'
-        @default_value
+        @default_value.to_s
       when 'string'
         "\"#{default_value}\""
       when 'integer_array'
@@ -106,8 +110,7 @@ module Ksp
     end
 
     def statements
-      [
-          declare,
+      declare + [
           assign_default_value,
           persist
       ]
