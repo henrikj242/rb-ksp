@@ -67,48 +67,62 @@ module Beaotic
       end.flatten
     end
 
-    def link_decays_function
-      if @conf[:features].include? :link_decays
-        master_knob = @main_panel.knobs.select { |knob|
-          knob.name == "$knob_#{name}_#{@conf[:features][:link_decays][:knobs].first}"
-        }.first
-        slave_knob = @main_panel.knobs.select { |knob|
-          knob.name == "$knob_#{name}_#{@conf[:features][:link_decays][:knobs].last}"
-        }.first
-        @functions << Ksp::Function.new("#{name}_link_decays").append(
-          [
-              "if ($button_#{name}_link_decays = 1)",
-              "  #{slave_knob.name} := #{master_knob.name}",
-              "end if"
-          ]
-        )
+    def decay_function(conf)
+      statements = []
+      conf[:affected_keys].each do |aff_key_idx|
+        @conf[:keys][aff_key_idx][:k_groups].each do |osc, k_groups|
+          k_groups.each do |k_group|
+            if conf[:modulator]
+              modulator = "  find_mod(#{k_group},\"#{conf[:modulator]}\")"
+            else
+              modulator = "  -1"
+            end
+            if conf[:affected_oscs].include? osc.to_s
+              statements << "  set_engine_par(#{conf[:parameter]}, $knob_#{name}_#{conf[:name]}, #{k_group}, #{modulator}, -1)"
+            end
+          end
+        end
       end
+      Ksp::Function.new("#{name}_#{conf[:name]}").append(statements)
     end
 
-    # def key_group_decay_function
-    #   @functions << Ksp::Function.new("#{name}_decay")
-    #   statements = [" { message(\"#{@functions.last.name} got called\") } "]
-    #   conf = @conf[:knobs].select{ |knob| knob[:function] == 'KEY_GROUP_decay' }
-    #   puts conf.inspect
-    #   raise 'Could not uniquely identify decay knob conf' unless (conf.is_a?(Array) && conf.count == 1)
-    #   decay_knob = @main_panel.knobs.select { |knob| pattern = "#{name}_#{conf[:name]}"; knob.name =~ /#{pattern}$/ }
-    #   raise 'Could not identify decay knob' unless decay_knob.is_a? Beaotic::Knob
-    #   osc2_decay_knob = ''
-    #
-    #   decay_knob[:affected_keys].each do |key|
-    #
-    #   end
-    #   if osc2_decay_knob
-    #     "if (#{name}_link_decays = 1)"
-    #     "  #{osc2_decay_knob.name} = #{decay_knob.name}"
-    #     "end if"
-    #     decay_knob[:affected_keys].each do |key|
-    #
-    #     end
-    #   end
-    #
-    #   @functions.last.set_body(statements)
-    # end
+    def link_decays_function
+      master_knob, master_function = nil, nil
+      slave_knobs, slave_functions = [], []
+      if @conf[:features].include? :link_decays
+        @conf[:features][:link_decays][:knobs][0..1].each do |linked_knob_identifer|
+          conf = @conf[:knobs].select { |knob| knob[:name] == linked_knob_identifer }.first
+          @functions << decay_function(conf)
+          if master_knob.nil?
+            master_function = @functions.last.name
+            master_knob = @main_panel.knobs.select{|knob| knob.name == "$knob_#{name}_#{conf[:name]}"}.first
+          else
+            slave_functions << @functions.last.name
+            slave_knob = @main_panel.knobs.select{|knob| knob.name == "$knob_#{name}_#{conf[:name]}"}.first
+            slave_knobs << slave_knob
+          end
+        end
+
+        # -----------------------------------------------------------------------------------------
+        # Link slaves to master
+        statements = ["if ($button_#{name}_link_decays = 1)"]
+        slave_knobs.each do |slave_knob|
+          statements << "  #{slave_knob.name} := #{master_knob.name}"
+        end
+        statements += slave_functions.map{|slave_function| "  call #{slave_function}"}
+        statements << "end if"
+        @functions << Ksp::Function.new("#{name}_link_slave_decays").append(statements)
+        # -----------------------------------------------------------------------------------------
+        # Link master to slave
+        statements = ["if ($button_#{name}_link_decays = 1)"]
+        slave_knobs.each do |slave_knob|
+          statements << "  #{master_knob.name} := #{slave_knob.name}"
+        end
+        statements << "  call #{master_function}"
+        statements << "end if"
+        @functions << Ksp::Function.new("#{name}_link_master_decay").append(statements)
+      end
+    end
 
     def pitch_functions_mix
       @mix_panel.channels.each_with_index do |ch, idx|

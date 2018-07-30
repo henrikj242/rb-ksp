@@ -179,8 +179,9 @@ key_groups:
       - <<: *default_pitch
       - <<: *default_hold
       - <<: *default_decay
+        function: none # KEY_GROUP_decay
         affected_oscs: [osc1]
-        call: [KEY_GROUP_link_decays]
+        call: [KEY_GROUP_decay, KEY_GROUP_link_slave_decays]
       - name: impact_level
         affected_oscs: [osc2]
         min_val: 1
@@ -201,15 +202,16 @@ key_groups:
           mouse_behaviour: -500
       - <<: *default_decay
         name: impact_decay
+        function: none #KEY_GROUP_impact_decay
+        call: [KEY_GROUP_impact_decay, KEY_GROUP_link_master_decay]
         affected_oscs: [osc2]
-        call: [KEY_GROUP_link_decays]
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
       link_decays:
         trigger_on: ui_control
-        call: [KEY_GROUP_link_decays]
+        call: [KEY_GROUP_link_slave_decays]
       pitch_impact:
         function: KEY_GROUP_pitch_osc2
   - name: sd1
@@ -303,7 +305,7 @@ key_groups:
       - <<: *default_hold
       - <<: *default_decay
         affected_oscs: [osc1]
-        call: [KEY_GROUP_link_decays]
+        call: [KEY_GROUP_decay, KEY_GROUP_link_slave_decays]
       - name: snappy_balance
         min_val: 1
         default_val: 500
@@ -323,15 +325,15 @@ key_groups:
       - <<: *default_decay
         name: snappy_decay
         affected_oscs: [osc2]
-        call: [KEY_GROUP_link_decays]
-#        max_val: 1000000
+        call: [KEY_GROUP_snappy_decay, KEY_GROUP_link_master_decay]
+#        call: [KEY_GROUP_link_decays]
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
       link_decays:
         trigger_on: ui_control
-        call: [KEY_GROUP_link_decays]
+        call: [KEY_GROUP_link_slave_decays]
       pitch_snappy:
         function: KEY_GROUP_pitch_osc2
   - name: hh1
