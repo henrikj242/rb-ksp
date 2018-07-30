@@ -45,9 +45,19 @@ module Beaotic
     end
 
     def functions
+      default_functions
+      link_decays_function
       pitch_functions_mix
       pitch_function_main
       @functions
+    end
+
+    def default_functions
+      @functions += [
+          Ksp::Function.new("#{name}_osc_drift"),
+          Ksp::Function.new("#{name}_vel_start"),
+          Ksp::Function.new("#{name}_vel_vca")
+      ]
     end
 
     def ui_callbacks
@@ -57,10 +67,53 @@ module Beaotic
       end.flatten
     end
 
+    def link_decays_function
+      if @conf[:features].include? :link_decays
+        master_knob = @main_panel.knobs.select { |knob|
+          knob.name == "$knob_#{name}_#{@conf[:features][:link_decays][:knobs].first}"
+        }.first
+        slave_knob = @main_panel.knobs.select { |knob|
+          knob.name == "$knob_#{name}_#{@conf[:features][:link_decays][:knobs].last}"
+        }.first
+        @functions << Ksp::Function.new("#{name}_link_decays").append(
+          [
+              "if ($button_#{name}_link_decays = 1)",
+              "  #{slave_knob.name} := #{master_knob.name}",
+              "end if"
+          ]
+        )
+      end
+    end
+
+    # def key_group_decay_function
+    #   @functions << Ksp::Function.new("#{name}_decay")
+    #   statements = [" { message(\"#{@functions.last.name} got called\") } "]
+    #   conf = @conf[:knobs].select{ |knob| knob[:function] == 'KEY_GROUP_decay' }
+    #   puts conf.inspect
+    #   raise 'Could not uniquely identify decay knob conf' unless (conf.is_a?(Array) && conf.count == 1)
+    #   decay_knob = @main_panel.knobs.select { |knob| pattern = "#{name}_#{conf[:name]}"; knob.name =~ /#{pattern}$/ }
+    #   raise 'Could not identify decay knob' unless decay_knob.is_a? Beaotic::Knob
+    #   osc2_decay_knob = ''
+    #
+    #   decay_knob[:affected_keys].each do |key|
+    #
+    #   end
+    #   if osc2_decay_knob
+    #     "if (#{name}_link_decays = 1)"
+    #     "  #{osc2_decay_knob.name} = #{decay_knob.name}"
+    #     "end if"
+    #     decay_knob[:affected_keys].each do |key|
+    #
+    #     end
+    #   end
+    #
+    #   @functions.last.set_body(statements)
+    # end
+
     def pitch_functions_mix
       @mix_panel.channels.each_with_index do |ch, idx|
         @functions << Ksp::Function.new("#{ch.name}_pitch")
-          statements = [" message(\"#{@functions.last.name} got called\") "]
+          statements = [" { message(\"#{@functions.last.name} got called\") } "]
           @conf[:keys][idx][:k_groups].each do |osc, k_groups|
             statements << "if (#{ch.pitch_mode_button.name} = 1) " # 1 means absolute
             k_groups.each do |k_group|

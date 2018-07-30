@@ -33,6 +33,7 @@ module Beaotic
 
     def on_ui_control_callbacks
       @key_groups.map{|key_group| key_group.main_panel.knobs.map(&:callbacks) }.flatten +
+          @key_groups.map{|key_group| key_group.main_panel.edit_buttons.map(&:callbacks) }.flatten +
           @key_groups.map{|key_group| key_group.ui_callbacks}.flatten +
           global_buttons.map { |b| b.callbacks }
     end

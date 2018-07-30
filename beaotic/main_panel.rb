@@ -113,6 +113,9 @@ module Beaotic
       elsif conf[:function] =~ /KEY_GROUP/
         statements << "  call #{conf[:function].sub(/KEY_GROUP/, name)}"
       end
+      if conf[:call]
+        conf[:call].each { |call| statements << "  call #{call.sub(/KEY_GROUP/, name)}" }
+      end
       statements
     end
 
@@ -125,6 +128,7 @@ module Beaotic
           picture:  "button_#{button_name}"
         )
         @edit_buttons.last.xy(18 + (idx * 51), y)
+        @edit_buttons.last.add_callbacks(ui_control_callbacks(@edit_buttons.last, button_conf))
 
         @edit_button_dividers << Ksp::UiImage.new(
           picture: 'img_edit_button_divider',
@@ -132,6 +136,7 @@ module Beaotic
         )
         @edit_button_dividers.last.set_dimensions(add_to_height: 1)
         @edit_button_dividers.last.xy(65 + (idx * 51), y)
+
         idx += 1
       end
     end

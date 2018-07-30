@@ -49,7 +49,6 @@ pitch: &default_pitch
   min_val: 250000
   default_val: 500000
   max_val: 750000
-#  parameter: "$ENGINE_PAR_TUNE"
   function: KEY_GROUP_pitch
   trigger_on: ui_control
   ui_control:
@@ -69,7 +68,6 @@ hold: &default_hold
 
 decay: &default_decay
   name: decay
-  callback: decay
   min_val: 45000
   default_val: 700000
   max_val: 800000
@@ -107,6 +105,7 @@ default_buttons: &default_buttons
     function: KEY_GROUP_osc_drift
     modulator: RVB_PITCH
     intensity: 148000
+    trigger_on: ui_control
   vel_start:
     function: KEY_GROUP_vel_start
     modulator: VEL_PITCH
@@ -145,7 +144,7 @@ key_groups:
       pitch_osc2: bd_pitch_impact
       link_decays:
         knobs: [decay, impact_decay]
-        button: link_decays
+#        button: link_decays
     keys:
       - name: bd_1
         midi_note: 36
@@ -181,6 +180,7 @@ key_groups:
       - <<: *default_pitch
       - <<: *default_hold
       - <<: *default_decay
+        call: [KEY_GROUP_link_decays]
         # function: KEY_GROUP_link_decays_1
       - name: impact_level
         affected_oscs: [osc2]
@@ -202,15 +202,14 @@ key_groups:
           mouse_behaviour: -500
       - <<: *default_decay
         name: impact_decay
-        affected_oscs: [osc2]
-        function: KEY_GROUP_link_decays_2
-        trigger_on: note
+        call: [KEY_GROUP_link_decays]
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
       link_decays:
-        function: KEY_GROUP_link_decays_1
+        trigger_on: ui_control
+        call: [KEY_GROUP_link_decays]
       pitch_impact:
         function: KEY_GROUP_pitch_osc2
   - name: sd1
