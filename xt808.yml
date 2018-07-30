@@ -141,10 +141,9 @@ key_groups:
         osc2: osc2_color
       osc2_color: impact_color
       osc2_decay: impact_decay
-      pitch_osc2: bd_pitch_impact
+      pitch_osc2: bd_impact_pitch
       link_decays:
         knobs: [decay, impact_decay]
-#        button: link_decays
     keys:
       - name: bd_1
         midi_note: 36
@@ -180,8 +179,8 @@ key_groups:
       - <<: *default_pitch
       - <<: *default_hold
       - <<: *default_decay
+        affected_oscs: [osc1]
         call: [KEY_GROUP_link_decays]
-        # function: KEY_GROUP_link_decays_1
       - name: impact_level
         affected_oscs: [osc2]
         min_val: 1
@@ -202,6 +201,7 @@ key_groups:
           mouse_behaviour: -500
       - <<: *default_decay
         name: impact_decay
+        affected_oscs: [osc2]
         call: [KEY_GROUP_link_decays]
       - <<: *default_level
       - <<: *default_pan
@@ -256,18 +256,17 @@ key_groups:
     skin_offsets: *skin_offsets
     features:
       <<: *default_features
-      velocity_to:
-        osc1: round_robin
-        osc2: osc2_color
       round_robin:
         mode: [velocity, group]
         entries: 5
+      velocity_to:
+        osc1: round_robin
+        osc2: osc2_color
       osc2_color: snappy_color
       osc2_decay: snappy_decay
+      pitch_osc2: sd2_snappy_pitch
       link_decays:
         knobs: [decay, snappy_decay]
-        button: link_decays
-      pitch_osc2: sd2_pitch_snappy
     keys:
       - name: sd_7
         midi_note: 48
@@ -303,7 +302,8 @@ key_groups:
       - <<: *default_pitch
       - <<: *default_hold
       - <<: *default_decay
-        # function: KEY_GROUP_link_decays_1
+        affected_oscs: [osc1]
+        call: [KEY_GROUP_link_decays]
       - name: snappy_balance
         min_val: 1
         default_val: 500
@@ -323,14 +323,15 @@ key_groups:
       - <<: *default_decay
         name: snappy_decay
         affected_oscs: [osc2]
-        function: KEY_GROUP_link_decays_2
-        trigger_on: note
+        call: [KEY_GROUP_link_decays]
+#        max_val: 1000000
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
       link_decays:
-        function: KEY_GROUP_link_decays_1
+        trigger_on: ui_control
+        call: [KEY_GROUP_link_decays]
       pitch_snappy:
         function: KEY_GROUP_pitch_osc2
   - name: hh1
