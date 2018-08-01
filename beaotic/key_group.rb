@@ -93,21 +93,38 @@ module Beaotic
           end
         end
       end
-      #
-      #
-      # # "{ debugtxt("switch_drift: " & switch_drift & "intensity: " & intensity & ". LFO_RAND_IDX: " & LFO_RAND_IDX & ". LFO_RAND_PITCH_IDX: " & LFO_RAND_PITCH_IDX) }"
-      #
-      # # mod_idx := LFO_RAND_IDX { find_mod(grpidx,"LFO_RAND") }
-      # # target_idx := LFO_RAND_PITCH_IDX { find_target(grpidx, $mod_idx, "LFO_RAND_PITCH") }
-      # # set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, intensity, grpidx, mod_idx, target_idx)
-      # ]
       Ksp::Function.new("#{name}_osc_drift").append(statements)
+    end
+
+    def vel_start_function
+      conf = @conf[:edit_buttons][:vel_start]
+      statements = [
+          "$intensity := 0",
+          "if($button_#{name}_vel_start = 1)",
+          "  $intensity := #{conf[:intensity]}",
+          "end if"
+      ]
+      conf[:affected_keys].each do |aff_key_idx|
+        @conf[:keys][aff_key_idx][:k_groups].each do |osc, k_groups|
+          k_groups.each do |k_group|
+            if conf[:modulator]
+              modulator = "  find_mod(#{k_group},\"#{conf[:modulator]}\")"
+            else
+              modulator = "  -1"
+            end
+            if conf[:affected_oscs].include? osc.to_s
+              statements << "  set_engine_par($ENGINE_PAR_MOD_TARGET_INTENSITY, $intensity, #{k_group}, #{modulator}, -1)"
+            end
+          end
+        end
+      end
+      Ksp::Function.new("#{name}_vel_start").append(statements)
     end
 
     def default_functions
       @functions += [
           osc_drift_function,
-          Ksp::Function.new("#{name}_vel_start"),
+          vel_start_function,
           Ksp::Function.new("#{name}_vel_vca")
       ]
     end

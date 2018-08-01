@@ -110,6 +110,7 @@ default_buttons: &default_buttons
     function: KEY_GROUP_vel_start
     modulator: VEL_PITCH
     intensity: 895000
+    trigger_on: ui_control
   vel_vca:
     function: KEY_GROUP_vel_vca
     modulator: VEL_PITCH
