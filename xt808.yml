@@ -202,7 +202,7 @@ key_groups:
           mouse_behaviour: -500
       - <<: *default_decay
         name: impact_decay
-        function: none #KEY_GROUP_impact_decay
+        function: none
         call: [KEY_GROUP_impact_decay, KEY_GROUP_link_master_decay]
         affected_oscs: [osc2]
       - <<: *default_level
@@ -325,8 +325,8 @@ key_groups:
       - <<: *default_decay
         name: snappy_decay
         affected_oscs: [osc2]
+        function: none
         call: [KEY_GROUP_snappy_decay, KEY_GROUP_link_master_decay]
-#        call: [KEY_GROUP_link_decays]
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:

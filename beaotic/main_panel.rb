@@ -11,16 +11,6 @@ module Beaotic
     def initialize(key_group_conf)
       @conf = key_group_conf
 
-      # affect all keys/oscs if none specified
-      @conf[:knobs].each_index do |index|
-        if @conf[:knobs][index][:affected_keys].nil?
-          @conf[:knobs][index][:affected_keys] = 0..@conf[:keys].count-1
-        end
-        if @conf[:knobs][index][:affected_oscs].nil?
-          @conf[:knobs][index][:affected_oscs] = %w[osc1 osc2]
-        end
-      end
-
       @knobs = []
       @edit_buttons = []
       @edit_button_dividers = []
