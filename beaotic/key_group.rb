@@ -349,6 +349,7 @@ module Beaotic
       ]
       statements += [
           "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+          "  $volume := $volume + $fader_accent",
           "end if"
       ] if @conf[:features][:accent]
       statements += [

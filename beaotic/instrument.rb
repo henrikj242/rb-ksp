@@ -100,6 +100,30 @@ module Beaotic
       buttons
     end
 
+    def logo
+      l = Ksp::UiImage.new(name: 'logo', picture: 'img_logo')
+      l.xy(5, 270)
+      l.set_dimensions(add_to_height: 10)
+      l
+    end
+
+    def accent_fader
+      f = Beaotic::Fader.new(
+          name: 'accent',
+          direction: 'horizontal',
+          label: 'accent',
+          length: 50,
+          min_val: @conf[:accent][:min_val],
+          default_val: @conf[:accent][:default_val],
+          max_val: @conf[:accent][:max_val],
+          mouse_behaviour: @conf[:accent][:ui_control][:mouse_behaviour],
+          visible: true
+      )
+      f.xy(555, 322)
+      f.label_offset(0, -18)
+      f
+    end
+
     def on_init
       statements = [
         "message(\"Built by Ksp::Beaotic at #{Time.now}\")",
@@ -121,6 +145,8 @@ module Beaotic
       statements += global_buttons.map do |button|
         button.statements.map { |line|  '  ' + line }
       end
+      statements += accent_fader.statements
+      statements += logo.statements
       statements += @key_groups.map(&:statements)
 
 

@@ -7,6 +7,7 @@ module Beaotic
   require 'ksp'
   require_relative './instrument'
   require_relative './knob'
+  require_relative './fader'
   require_relative './diode'
   require_relative './button'
   require_relative './key'
