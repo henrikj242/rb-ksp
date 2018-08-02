@@ -22,7 +22,7 @@ accent: &accent
   velocity_threshold: 85
   min_val: 0
   default_val: 0
-  max_val: 12000
+  max_val: 6000
   ui_control:
     mouse_behaviour: 1000
 
@@ -80,9 +80,9 @@ decay: &default_decay
 
 level: &default_level
   name: level
-  min_val: 1000
-  default_val: 7000
-  max_val: 10000
+  min_val: -24000
+  default_val: 0
+  max_val: 3000
   function: none
   trigger_on: ui_control
   position: [6]

@@ -44,6 +44,9 @@ module Ksp
         end
         s
       when /(integer|string)_array$/
+        if @default_value.is_a?(Array) && @arr_length.nil?
+          @arr_length = @default_value.count
+        end
         ["declare #{@name}[#{@arr_length}]"]
       else
         ['']

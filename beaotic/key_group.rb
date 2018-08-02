@@ -313,9 +313,21 @@ module Beaotic
       end
     end
 
-    def play_new_velocity
-      [
-        "$#{name}_new_event := play_note($EVENT_NOTE, $#{name}_new_velocity, 0, -1)"
+    def play_new_event(key_conf)
+      statements = [
+        "$#{name}_new_event := play_note($EVENT_NOTE, $#{name}_new_velocity, 0, -1)",
+        "$volume := $knob_#{name}_level + $knob_#{name}_#{key_conf[:name]}_level"
+      ]
+      statements += [
+          "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+          "end if"
+      ] if @conf[:features][:accent]
+      statements += [
+        "if ($button_#{name}_vel_vca = 1)",
+        "    $volume := $volume + %velocity_db_mapping[$EVENT_VELOCITY] ",
+        "end if",
+        "change_vol($#{name}_new_event, $volume, 0)",
+        "message(\"$volume was changed to \" & $volume )"
       ]
     end
 
@@ -341,7 +353,7 @@ module Beaotic
             key[:k_groups].map do |k, osc|
               dest_velocity(k).map { |stm| '  ' + stm } +
                 allow(key[:midi_note], k, osc).map { |stm| '  ' + stm } +
-                play_new_velocity.map { |stm| '  ' + stm }
+                play_new_event(key).map { |stm| '  ' + stm }
             end,
           "end if"
         ].join("\n  ")

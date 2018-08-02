@@ -111,9 +111,11 @@ module Beaotic
         "declare $selected_group := 0",
         "declare $intensity := 0",
         "declare $i := 0",
-        "declare $j := 0"
+        "declare $j := 0",
+        "declare $volume := 0"
       ].map { |line|  '  ' + line }
 
+      statements += Ksp::Variable.new(type: 'integer_array', name: 'velocity_db_mapping', default_value: velocity_db_mapping).statements
       statements += Ksp::Utility.split_lists_declare.map{ |line| '  ' + line }
 
       statements += global_buttons.map do |button|
@@ -152,7 +154,7 @@ module Beaotic
       @key_groups.each_with_index do |key_group, key_group_idx|
         set_display.append [
           "    case #{key_group_idx}",
-          "      message(\"selecting #{key_group.name}\")",
+          # "      message(\"selecting #{key_group.name}\")",
           "      if ($button_note_edit = 0)",
           "        call show_panel_main_#{key_group.name}",
           "      else",
@@ -161,6 +163,13 @@ module Beaotic
         ]
       end
       set_display.append ['  end select']
+    end
+
+    def velocity_db_mapping
+      db_range = -24000..3000
+      vel_range = 0..127
+      delta = db_range.count / vel_range.count
+      vel_range.map{|velocity| db_range.first + velocity * delta }
     end
 
     def print
