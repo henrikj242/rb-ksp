@@ -142,7 +142,7 @@ key_groups:
         osc2: osc2_color
       osc2_color: impact_color
       osc2_decay: impact_decay
-      pitch_osc2: bd_impact_pitch
+      pitch_osc2: bd_pitch_impact
       link_decays:
         knobs: [decay, impact_decay]
     keys:
@@ -178,6 +178,7 @@ key_groups:
           osc2: !ruby/range 31..35
     knobs:
       - <<: *default_pitch
+        affected_oscs: [osc1]
       - <<: *default_hold
       - <<: *default_decay
         function: none # KEY_GROUP_decay
@@ -214,7 +215,8 @@ key_groups:
         trigger_on: ui_control
         call: [KEY_GROUP_link_slave_decays]
       pitch_impact:
-        function: KEY_GROUP_pitch_osc2
+        trigger_on: ui_control
+        call: [KEY_GROUP_pitch]
   - name: sd1
     skin_offsets: *skin_offsets
     features:
@@ -267,7 +269,7 @@ key_groups:
         osc2: osc2_color
       osc2_color: snappy_color
       osc2_decay: snappy_decay
-      pitch_osc2: sd2_snappy_pitch
+      pitch_osc2: sd2_pitch_snappy
       xfade:
         knob: snappy_balance
       link_decays:
@@ -339,7 +341,8 @@ key_groups:
         trigger_on: ui_control
         call: [KEY_GROUP_link_slave_decays]
       pitch_snappy:
-        function: KEY_GROUP_pitch_osc2
+        trigger_on: ui_control
+        call: [KEY_GROUP_pitch]
   - name: hh1
     skin_offsets: *skin_offsets
     features:

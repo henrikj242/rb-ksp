@@ -217,18 +217,30 @@ module Beaotic
     def pitch_functions_mix
       @mix_panel.channels.each_with_index do |ch, idx|
         @functions << Ksp::Function.new("#{ch.name}_pitch")
-          statements = [" { message(\"#{@functions.last.name} got called\") } "]
-          @conf[:keys][idx][:k_groups].each do |osc, k_groups|
-            statements << "if (#{ch.pitch_mode_button.name} = 1) " # 1 means absolute
-            k_groups.each do |k_group|
-              statements << "  set_engine_par($ENGINE_PAR_TUNE, 500000 + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
-            end
-            statements << "else "
-            k_groups.each do |k_group|
-              statements << "  set_engine_par($ENGINE_PAR_TUNE, $knob_#{name}_pitch + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
-            end
-            statements << "end if"
+        statements = [" { message(\"#{@functions.last.name} got called\") } "]
+        statements << "if (#{ch.pitch_mode_button.name} = 1) " # 1 means absolute
+        @conf[:keys][idx][:k_groups][:osc1].each do |k_group|
+          statements << "  set_engine_par($ENGINE_PAR_TUNE, 500000 + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
+        end
+        if @conf[:features][:pitch_osc2]
+          statements << "  if ($button_#{@conf[:features][:pitch_osc2]} = 1)"
+          @conf[:keys][idx][:k_groups][:osc2].each do |k_group|
+            statements << "    set_engine_par($ENGINE_PAR_TUNE, 500000 + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
           end
+          statements << "  end if"
+        end
+        statements << "else "
+        @conf[:keys][idx][:k_groups][:osc1].each do |k_group|
+          statements << "  set_engine_par($ENGINE_PAR_TUNE, $knob_#{name}_pitch + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
+        end
+        if @conf[:features][:pitch_osc2]
+          statements << "  if ($button_#{@conf[:features][:pitch_osc2]} = 1)"
+          @conf[:keys][idx][:k_groups][:osc2].each do |k_group|
+            statements << "    set_engine_par($ENGINE_PAR_TUNE, $knob_#{name}_pitch + #{ch.pitch_knob.name}, #{k_group}, -1, -1)"
+          end
+          statements << "  end if"
+        end
+        statements << "end if"
         @functions.last.set_body(statements)
       end
     end
