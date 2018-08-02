@@ -121,12 +121,33 @@ module Beaotic
       Ksp::Function.new("#{name}_vel_start").append(statements)
     end
 
+    def xfade_function
+      conf = @conf[:knobs].select{|knob| knob[:name] == @conf[:features][:xfade][:knob]}.first
+      statements = []
+      statements << "  $i := $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
+      statements << "  $i := ($i * $i * $i) + 320000"
+      statements << "  $j := #{conf[:max_val]} - $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
+      statements << "  $j := ($j * $j * $j) + 320000"
+
+      conf[:affected_keys].each do |aff_key_idx|
+        @conf[:keys][aff_key_idx][:k_groups][:osc1].each do |k_group|
+          statements << "  set_engine_par($ENGINE_PAR_VOLUME, $i, #{k_group}, -1, -1)"
+        end
+        @conf[:keys][aff_key_idx][:k_groups][:osc2].each do |k_group|
+          statements << "  set_engine_par($ENGINE_PAR_VOLUME, $j, #{k_group}, -1, -1)"
+        end
+      end
+      func = Ksp::Function.new("#{name}_xfade").append(statements)
+      func.append(["message (\"setting volumes to \" & $i & \" and \" & $j & \" \")"])
+    end
+
     def default_functions
       @functions += [
           osc_drift_function,
           vel_start_function,
           Ksp::Function.new("#{name}_vel_vca")
       ]
+      @functions << xfade_function if @conf[:features][:xfade]
     end
 
     def ui_callbacks

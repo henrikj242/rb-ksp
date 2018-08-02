@@ -109,7 +109,9 @@ module Beaotic
         "set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, \"wallpaper\")",
         "set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, \"img_icon_hejo\")",
         "declare $selected_group := 0",
-        "declare $intensity := 0"
+        "declare $intensity := 0",
+        "declare $i := 0",
+        "declare $j := 0"
       ].map { |line|  '  ' + line }
 
       statements += Ksp::Utility.split_lists_declare.map{ |line| '  ' + line }

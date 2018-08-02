@@ -268,6 +268,8 @@ key_groups:
       osc2_color: snappy_color
       osc2_decay: snappy_decay
       pitch_osc2: sd2_snappy_pitch
+      xfade:
+        knob: snappy_balance
       link_decays:
         knobs: [decay, snappy_decay]
     keys:
@@ -308,11 +310,12 @@ key_groups:
         affected_oscs: [osc1]
         call: [KEY_GROUP_decay, KEY_GROUP_link_slave_decays]
       - name: snappy_balance
-        min_val: 1
-        default_val: 500
-        max_val: 1000
+        min_val: 0
+        default_val: 34
+        max_val: 68
         function: none # TODO: change this
         trigger_on: ui_control
+        call: [KEY_GROUP_xfade]
         ui_control:
           mouse_behaviour: -500
       - name: snappy_color
