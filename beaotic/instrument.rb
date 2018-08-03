@@ -141,6 +141,8 @@ module Beaotic
       ].map { |line|  '  ' + line }
 
       statements += Ksp::Variable.new(type: 'integer_array', name: 'velocity_db_mapping', default_value: velocity_db_mapping).statements
+      statements += Ksp::Variable.new(type: 'integer_array', name: 'xfade_ksp_mapping', default_value: xfade_ksp_mapping).statements
+
       statements += Ksp::Utility.split_lists_declare.map{ |line| '  ' + line }
 
       statements += global_buttons.map do |button|
@@ -197,6 +199,14 @@ module Beaotic
       vel_range = 0..127
       delta = db_range.count / vel_range.count
       vel_range.map{|velocity| db_range.first + velocity * delta }
+    end
+
+    def xfade_ksp_mapping
+      (0..100).map do |index|
+        # (Math.sqrt(index) * 78).round
+        # (Math.cbrt(index) * 160).round
+        (index ** (1.0/10) * 500).round
+      end
     end
 
     def print

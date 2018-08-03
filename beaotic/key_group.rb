@@ -124,11 +124,13 @@ module Beaotic
     def xfade_function
       conf = @conf[:knobs].select{|knob| knob[:name] == @conf[:features][:xfade][:knob]}.first
       statements = []
-      statements << "  $i := $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
-      statements << "  $i := ($i * $i * $i) + 320000"
-      statements << "  $j := #{conf[:max_val]} - $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
-      statements << "  $j := ($j * $j * $j) + 320000"
+      # statements << "  $i := $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
+      # statements << "  $i := ($i * $i * $i) + 320000"
+      # statements << "  $j := #{conf[:max_val]} - $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
+      # statements << "  $j := ($j * $j * $j) + 320000"
 
+      statements << "  $i := %xfade_ksp_mapping[$knob_#{name}_#{@conf[:features][:xfade][:knob]}] * %xfade_ksp_mapping[$knob_#{name}_#{@conf[:features][:xfade][:knob]}] + 100000"
+      statements << "  $j := %xfade_ksp_mapping[100 - $knob_#{name}_#{@conf[:features][:xfade][:knob]}] * %xfade_ksp_mapping[100 - $knob_#{name}_#{@conf[:features][:xfade][:knob]}] + 100000"
       conf[:affected_keys].each do |aff_key_idx|
         @conf[:keys][aff_key_idx][:k_groups][:osc1].each do |k_group|
           statements << "  set_engine_par($ENGINE_PAR_VOLUME, $i, #{k_group}, -1, -1)"

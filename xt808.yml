@@ -313,8 +313,8 @@ key_groups:
         call: [KEY_GROUP_decay, KEY_GROUP_link_slave_decays]
       - name: snappy_balance
         min_val: 0
-        default_val: 34
-        max_val: 68
+        default_val: 50
+        max_val: 100
         function: none # TODO: change this
         trigger_on: ui_control
         call: [KEY_GROUP_xfade]
