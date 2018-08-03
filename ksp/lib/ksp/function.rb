@@ -13,7 +13,11 @@ module Ksp
     end
 
     def append(body_statements = [])
-      @body += body_statements
+      if body_statements.is_a? Array
+        @body += body_statements
+      elsif body_statements.is_a? String
+        @body << body_statements
+      end
       self
     end
 
