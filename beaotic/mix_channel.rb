@@ -81,9 +81,22 @@ module Beaotic
     end
 
     def set_output_menu
-      @output_menu = Ksp::UiMenu.new(name: "output_menu_#{@name}", default_value_name: "Default", default_value: -1)
+      @output_menu = Ksp::UiOutputSelector.new(name: "output_menu_#{@name}", default_value_name: "Default", default_value: -1)
       @output_menu.xy(@base_x + 2, 186)
+      @output_menu.populate
+      @output_menu.add_callbacks("call output_select_#{name}")
       @output_menu
+    end
+
+    def output_select_function(key_conf)
+      f = Ksp::Function.new("output_select_#{name}")
+      key_conf[:k_groups].each do |osc, _|
+        key_conf[:k_groups][osc].each do |k_group|
+          f.append("set_engine_par($ENGINE_PAR_OUTPUT_CHANNEL, #{output_menu.name}, #{k_group},-1,-1)")
+          f.append("message(\"Setting output to \" & #{output_menu.name} & \" for group \" & #{k_group})")
+        end
+      end
+      f
     end
   end
 end

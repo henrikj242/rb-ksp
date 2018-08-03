@@ -167,7 +167,8 @@ module Beaotic
     def ui_callbacks
       @mix_panel.channels.map do |ch|
         ch.pitch_knob.callbacks +
-        ch.pitch_mode_button.callbacks
+        ch.pitch_mode_button.callbacks +
+        ch.output_menu.callbacks
       end.flatten
     end
 
@@ -280,28 +281,6 @@ module Beaotic
       body = @conf[:keys].map{|key| "call #{name}_#{key[:name]}_pitch" }
       @functions << Ksp::Function.new("#{name}_pitch").set_body(body)
     end
-
-    # def pan_functions_mix
-    #   @mix_panel.channels.each_with_index do |ch, idx|
-    #     ch_pan_knob = ch.pan_knob
-    #     main_pan_knob = @main_panel.knobs.select{|knob| knob.name == "$knob_#{name}_pan" }.first
-    #     @functions << Ksp::Function.new("#{ch.name}_pan")
-    #     statements = [
-    #       "$pan := #{ch_pan_knob.name} + #{main_pan_knob.name}",
-    #       "if ($pan > 1000)",
-    #       "  $pan := 1000",
-    #       "else if ($pan < 0)",
-    #       "  $pan := 0",
-    #       "end if"
-    #     ]
-    #     @functions.last.set_body(statements)
-    #   end
-    # end
-
-    # def pan_function_main
-    #   body = @conf[:keys].map{|key| "call #{name}_#{key[:name]}_pan" }
-    #   @functions << Ksp::Function.new("#{name}_pan").set_body(body)
-    # end
 
     def set_keys
       @conf[:keys].each do |key_conf|

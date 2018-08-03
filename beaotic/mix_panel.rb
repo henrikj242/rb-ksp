@@ -7,11 +7,12 @@ module Beaotic
       @var_prefix = "#{@conf[:name]}"
       @keys = @conf[:keys]
       @skin_offset = @conf[:skin_offsets][@keys.count]
+      @functions = []
       set_channels
     end
 
     def set_functions
-      @functions = [hide, show]
+      @functions += [hide, show]
     end
 
     def set_channels
@@ -28,6 +29,7 @@ module Beaotic
             ch.set_output_menu
         ]
         @channels << ch
+        @functions << ch.output_select_function(key)
       end
     end
 
