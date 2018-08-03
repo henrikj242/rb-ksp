@@ -143,6 +143,8 @@ key_groups:
       osc2_color: impact_color
       osc2_decay: impact_decay
       pitch_osc2: bd_pitch_impact
+      osc2_mix:
+        knob: impact_level
       link_decays:
         knobs: [decay, impact_decay]
     keys:
@@ -185,12 +187,12 @@ key_groups:
         affected_oscs: [osc1]
         call: [KEY_GROUP_decay, KEY_GROUP_link_slave_decays]
       - name: impact_level
-        affected_oscs: [osc2]
-        min_val: 1
-        default_val: 500
-        max_val: 1000
+        min_val: 0
+        default_val: 50
+        max_val: 100
         function: none # TODO: change this
         trigger_on: ui_control
+        call: [KEY_GROUP_osc2_mix]
         ui_control:
           mouse_behaviour: -500
       - name: impact_color

@@ -124,13 +124,9 @@ module Beaotic
     def xfade_function
       conf = @conf[:knobs].select{|knob| knob[:name] == @conf[:features][:xfade][:knob]}.first
       statements = []
-      # statements << "  $i := $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
-      # statements << "  $i := ($i * $i * $i) + 320000"
-      # statements << "  $j := #{conf[:max_val]} - $knob_#{name}_#{@conf[:features][:xfade][:knob]}"
-      # statements << "  $j := ($j * $j * $j) + 320000"
 
-      statements << "  $i := %xfade_ksp_mapping[$knob_#{name}_#{@conf[:features][:xfade][:knob]}] * %xfade_ksp_mapping[$knob_#{name}_#{@conf[:features][:xfade][:knob]}] + 100000"
-      statements << "  $j := %xfade_ksp_mapping[100 - $knob_#{name}_#{@conf[:features][:xfade][:knob]}] * %xfade_ksp_mapping[100 - $knob_#{name}_#{@conf[:features][:xfade][:knob]}] + 100000"
+      statements << "  $i := %xfade_ksp_mapping[100 - $knob_#{name}_#{@conf[:features][:xfade][:knob]}] * %xfade_ksp_mapping[100 - $knob_#{name}_#{@conf[:features][:xfade][:knob]}] + 100000"
+      statements << "  $j := %xfade_ksp_mapping[$knob_#{name}_#{@conf[:features][:xfade][:knob]}] * %xfade_ksp_mapping[$knob_#{name}_#{@conf[:features][:xfade][:knob]}] + 100000"
       conf[:affected_keys].each do |aff_key_idx|
         @conf[:keys][aff_key_idx][:k_groups][:osc1].each do |k_group|
           statements << "  set_engine_par($ENGINE_PAR_VOLUME, $i, #{k_group}, -1, -1)"
@@ -143,15 +139,29 @@ module Beaotic
       func.append(["message (\"setting volumes to \" & $i & \" and \" & $j & \" \")"])
     end
 
+    def osc2_mix_function
+      conf = @conf[:knobs].select{|knob| knob[:name] == @conf[:features][:osc2_mix][:knob]}.first
+      statements = []
+
+      knob_name = "$knob_#{name}_#{@conf[:features][:osc2_mix][:knob]}"
+      statements << "  $j := %xfade_ksp_mapping[#{knob_name}] * %xfade_ksp_mapping[#{knob_name}] + (#{knob_name} * 1000)"
+      conf[:affected_keys].each do |aff_key_idx|
+        @conf[:keys][aff_key_idx][:k_groups][:osc2].each do |k_group|
+          statements << "  set_engine_par($ENGINE_PAR_VOLUME, $j, #{k_group}, -1, -1)"
+        end
+      end
+      func = Ksp::Function.new("#{name}_osc2_mix").append(statements)
+      func.append(["message (\"setting osc2 volume via \" & #{knob_name} & \" to \" & $j )"])
+    end
+
+
     def default_functions
       @functions += [
-        # pitch_functions_mix + [
-        #   pitch_function_main,
           osc_drift_function,
-          vel_start_function,
-          Ksp::Function.new("#{name}_vel_vca")
+          vel_start_function
       ]
       @functions << xfade_function if @conf[:features][:xfade]
+      @functions << osc2_mix_function if @conf[:features][:osc2_mix]
     end
 
     def ui_callbacks

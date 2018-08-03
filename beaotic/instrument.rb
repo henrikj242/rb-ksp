@@ -140,8 +140,16 @@ module Beaotic
         "declare $pan := 0"
       ].map { |line|  '  ' + line }
 
-      statements += Ksp::Variable.new(type: 'integer_array', name: 'velocity_db_mapping', default_value: velocity_db_mapping).statements
-      statements += Ksp::Variable.new(type: 'integer_array', name: 'xfade_ksp_mapping', default_value: xfade_ksp_mapping).statements
+      statements += Ksp::Variable.new(
+          type:           'integer_array',
+          name:           'velocity_db_mapping',
+          default_value:  velocity_db_mapping
+      ).statements
+      statements += Ksp::Variable.new(
+          type:           'integer_array',
+          name:           'xfade_ksp_mapping',
+          default_value:  xfade_ksp_mapping
+      ).statements
 
       statements += Ksp::Utility.split_lists_declare.map{ |line| '  ' + line }
 
@@ -151,7 +159,6 @@ module Beaotic
       statements += accent_fader.statements
       statements += logo.statements
       statements += @key_groups.map(&:statements)
-
 
       # Hide everything except the BD Main Panel
       @key_groups.each do |kg|
@@ -202,10 +209,9 @@ module Beaotic
     end
 
     def xfade_ksp_mapping
-      (0..100).map do |index|
-        # (Math.sqrt(index) * 78).round
-        # (Math.cbrt(index) * 160).round
-        (index ** (1.0/10) * 500).round
+      (0..100).map do |x|
+        (x ** (1.0/10) * 500).round
+        # (Math.log(x+1) * 400).round
       end
     end
 
