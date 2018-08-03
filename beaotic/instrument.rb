@@ -136,7 +136,8 @@ module Beaotic
         "declare $intensity := 0",
         "declare $i := 0",
         "declare $j := 0",
-        "declare $volume := 0"
+        "declare $volume := 0",
+        "declare $pan := 0"
       ].map { |line|  '  ' + line }
 
       statements += Ksp::Variable.new(type: 'integer_array', name: 'velocity_db_mapping', default_value: velocity_db_mapping).statements

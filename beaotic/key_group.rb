@@ -143,6 +143,8 @@ module Beaotic
 
     def default_functions
       @functions += [
+        # pitch_functions_mix + [
+        #   pitch_function_main,
           osc_drift_function,
           vel_start_function,
           Ksp::Function.new("#{name}_vel_vca")
@@ -267,6 +269,28 @@ module Beaotic
       @functions << Ksp::Function.new("#{name}_pitch").set_body(body)
     end
 
+    # def pan_functions_mix
+    #   @mix_panel.channels.each_with_index do |ch, idx|
+    #     ch_pan_knob = ch.pan_knob
+    #     main_pan_knob = @main_panel.knobs.select{|knob| knob.name == "$knob_#{name}_pan" }.first
+    #     @functions << Ksp::Function.new("#{ch.name}_pan")
+    #     statements = [
+    #       "$pan := #{ch_pan_knob.name} + #{main_pan_knob.name}",
+    #       "if ($pan > 1000)",
+    #       "  $pan := 1000",
+    #       "else if ($pan < 0)",
+    #       "  $pan := 0",
+    #       "end if"
+    #     ]
+    #     @functions.last.set_body(statements)
+    #   end
+    # end
+
+    # def pan_function_main
+    #   body = @conf[:keys].map{|key| "call #{name}_#{key[:name]}_pan" }
+    #   @functions << Ksp::Function.new("#{name}_pan").set_body(body)
+    # end
+
     def set_keys
       @conf[:keys].each do |key_conf|
         @keys << Beaotic::Key.new(key_conf)
@@ -348,9 +372,9 @@ module Beaotic
         "$volume := $knob_#{name}_level + $knob_#{name}_#{key_conf[:name]}_level"
       ]
       statements += [
-          "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
-          "  $volume := $volume + $fader_accent",
-          "end if"
+        "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
+        "  $volume := $volume + $fader_accent",
+        "end if"
       ] if @conf[:features][:accent]
       statements += [
         "if ($button_#{name}_vel_vca = 1)",
@@ -358,6 +382,18 @@ module Beaotic
         "end if",
         "change_vol($#{name}_new_event, $volume, 0)",
         "message(\"$volume was changed to \" & $volume )"
+      ]
+      statements += [
+        "$pan := $knob_#{name}_pan + $knob_#{name}_#{key_conf[:name]}_pan",
+        "if ($pan > 1000)",
+        "  $pan := 1000",
+        "else ",
+        "  if ($pan < -1000)",
+        "    $pan := -1000",
+        "  end if",
+        "end if",
+        "message(\"Pan: \" & $pan)",
+        "change_pan($#{name}_new_event, $pan, 0)"
       ]
     end
 
