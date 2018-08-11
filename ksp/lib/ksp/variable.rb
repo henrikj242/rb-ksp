@@ -12,11 +12,6 @@ module Ksp
       @custom_statements = []
     end
 
-    # def add_custom_statements(statements)
-    #   @custom_statements += statements
-    #   self
-    # end
-
     def get_name(name)
       case @type
       when 'constant', 'integer', /^ui_+/

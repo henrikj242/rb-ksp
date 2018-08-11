@@ -21,14 +21,12 @@ module Beaotic
       @pitch_knob = Knob.new(
         name:         "#{@name}_pitch",
         diameter:     44,
-        label:        "pitch",
         min_val:      min_val,
         default_val:  default_val,
         max_val:      max_val,
         visible:      false
       )
       @pitch_knob.xy(@base_x + 19, 46)
-      @pitch_knob.label_offset(-18, -42)
       @pitch_knob
     end
 
@@ -48,14 +46,12 @@ module Beaotic
       @level_knob = Knob.new(
         name:         "#{@name}_level",
         diameter:     24,
-        label:        "mix_level",
         min_val:      min_val,
         default_val:  default_val,
         max_val:      max_val,
         visible:      false
       )
       @level_knob.xy(@base_x + 8, 155)
-      @level_knob.label_offset(-2, -23)
       @level_knob
     end
 
@@ -63,14 +59,12 @@ module Beaotic
       @pan_knob = Knob.new(
         name:         "#{@name}_pan",
         diameter:     24,
-        label:        "mix_pan",
         min_val:      min_val,
         default_val:  default_val,
         max_val:      max_val,
         visible:      false
       )
       @pan_knob.xy(@base_x + 48, 155)
-      @pan_knob.label_offset(-2, -23)
       @pan_knob
     end
 

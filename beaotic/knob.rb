@@ -5,18 +5,20 @@ module Beaotic
     def initialize(
         name:,
         diameter: 48,
-        label:,
+        label: nil,
         min_val:,
         default_val:,
         max_val:,
         mouse_behaviour: -500,
         visible: true
     )
+
       @label = Ksp::UiImage.new(
           name:     "label_#{name}",
           picture:  "label_#{label}",
           visible:  visible
-      )
+      ) if label
+
       super(
         name:             "knob_#{name}",
         args:             [min_val, max_val],
@@ -28,14 +30,15 @@ module Beaotic
     end
 
     def hide
-      super + "\n  " + @label.hide
+      super + "\n  " + @label&.hide.to_s
     end
 
     def show
-      super + "\n  " + @label.show
+      super + "\n  " + @label&.show.to_s
     end
 
     def label_offset(x = -17, y = -40)
+      return nil unless @label
       @label.xy(@x + x, @y + y)
     end
   end

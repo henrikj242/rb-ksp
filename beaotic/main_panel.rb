@@ -4,23 +4,17 @@ module Beaotic
                 :knobs,
                 :edit_buttons,
                 :edit_button_dividers,
-                :title_image,
                 :elements,
                 :functions
 
-    def initialize(key_group_conf)
+    def initialize(idx, key_group_conf)
+      @idx = idx
       @conf = key_group_conf
 
       @knobs = []
       @edit_buttons = []
-      @edit_button_dividers = []
       @main_panel_name = "%panel_main_#{name}"
       @elements = []
-      @title_image = Ksp::UiImage.new(
-        name:     "title_#{name}",
-        picture:  "title_#{name}"
-      )
-      @title_image.xy(82, 0)
       @ui_control_callbacks = []
     end
 
@@ -30,10 +24,7 @@ module Beaotic
 
     def set_main_panel_elements
       @elements = @knobs.map(&:name) +
-          @knobs.map{ |knob| knob.label.name if knob.label } +
-          @edit_buttons.map(&:name) +
-          @edit_button_dividers.map(&:name)
-      @elements << @title_image.name
+          @edit_buttons.map(&:name)
     end
 
     def set_functions
@@ -51,7 +42,7 @@ module Beaotic
 
     def show
       f = Ksp::Function.new("show_panel_main_#{name}")
-      f.set_body(['set_skin_offset(0)'])
+      f.set_body(["set_skin_offset(#{@idx * 836})"])
       f.append(
           @elements.map do |element|
             "hide_part(#{element}, $HIDE_PART_BG .or. $HIDE_PART_MOD_LIGHT .or. $HIDE_PART_TITLE .or. $HIDE_PART_VALUE)"
@@ -65,7 +56,6 @@ module Beaotic
         knob = Beaotic::Knob.new(
             name: "#{name}_#{knob_conf[:name]}",
             diameter: 48,
-            label: knob_conf[:name],
             min_val: knob_conf[:min_val],
             default_val: knob_conf[:default_val],
             max_val: knob_conf[:max_val],
@@ -76,7 +66,6 @@ module Beaotic
                 19 + (knob_conf[:position][0] * 78) :
                 19 + (idx * 78)
         knob.xy(x, y)
-        knob.label_offset
         knob.add_callbacks(ui_control_callbacks(knob, knob_conf))
         @knobs << knob
       end
@@ -119,13 +108,6 @@ module Beaotic
         )
         @edit_buttons.last.xy(18 + (idx * 51), y)
         @edit_buttons.last.add_callbacks(ui_control_callbacks(@edit_buttons.last, button_conf))
-
-        @edit_button_dividers << Ksp::UiImage.new(
-          picture: 'img_edit_button_divider',
-          name:     "img_#{name}_#{button_name}_divider"
-        )
-        @edit_button_dividers.last.set_dimensions(add_to_height: 1)
-        @edit_button_dividers.last.xy(65 + (idx * 51), y)
 
         idx += 1
       end

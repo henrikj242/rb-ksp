@@ -46,7 +46,7 @@ module Beaotic
                      when 'knob'
                        template number_of_animations: 101
                      when 'wallpaper'
-                       template number_of_animations: 5
+                       template number_of_animations: 16
                      else
                        {}
                      end

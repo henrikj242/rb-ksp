@@ -41,7 +41,7 @@ module Beaotic
     def populate_key_groups
       @conf[:key_groups].each_with_index do |key_group_conf, idx|
         key_group_conf = key_group_conf.merge(index: idx)
-        key_group = Beaotic::KeyGroup.new(key_group_conf)
+        key_group = Beaotic::KeyGroup.new(idx, key_group_conf)
         key_group.set_main_panel
         key_group.set_diode
         key_group.diode.xy(95 + (idx * 36), 250)
@@ -100,18 +100,10 @@ module Beaotic
       buttons
     end
 
-    def logo
-      l = Ksp::UiImage.new(name: 'logo', picture: 'img_logo')
-      l.xy(5, 270)
-      l.set_dimensions(add_to_height: 10)
-      l
-    end
-
     def accent_fader
       f = Beaotic::Fader.new(
           name: 'accent',
           direction: 'horizontal',
-          label: 'accent',
           length: 50,
           min_val: @conf[:accent][:min_val],
           default_val: @conf[:accent][:default_val],
@@ -120,7 +112,6 @@ module Beaotic
           visible: true
       )
       f.xy(555, 322)
-      f.label_offset(0, -18)
       f
     end
 
@@ -130,7 +121,7 @@ module Beaotic
         "make_perfview",
         "set_script_title(\"#{@conf[:global][:project_name]}\")",
         "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
-        "set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, \"wallpaper\")",
+        "set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, \"wallpaper_#{@conf[:global][:project_name]}\")",
         "set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, \"img_icon_hejo\")",
         "declare $selected_group := 0",
         "declare $intensity := 0",
@@ -157,7 +148,6 @@ module Beaotic
         button.statements.map { |line|  '  ' + line }
       end
       statements += accent_fader.statements
-      statements += logo.statements
       statements += @key_groups.map(&:statements)
 
       # Hide everything except the BD Main Panel
@@ -165,14 +155,14 @@ module Beaotic
         statements << "if (1=1)"
         if kg.name != 'bd'
           kg.main_panel.elements.each do |elem|
-            # statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
+            statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
           end
         else
           ''
         end
         kg.mix_panel.channels.each do |channel|
           channel.elements.each do |elem|
-            # statements << "  hide_part(#{elem.name}, $HIDE_WHOLE_CONTROL)"
+            statements << "  hide_part(#{elem.name}, $HIDE_WHOLE_CONTROL)"
           end
         end
         statements << "end if"
@@ -192,7 +182,6 @@ module Beaotic
       @key_groups.each_with_index do |key_group, key_group_idx|
         set_display.append [
           "    case #{key_group_idx}",
-          # "      message(\"selecting #{key_group.name}\")",
           "      if ($button_note_edit = 0)",
           "        call show_panel_main_#{key_group.name}",
           "      else",

@@ -1,6 +1,5 @@
 module Beaotic
   class Key
-    # attr :midi_note, :name, :callback, :off_callback
     attr_reader :name
     attr_accessor :midi_note
 

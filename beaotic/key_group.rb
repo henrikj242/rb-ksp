@@ -5,7 +5,8 @@ module Beaotic
          :title_image, :diode, :backdrops, :keys, :round_robin_entries,
          :main_panel_elements, :main_panel
 
-    def initialize(conf)
+    def initialize(idx, conf)
+      @idx = idx
       @conf = conf
       @functions = []
       @keys = []
@@ -39,7 +40,7 @@ module Beaotic
     end
 
     def set_main_panel
-      @main_panel = MainPanel.new(@conf)
+      @main_panel = MainPanel.new(@idx, @conf)
       @main_panel.set_knobs
       @main_panel.set_edit_buttons
       @main_panel.set_main_panel_elements
@@ -47,7 +48,7 @@ module Beaotic
     end
 
     def set_mix_panel
-      @mix_panel = MixPanel.new(@conf)
+      @mix_panel = MixPanel.new(@idx, @conf)
       @mix_panel.set_functions
       set_ui_callbacks
     end
@@ -491,7 +492,6 @@ module Beaotic
             statements << statement
           end
         end
-        statements += main_panel.title_image.statements
         statements += @diode.statements
       statements << "end if"
 
@@ -504,9 +504,6 @@ module Beaotic
           statements += button.statements
         end
 
-        main_panel.edit_button_dividers.each do |divider|
-          statements += divider.statements
-        end
       statements << "end if"
 
       statements << "if (42=42)"

@@ -1,12 +1,12 @@
 module Beaotic
   class MixPanel
     attr_reader :channels, :name, :functions
-    def initialize(conf)
+    def initialize(idx, conf)
+      @idx = idx
       @conf = conf
       @name = "panel_mix_#{@conf[:name]}"
       @var_prefix = "#{@conf[:name]}"
       @keys = @conf[:keys]
-      @skin_offset = @conf[:skin_offsets][@keys.count]
       @functions = []
       set_channels
     end
@@ -20,7 +20,6 @@ module Beaotic
       @keys.each_with_index do |key, idx|
         ch = MixChannel.new("#{@var_prefix}_#{key[:name]}", 82 + (idx * 78))
         ch.elements = [
-            # ch.set_title_image,
             ch.set_pitch_knob(-250000, 0, 250000),
             ch.set_level_knob(-48000, 0, 3000),
             ch.set_pan_knob(-1000, 0, 1000),
@@ -55,7 +54,7 @@ module Beaotic
 
     def show
       f = Ksp::Function.new("show_#{name}")
-      f.set_body(["set_skin_offset(#{@skin_offset})"])
+      f.set_body(["set_skin_offset(#{@idx * 836 + 418})"])
       @channels.each do |channel|
         channel.elements.each do |element|
           f.append([element.show])

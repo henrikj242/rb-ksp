@@ -16,7 +16,7 @@ module Beaotic
       labels = key_group_conf[:knobs].map.with_index do |knob, idx|
         {
           img: MiniMagick::Image.new("#{@gui_directory}/label_#{knob[:name]}.png"),
-          x: knob[:position] ? 19 + (knob[:position][0] * 78) : 19 + (idx * 78)
+          x: knob[:position] ? 5 + (knob[:position][0] * 78) : 5 + (idx * 78)
         }
       end
       dividers = key_group_conf[:edit_buttons].map.with_index do |button, idx|
@@ -32,7 +32,7 @@ module Beaotic
       labels.each do |e|
         wallpaper = wallpaper.composite(e[:img]) do |c|
           c.compose "Over"
-          c.geometry "+#{e[:x]}+112"
+          c.geometry "+#{e[:x]}+110"
         end
       end
       dividers.each do |e|
@@ -67,8 +67,8 @@ module Beaotic
         [
          {
               img: MiniMagick::Image.new("#{@gui_directory}/label_mix_pitch.png"),
-              x: 82 + (idx * 78) + 1,
-              y: 88
+              x: 82 + (idx * 78) + 2,
+              y: 90
           },
          {
               img: MiniMagick::Image.new("#{@gui_directory}/label_mix_level.png"),
@@ -127,30 +127,8 @@ module Beaotic
           convert << key_group_wallpapers[:main]
           convert << key_group_wallpapers[:mix]
         end
-        convert << "#{@gui_directory}/im_wallpapers_#{@project_name}.png"
+        convert << "#{@gui_directory}/wallpaper_#{@project_name}.png"
       end
     end
-
-    # MiniMagick::Tool::Convert.new do |convert|
-    #   convert.append.-
-    #   convert << "_gui/wallpaper_main.png"
-    #   convert << "_gui/wallpaper_mix.png"
-    #   convert << "_gui/im_wallpapers.png"
-    # end
-    # wallpaper = MiniMagick::Image.new("_gui/im_wallpapers.png")
-    # title = MiniMagick::Image.new("_gui/title_bd.png")
-    # knob = MiniMagick::Image.new("_gui/knob_48.png")
-    # result = wallpaper.composite(title) do |c|
-    #   c.compose "Over"    # OverCompositeOp
-    #   c.geometry "+20+20" # copy second_image onto first_image from (20, 20)
-    # end.composite(knob) do |c|
-    #   c.compose "Over"
-    #   c.geometry "+20+50"
-    # end
-    # result.write("_gui/im_wallpapers_with_knob.png")
-
-    # symbolize function Grapped from https://gist.github.com/Integralist/9503099
-    # modified by myself to support Ranges
-
   end
 end
