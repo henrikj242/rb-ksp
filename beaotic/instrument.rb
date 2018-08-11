@@ -1,7 +1,7 @@
 module Beaotic
   class Instrument
     def initialize(project_name)
-      @conf = parse_config("./#{project_name}.yml")
+      @conf = Beaotic.parse_config("./#{project_name}.yml")
       @debug_file = File.new("./#{project_name}.debug", 'w')
       @key_groups = []
       populate_key_groups
@@ -162,18 +162,20 @@ module Beaotic
 
       # Hide everything except the BD Main Panel
       @key_groups.each do |kg|
+        statements << "if (1=1)"
         if kg.name != 'bd'
           kg.main_panel.elements.each do |elem|
-            statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
+            # statements << "  hide_part(#{elem}, $HIDE_WHOLE_CONTROL)"
           end
         else
           ''
         end
         kg.mix_panel.channels.each do |channel|
           channel.elements.each do |elem|
-            statements << "  hide_part(#{elem.name}, $HIDE_WHOLE_CONTROL)"
+            # statements << "  hide_part(#{elem.name}, $HIDE_WHOLE_CONTROL)"
           end
         end
+        statements << "end if"
       end
       statements
     end
@@ -232,28 +234,6 @@ module Beaotic
 
       @debug_file.puts "# [DEBUG] { Created by: #{ENV['USER'] || ENV['USERNAME']} at #{Time.now} }"
       PP::pp statements, @debug_file
-    end
-
-    # symbolize function Grapped from https://gist.github.com/Integralist/9503099
-    # modified by myself to support Ranges
-    def symbolize(obj)
-      return obj.reduce({}) do |memo, (k, v)|
-        memo.tap { |m| m[k.to_sym] = symbolize(v) }
-      end if obj.is_a? Hash
-
-      return obj.reduce([]) do |memo, v|
-        memo << symbolize(v); memo
-      end if obj.is_a? Array
-
-      return obj.to_a.reduce([]) do |memo, v|
-        memo << symbolize(v); memo
-      end if obj.is_a? Range
-
-      obj
-    end
-
-    def parse_config(conf_file)
-      symbolize(YAML::load_file(conf_file))
     end
   end
 end

@@ -20,7 +20,7 @@ module Beaotic
       @keys.each_with_index do |key, idx|
         ch = MixChannel.new("#{@var_prefix}_#{key[:name]}", 82 + (idx * 78))
         ch.elements = [
-            ch.set_title_image,
+            # ch.set_title_image,
             ch.set_pitch_knob(-250000, 0, 250000),
             ch.set_level_knob(-48000, 0, 3000),
             ch.set_pan_knob(-1000, 0, 1000),

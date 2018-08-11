@@ -469,47 +469,57 @@ module Beaotic
 
     def statements
       statements = [
-        "declare $#{name}_round_robin_next := 1",
-        "declare $#{name}_round_robin_max := #{conf[:features][:round_robin][:entries]}",
-        "declare $#{name}_new_event",
-        "declare $#{name}_new_velocity",
-        "declare @#{name}_message"
+          "declare $#{name}_round_robin_next := 1",
+          "declare $#{name}_round_robin_max := #{conf[:features][:round_robin][:entries]}",
+          "declare $#{name}_new_event",
+          "declare $#{name}_new_velocity",
+          "declare @#{name}_message"
       ]
 
-      statements += Ksp::Variable.new(
-        type: 'integer_array',
-        name: "#{name}_midi_notes",
-        arr_length: @keys.count,
-        default_value: @keys.map(&:midi_note)
-      ).statements
+      statements << "if (2=2)"
+        statements += Ksp::Variable.new(
+          type: 'integer_array',
+          name: "#{name}_midi_notes",
+          arr_length: @keys.count,
+          default_value: @keys.map(&:midi_note)
+        ).statements
+      statements << "end if"
 
-      @keys.each do |key|
-        key.set_k_groups.each do |statement|
-          statements << statement
+      statements << "if (3=3)"
+        @keys.each do |key|
+          key.set_k_groups.each do |statement|
+            statements << statement
+          end
         end
-      end
-      statements += main_panel.title_image.statements
-      statements += @diode.statements
+        statements += main_panel.title_image.statements
+        statements += @diode.statements
+      statements << "end if"
 
-      main_panel.knobs.each do |knob|
-        statements += knob.statements
-      end
-
-      main_panel.edit_buttons.each do |button|
-        statements += button.statements
-      end
-
-      main_panel.edit_button_dividers.each do |divider|
-        statements += divider.statements
-      end
-
-      mix_panel.channels.each do |channel|
-        channel.elements.each do |element|
-          statements += element.statements
+      statements << "if (4=4)"
+        main_panel.knobs.each do |knob|
+          statements += knob.statements
         end
-      end
 
-      statements.map { |statement| '  ' + statement }
+        main_panel.edit_buttons.each do |button|
+          statements += button.statements
+        end
+
+        main_panel.edit_button_dividers.each do |divider|
+          statements += divider.statements
+        end
+      statements << "end if"
+
+      statements << "if (42=42)"
+        mix_panel.channels.each do |channel|
+          statements << "if (43 = 43)"
+          channel.elements.each do |element|
+            statements += element.statements
+          end
+          statements << "end if "
+        end
+      statements << "end if"
+
+      statements.map { |statement| '    ' + statement }
     end
   end
 end

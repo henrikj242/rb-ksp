@@ -377,3 +377,95 @@ key_groups:
       - <<: *default_pan
     edit_buttons:
       <<: *default_buttons
+  - name: rim
+    skin_offsets: *skin_offsets
+    features:
+      <<: *default_features
+    keys:
+      - name: rim_1
+        midi_note: 55
+        k_groups:
+          osc1: [81]
+      - name: rim_2
+        midi_note: 57
+        k_groups:
+          osc1: [82]
+    knobs:
+      - <<: *default_pitch
+      - <<: *default_decay
+      - <<: *default_hold
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: clp
+    skin_offsets: *skin_offsets
+    features:
+      <<: *default_features
+    keys:
+      - name: clp_1
+        midi_note: 59
+        k_groups:
+          osc1: [83]
+      - name: clp_2
+        midi_note: 60
+        k_groups:
+          osc1: [84]
+    knobs:
+      - <<: *default_pitch
+      - <<: *default_decay
+      - <<: *default_hold
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: cym
+    skin_offsets: *skin_offsets
+    features:
+      <<: *default_features
+    keys:
+      - name: cym_1
+        midi_note: 61
+        k_groups:
+          osc1: [85]
+      - name: cym_2
+        midi_note: 63
+        k_groups:
+          osc1: [86]
+    knobs:
+      - <<: *default_pitch
+      - <<: *default_decay
+      - <<: *default_hold
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: tom
+    skin_offsets: *skin_offsets
+    features:
+      <<: *default_features
+    keys:
+      - name: tom_1
+        midi_note: 62
+        k_groups:
+          osc1: [87]
+      - name: tom_2
+        midi_note: 64
+        k_groups:
+          osc1: [88]
+      - name: tom_3
+        midi_note: 65
+        k_groups:
+          osc1: [89]
+      - name: tom_4
+        midi_note: 67
+        k_groups:
+          osc1: [90]
+    knobs:
+      - <<: *default_pitch
+      - <<: *default_decay
+      - <<: *default_hold
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons

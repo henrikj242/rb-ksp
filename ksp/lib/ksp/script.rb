@@ -1,11 +1,11 @@
 module Ksp
   class Script
     attr_accessor(
-        :on_init,
-        :functions,
-        :on_ui_control_callbacks,
-        :on_note_callback,
-        :on_release_callback,
+      :on_init,
+      :functions,
+      :on_ui_control_callbacks,
+      :on_note_callback,
+      :on_release_callback
     )
 
     def initialize
@@ -21,10 +21,10 @@ module Ksp
 
     def statements
       on_init +
-          @functions.map(&:statements) +
-          @on_ui_control_callbacks +
-          ['on note'] + @on_note_callback + ['end on'] +
-          ['on release'] + @on_release_callback + ['end on']
+        @functions.map(&:statements) +
+        @on_ui_control_callbacks +
+        ['on note'] + @on_note_callback + ['end on'] +
+        ['on release'] + @on_release_callback + ['end on']
     end
   end
 end
