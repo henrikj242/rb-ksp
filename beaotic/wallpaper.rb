@@ -29,42 +29,35 @@ module Beaotic
       end
       dividers = key_group_conf[:edit_buttons].map.with_index do |button, idx|
         {
-          img: MiniMagick::Image.new("#{@gui_directory}/img_edit_button_divider.png"),
-          x: 65 + (idx * 51)
+          img:  MiniMagick::Image.new("#{@gui_directory}/img_edit_button_divider.png"),
+          x:    65 + (idx * 51)
         }
       end
       wallpaper = wallpaper.composite(title) do |c|
-        c.compose "Over"
-        c.geometry "+83+69"
+        c.compose   "Over"
+        c.geometry  "+83+69"
       end
-      # labels.each do |e|
-      #   wallpaper = wallpaper.composite(e[:img]) do |c|
-      #     c.compose "Over"
-      #     c.geometry "+#{e[:x]}+110"
-      #   end
-      # end
       labels.each do |e|
         wallpaper = wallpaper.combine_options do |c|
-          c.gravity 'south'
-          c.font 'BebasNeue Bold.ttf'
+          c.gravity   'south'
+          c.font      'BebasNeue Bold.ttf'
           c.pointsize '14'
           c.fill('#E5E5E5')
-          c.draw "text #{e[:x]},276 '#{e[:txt]}'"
+          c.draw      "text #{e[:x]},276 '#{e[:txt]}'"
         end
       end
       dividers.each do |e|
         wallpaper = wallpaper.composite(e[:img]) do |c|
-          c.compose "Over"
-          c.geometry "+#{e[:x]}+248"
+          c.compose   "Over"
+          c.geometry  "+#{e[:x]}+248"
         end
       end
-
       wallpaper = wallpaper.composite(@logo) do |c|
-        c.compose "Over"
-        c.geometry "+#{5}+338"
+        c.compose     "Over"
+        c.geometry    "+#{5}+338"
       end.composite(@accent_label) do |c|
-        c.compose "Over"
-        c.geometry "+#{555}+368"
+        c.compose     "Over"
+        c.geometry    "+#{555}+368"
       end
 
       filename = "#{@gui_directory}/im_wallpaper_main_#{key_group_conf[:name]}.png"
@@ -82,43 +75,43 @@ module Beaotic
       end
       labels = key_group_conf[:keys].map.with_index do |key, idx|
         [
-         {
-              img: MiniMagick::Image.new("#{@gui_directory}/label_mix_pitch.png"),
-              x: 82 + (idx * 78) + 2,
-              y: 90
+          {
+            img: MiniMagick::Image.new("#{@gui_directory}/label_mix_pitch.png"),
+            x: 82 + (idx * 78) + 2,
+            y: 90
           },
-         {
-              img: MiniMagick::Image.new("#{@gui_directory}/label_mix_level.png"),
-              x: 82 + (idx * 78) + 8,
-              y: 200
+          {
+            img: MiniMagick::Image.new("#{@gui_directory}/label_mix_level.png"),
+            x: 82 + (idx * 78) + 8,
+            y: 200
           },
-         {
-              img: MiniMagick::Image.new("#{@gui_directory}/label_mix_pan.png"),
-              x: 82 + (idx * 78) + 48,
-              y: 200
+          {
+            img: MiniMagick::Image.new("#{@gui_directory}/label_mix_pan.png"),
+            x: 82 + (idx * 78) + 48,
+            y: 200
           }
         ]
       end
       titles.each do |e|
         wallpaper = wallpaper.composite(e[:img]) do |c|
-          c.compose "Over"
-          c.geometry "+#{e[:x]}+70"
+          c.compose   "Over"
+          c.geometry  "+#{e[:x]}+70"
         end
       end
       labels.each do |label_set|
         label_set.each do |e|
           wallpaper = wallpaper.composite(e[:img]) do |c|
-            c.compose "Over"
-            c.geometry "+#{e[:x]}+#{e[:y]}"
+            c.compose   "Over"
+            c.geometry  "+#{e[:x]}+#{e[:y]}"
           end
         end
       end
       wallpaper = wallpaper.composite(@logo) do |c|
-        c.compose "Over"
-        c.geometry "+#{5}+338"
+        c.compose   "Over"
+        c.geometry  "+#{5}+338"
       end.composite(@accent_label) do |c|
-        c.compose "Over"
-        c.geometry "+#{555}+368"
+        c.compose   "Over"
+        c.geometry  "+#{555}+368"
       end
 
       filename = "#{@gui_directory}/im_wallpaper_mix_#{key_group_conf[:name]}.png"
