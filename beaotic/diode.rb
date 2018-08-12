@@ -10,6 +10,7 @@ module Beaotic
         default_value:  0,
         visible:        visible
       )
+      add_callbacks("#{@name} := 0")
     end
   end
 end

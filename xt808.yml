@@ -78,6 +78,18 @@ decay: &default_decay
   ui_control:
     mouse_behaviour: -500
 
+decay: &default_attack
+  name: attack
+  min_val: 0
+  default_val: 0
+  max_val: 500000
+  modulator: "ENV_AHDSR"
+  parameter: "$ENGINE_PAR_ATTACK"
+  function: inline
+  trigger_on: ui_control
+  ui_control:
+    mouse_behaviour: -500
+
 level: &default_level
   name: level
   min_val: -24000
@@ -444,8 +456,18 @@ key_groups:
           osc1: [86]
     knobs:
       - <<: *default_pitch
-      - <<: *default_hold
+      - <<: *default_attack
+        name: cym1_attack
+        affected_keys: [0]
       - <<: *default_decay
+        name: cym1_decay
+        affected_keys: [0]
+      - <<: *default_attack
+        name: cym2_attack
+        affected_keys: [1]
+      - <<: *default_decay
+        name: cym2_decay
+        affected_keys: [1]
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:

@@ -1,6 +1,6 @@
 module Beaotic
   class MixChannel
-    attr_accessor :elements, :pitch_knob, :pitch_mode_button, :level_knob, :pan_knob, :output_menu, :name
+    attr_accessor :elements, :pitch_knob, :pitch_mode_button, :level_knob, :pan_knob, :output_menu, :name, :diode
 
     def initialize(name, base_x)
       @name = name

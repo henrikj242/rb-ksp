@@ -169,8 +169,9 @@ module Beaotic
       @mix_panel.channels.map do |ch|
         ch.pitch_knob.callbacks +
         ch.pitch_mode_button.callbacks +
-        ch.output_menu.callbacks
-      end.flatten
+        ch.output_menu.callbacks +
+        ch.diode.callbacks
+      end.flatten + @diode.callbacks
     end
 
     def decay_function(conf)
