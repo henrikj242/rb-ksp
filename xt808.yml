@@ -392,8 +392,8 @@ key_groups:
           osc1: [82]
     knobs:
       - <<: *default_pitch
-      - <<: *default_decay
       - <<: *default_hold
+      - <<: *default_decay
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
@@ -413,8 +413,18 @@ key_groups:
           osc1: [84]
     knobs:
       - <<: *default_pitch
-      - <<: *default_decay
       - <<: *default_hold
+        name: clp1_hold
+        affected_keys: [0]
+      - <<: *default_decay
+        name: clp1_decay
+        affected_keys: [0]
+      - <<: *default_hold
+        name: clp2_hold
+        affected_keys: [1]
+      - <<: *default_decay
+        name: clp2_decay
+        affected_keys: [1]
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
@@ -434,8 +444,8 @@ key_groups:
           osc1: [86]
     knobs:
       - <<: *default_pitch
-      - <<: *default_decay
       - <<: *default_hold
+      - <<: *default_decay
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
@@ -463,8 +473,8 @@ key_groups:
           osc1: [90]
     knobs:
       - <<: *default_pitch
-      - <<: *default_decay
       - <<: *default_hold
+      - <<: *default_decay
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:

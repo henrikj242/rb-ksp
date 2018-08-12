@@ -36,7 +36,7 @@ module Beaotic
     end
 
     def set_diode
-      @diode = Beaotic::Diode.new(name: "#{name}", levels: 3)
+      @diode = Beaotic::Diode.new(name: "#{name}")
     end
 
     def set_main_panel
@@ -391,11 +391,7 @@ module Beaotic
 
     def callback_key_diode(key_conf)
       [
-        "if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
-        "  $diode_#{name}_#{key_conf[:name]} := 2",
-        "else",
-        "  $diode_#{name}_#{key_conf[:name]} := 1",
-        "end if"
+        "$diode_#{name}_#{key_conf[:name]} := 1",
       ]
     end
 
@@ -431,11 +427,7 @@ module Beaotic
 
       # Activate the key_group diode
       statements += [
-        "  if ($EVENT_VELOCITY >= #{@conf[:features][:accent][:velocity_threshold]})",
-        "    #{@diode.name} := 2",
-        "  else",
-        "    #{@diode.name} := 1",
-        "  end if"
+        "  #{@diode.name} := 1",
       ]
 
       # Select the key_group if Midi Select is enabled

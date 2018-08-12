@@ -1,3 +1,9 @@
+class String
+  def labelize
+    gsub('_', "\n").upcase
+  end
+end
+
 module Beaotic
   class Wallpaper
     require "mini_magick"
@@ -10,13 +16,15 @@ module Beaotic
       @accent_label = MiniMagick::Image.new("#{@gui_directory}/label_accent.png")
     end
 
+
     def main_panel(key_group_conf)
       wallpaper = MiniMagick::Image.new("#{@gui_directory}/wallpaper_main.png")
       title = MiniMagick::Image.new("#{@gui_directory}/title_#{key_group_conf[:name]}.png")
       labels = key_group_conf[:knobs].map.with_index do |knob, idx|
         {
-          img: MiniMagick::Image.new("#{@gui_directory}/label_#{knob[:name]}.png"),
-          x: knob[:position] ? 5 + (knob[:position][0] * 78) : 5 + (idx * 78)
+          # img: MiniMagick::Image.new("#{@gui_directory}/label_#{knob[:name]}.png"),
+          txt:  knob[:name].labelize,
+          x:    (knob[:position] ? 5 + (knob[:position][0] * 78) : 5 + (idx * 78)) - 279
         }
       end
       dividers = key_group_conf[:edit_buttons].map.with_index do |button, idx|
@@ -29,10 +37,19 @@ module Beaotic
         c.compose "Over"
         c.geometry "+83+69"
       end
+      # labels.each do |e|
+      #   wallpaper = wallpaper.composite(e[:img]) do |c|
+      #     c.compose "Over"
+      #     c.geometry "+#{e[:x]}+110"
+      #   end
+      # end
       labels.each do |e|
-        wallpaper = wallpaper.composite(e[:img]) do |c|
-          c.compose "Over"
-          c.geometry "+#{e[:x]}+110"
+        wallpaper = wallpaper.combine_options do |c|
+          c.gravity 'south'
+          c.font 'BebasNeue Bold.ttf'
+          c.pointsize '14'
+          c.fill('#E5E5E5')
+          c.draw "text #{e[:x]},276 '#{e[:txt]}'"
         end
       end
       dividers.each do |e|

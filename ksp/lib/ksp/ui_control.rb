@@ -57,9 +57,12 @@ module Ksp
 
     def set_dimensions(width: nil, height: nil, add_to_width: nil, add_to_height: nil)
       unless @picture.nil?
-        image_size = ImageSize.path("#{@gui_directory}/#{@picture}.png")
+        img_file = "#{@gui_directory}/#{@picture}.png"
+        txt_file = "#{@gui_directory}/#{@picture}.txt"
+        animations = File.open(txt_file, 'r').grep(/Number of Animations/)[0].split(':').last.strip.to_i rescue 1
+        image_size = ImageSize.path(img_file)
         @width = width || image_size.width + add_to_width.to_i
-        @height = height || image_size.height  + add_to_height.to_i
+        @height = height || (image_size.height / animations) + add_to_height.to_i
       end
     end
 

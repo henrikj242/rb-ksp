@@ -38,7 +38,7 @@ module Beaotic
                      when 'title', 'label'
                        template number_of_animations: 1
                      when 'diode'
-                       template number_of_animations: 3
+                       template number_of_animations: 6
                      when 'button', 'menu'
                        template number_of_animations: 6
                      when 'fader'

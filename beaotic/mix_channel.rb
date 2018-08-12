@@ -69,7 +69,7 @@ module Beaotic
     end
 
     def set_diode
-      @diode = Diode.new(name: "#{@name}", levels: 3)
+      @diode = Diode.new(name: "#{@name}")
       @diode.xy(@base_x + 34, 207)
       @diode
     end

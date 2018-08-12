@@ -44,7 +44,7 @@ module Beaotic
         key_group = Beaotic::KeyGroup.new(idx, key_group_conf)
         key_group.set_main_panel
         key_group.set_diode
-        key_group.diode.xy(95 + (idx * 36), 250)
+        key_group.diode.xy(93 + (idx * 36), 246)
         key_group.set_mix_panel
         key_group.set_keys
         @key_groups << key_group
@@ -90,7 +90,7 @@ module Beaotic
           picture: "button_group_#{key_group.name}",
           persistent: false
         )
-        b.xy(83 + (idx * 36), 226)
+        b.xy(82 + (idx * 36), 226)
         b.add_callbacks [
           "$selected_group := #{idx}",
           "call select_group_#{key_group.name}"
