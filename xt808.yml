@@ -272,7 +272,6 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: sd2
-    skin_offsets: *skin_offsets
     features:
       <<: *default_features
       round_robin:
@@ -497,6 +496,55 @@ key_groups:
       - <<: *default_pitch
       - <<: *default_hold
       - <<: *default_decay
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: hh2
+    features:
+      <<: *default_features
+      velocity_to:
+        osc1: round_robin
+        osc2: round_robin
+      xfade:
+        knob: stick_balance
+    keys:
+      - name: chha
+        midi_note: 66
+        k_groups:
+          osc1: [91]
+          osc2: [92]
+      - name: chhb
+        midi_note: 68
+        k_groups:
+          osc1: [93]
+          osc2: [94]
+      - name: ohh
+        midi_note: 70
+        k_groups:
+          osc1: [95]
+          osc2: [96]
+    knobs:
+      - <<: *default_pitch
+      - <<: *default_decay
+        name: chh_decay
+        affected_keys: [0, 1]
+      - <<: *default_hold
+        name: ohh_hold
+        affected_keys: [2]
+      - <<: *default_decay
+        name: ohh_decay
+        affected_keys: [2]
+      - name: stick_balance
+#        affected_keys: [2]
+        min_val: 0
+        default_val: 50
+        max_val: 100
+        function: none # TODO: change this
+        trigger_on: ui_control
+        call: [KEY_GROUP_xfade]
+        ui_control:
+          mouse_behaviour: -500
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
