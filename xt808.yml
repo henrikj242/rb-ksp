@@ -90,6 +90,18 @@ decay: &default_attack
   ui_control:
     mouse_behaviour: -500
 
+decay: &default_release
+  name: release
+  min_val: 100000
+  default_val: 400000
+  max_val: 800000
+  modulator: "ENV_AHDSR"
+  parameter: "$ENGINE_PAR_RELEASE"
+  function: inline
+  trigger_on: ui_control
+  ui_control:
+    mouse_behaviour: -500
+
 level: &default_level
   name: level
   min_val: -24000
@@ -143,7 +155,6 @@ skin_offsets: &skin_offsets
 
 key_groups:
   - name: bd
-    skin_offsets: *skin_offsets
     features:
       <<: *default_features
       round_robin:
@@ -232,7 +243,6 @@ key_groups:
         trigger_on: ui_control
         call: [KEY_GROUP_pitch]
   - name: sd1
-    skin_offsets: *skin_offsets
     features:
       <<: *default_features
     keys:
@@ -536,7 +546,7 @@ key_groups:
         name: ohh_decay
         affected_keys: [2]
       - name: stick_balance
-#        affected_keys: [2]
+        affected_keys: [0, 1, 2]
         min_val: 0
         default_val: 50
         max_val: 100
@@ -545,6 +555,147 @@ key_groups:
         call: [KEY_GROUP_xfade]
         ui_control:
           mouse_behaviour: -500
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: con
+    features:
+      <<: *default_features
+    keys:
+      - name: con_1
+        midi_note: 69
+        k_groups:
+          osc1: [97]
+      - name: con_2
+        midi_note: 71
+        k_groups:
+          osc1: [98]
+      - name: con_3
+        midi_note: 72
+        k_groups:
+          osc1: [99]
+      - name: con_4
+        midi_note: 74
+        k_groups:
+          osc1: [100]
+    knobs:
+      - <<: *default_pitch
+      - <<: *default_hold
+      - <<: *default_decay
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: prc
+    features:
+      <<: *default_features
+    keys:
+      - name: prc_1
+        midi_note: 73
+        k_groups:
+          osc1: [101]
+      - name: prc_2
+        midi_note: 75
+        k_groups:
+          osc1: [102]
+      - name: prc_3
+        midi_note: 76
+        k_groups:
+          osc1: [103]
+      - name: prc_4
+        midi_note: 77
+        k_groups:
+          osc1: [104]
+      - name: prc_5
+        midi_note: 78
+        k_groups:
+          osc1: [105]
+      - name: prc_6
+        midi_note: 79
+        k_groups:
+          osc1: [106]
+    knobs:
+      - <<: *default_pitch
+        affected_oscs: [osc1]
+      - <<: *default_hold
+        affected_oscs: [osc1]
+      - <<: *default_decay
+        affected_oscs: [osc1]
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: sfx1
+    features:
+      <<: *default_features
+    keys:
+      - name: sfx_1
+        midi_note: 80
+        k_groups:
+          osc1: [107]
+      - name: sfx_2
+        midi_note: 81
+        k_groups:
+          osc1: [108]
+      - name: sfx_3
+        midi_note: 82
+        k_groups:
+          osc1: [109]
+      - name: sfx_4
+        midi_note: 83
+        k_groups:
+          osc1: [110]
+      - name: sfx_5
+        midi_note: 84
+        k_groups:
+          osc1: [111]
+      - name: sfx_6
+        midi_note: 85
+        k_groups:
+          osc1: [112]
+    knobs:
+      - <<: *default_pitch
+        affected_oscs: [osc1]
+      - <<: *default_release
+        affected_oscs: [osc1]
+      - <<: *default_level
+      - <<: *default_pan
+    edit_buttons:
+      <<: *default_buttons
+  - name: sfx2
+    features:
+      <<: *default_features
+    keys:
+      - name: sfx_7
+        midi_note: 86
+        k_groups:
+          osc1: [113]
+      - name: sfx_8
+        midi_note: 87
+        k_groups:
+          osc1: [114]
+      - name: sfx_9
+        midi_note: 88
+        k_groups:
+          osc1: [115]
+      - name: sfx_10
+        midi_note: 89
+        k_groups:
+          osc1: [116]
+      - name: sfx_11
+        midi_note: 90
+        k_groups:
+          osc1: [117]
+      - name: sfx_12
+        midi_note: 91
+        k_groups:
+          osc1: [118]
+    knobs:
+      - <<: *default_pitch
+        affected_oscs: [osc1]
+      - <<: *default_release
+        affected_oscs: [osc1]
       - <<: *default_level
       - <<: *default_pan
     edit_buttons:
