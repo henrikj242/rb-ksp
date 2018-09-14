@@ -75,7 +75,7 @@ module Beaotic
     end
 
     def set_output_menu
-      @output_menu = Ksp::UiOutputSelector.new(name: "output_menu_#{@name}", default_value_name: "Default", default_value: -1)
+      @output_menu = Ksp::UiOutputSelector.new(name: "output_menu_#{@name}", default_value_name: "Default Out", default_value: -1)
       @output_menu.xy(@base_x + 2, 186)
       @output_menu.populate
       @output_menu.add_callbacks("call output_select_#{name}")

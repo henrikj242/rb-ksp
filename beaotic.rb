@@ -7,10 +7,11 @@
 
 require_relative 'beaotic/beaotic'
 
-if ARGV[0] == 'img-txt'
+case ARGV[0]
+when 'img-txt'
   Beaotic::Image.new.generate_txt_files
   exit(0)
-elsif ARGV[0] == 'wallpaper'
+when 'wallpaper'
   Beaotic::Wallpaper.new('xt808').instrument
   exit(0)
 else
@@ -18,5 +19,3 @@ else
   b.var_dump
   b.print
 end
-
-
