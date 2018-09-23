@@ -26,7 +26,7 @@ module Beaotic
         max_val:      max_val,
         visible:      false
       )
-      @pitch_knob.xy(@base_x + 19, 46)
+      @pitch_knob.xy(@base_x + 17, 47)
       @pitch_knob
     end
 
@@ -38,6 +38,7 @@ module Beaotic
         visible:        false,
         picture:        "button_pitch_mode"
       )
+      @pitch_mode_button.set_dimensions(add_to_width: 1)
       @pitch_mode_button.xy(@base_x, 99)
       @pitch_mode_button
     end
@@ -64,13 +65,13 @@ module Beaotic
         max_val:      max_val,
         visible:      false
       )
-      @pan_knob.xy(@base_x + 48, 155)
+      @pan_knob.xy(@base_x + 45, 155)
       @pan_knob
     end
 
     def set_diode
       @diode = Diode.new(name: "#{@name}")
-      @diode.xy(@base_x + 34, 207)
+      @diode.xy(@base_x + 33, 212)
       @diode
     end
 

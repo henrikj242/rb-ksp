@@ -72,6 +72,17 @@ module Beaotic
       @functions
     end
 
+    def mute_function
+      statements = [
+        "if ($button_mute_#{name} = 1)",
+        "  $button_mute_#{name} := 1",
+        "else",
+        "  $button_mute_#{name} := 0",
+        "end if"
+      ]
+      Ksp::Function.new("mute_group_#{name}").append(statements)
+    end
+
     def osc_drift_function
       conf = @conf[:edit_buttons][:osc_drift]
       statements = [
@@ -158,6 +169,7 @@ module Beaotic
 
     def default_functions
       @functions += [
+          mute_function,
           osc_drift_function,
           vel_start_function
       ]
@@ -398,19 +410,28 @@ module Beaotic
 
     def on_note_callbacks
       statements = []
+      statements += [
+          "if (search(%#{name}_midi_notes, $EVENT_NOTE) # -1)",
+          "  if ($button_mute_#{name} = 1)",
+          "    disallow_group($ALL_GROUPS)",
+          "    exit",
+          "  end if",
+          "end if"
+      ]
+
       # Listen for individual notes in the key_group
       @conf[:keys].map do |key|
         statements << [
-          "if ($EVENT_NOTE = #{key[:midi_note]})",
+            "if ($EVENT_NOTE = #{key[:midi_note]})",
             callback_key_diode(key).map{ |stm| '  ' + stm },
             callback_key_round_robin.map{ |stm| '  ' + stm },
             disallow_all(key).map{ |stm| '  ' + stm },
             key[:k_groups].map do |k, osc|
               dest_velocity(k).map { |stm| '  ' + stm } +
-                allow(key[:midi_note], k, osc).map { |stm| '  ' + stm } +
-                play_new_event(key).map { |stm| '  ' + stm }
+                  allow(key[:midi_note], k, osc).map { |stm| '  ' + stm } +
+                  play_new_event(key).map { |stm| '  ' + stm }
             end,
-          "end if"
+            "end if"
         ].join("\n  ")
       end
 

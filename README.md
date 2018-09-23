@@ -18,6 +18,14 @@ is supposed to be a generic tool for any KSP project.
 I've only done a few Rails projects before this, so I'm not particularly experienced with Ruby. Comments and suggestions 
 for improvements are warmly welcomed!
 
+# Usage #
+
+* Generate the wallpaper with `beaotic.rb wallpaper`
+* Copy or move the `wallpaper_#{project_name}.png` to the `_gui/gui_elements` folder.
+* Run `./beaotic.rb img-txt` to generate the .txt files
+* Run `./beaotic.rb > #{project_name}.txt` to generate the script file
+
+
 # Status #
 Definitely work in progress - not mature at all! Use at your own risk :)
 

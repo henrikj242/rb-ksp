@@ -149,6 +149,7 @@ skin_offsets: &skin_offsets
 
 key_groups:
   - name: bd
+    title: XT-808 Bass Drums
     features:
       <<: *default_features
       round_robin:
@@ -237,6 +238,7 @@ key_groups:
         trigger_on: ui_control
         call: [KEY_GROUP_pitch]
   - name: sd1
+    title: XT-808 Snare Drums 1
     features:
       <<: *default_features
     keys:
@@ -276,6 +278,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: sd2
+    title: XT-808 Snare Drums 2
     features:
       <<: *default_features
       round_robin:
@@ -361,6 +364,7 @@ key_groups:
         trigger_on: ui_control
         call: [KEY_GROUP_pitch]
   - name: hh1
+    title: XT-808 Hi-Hat 1
     skin_offsets: *skin_offsets
     features:
       <<: *default_features
@@ -393,6 +397,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: rim
+    title: XT-808 Rim Shots
     skin_offsets: *skin_offsets
     features:
       <<: *default_features
@@ -414,6 +419,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: clp
+    title: XT-808 Claps
     skin_offsets: *skin_offsets
     features:
       <<: *default_features
@@ -445,6 +451,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: cym
+    title: XT-808 Cymbals
     skin_offsets: *skin_offsets
     features:
       <<: *default_features
@@ -476,6 +483,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: tom
+    title: XT-808 Toms
     skin_offsets: *skin_offsets
     features:
       <<: *default_features
@@ -505,6 +513,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: hh2
+    title: XT-808 Hi-Hat 2
     features:
       <<: *default_features
       velocity_to:
@@ -554,6 +563,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: con
+    title: XT-808 Congas
     features:
       <<: *default_features
     keys:
@@ -582,6 +592,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: prc
+    title: XT-808 Percussion
     features:
       <<: *default_features
     keys:
@@ -621,6 +632,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: fx1
+    title: XT-808 Sound FX 1
     features:
       <<: *default_features
     keys:
@@ -658,6 +670,7 @@ key_groups:
     edit_buttons:
       <<: *default_buttons
   - name: fx2
+    title: XT-808 Sound FX 2
     features:
       <<: *default_features
     keys:

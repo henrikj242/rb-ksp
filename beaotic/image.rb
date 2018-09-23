@@ -1,7 +1,7 @@
 module Beaotic
   class Image
     def initialize
-      @directory = '_gui'
+      @directory = '_gui/gui_elements'
     end
 
     def generate_txt_files
@@ -46,7 +46,7 @@ module Beaotic
                      when 'knob'
                        template number_of_animations: 101
                      when 'wallpaper'
-                       template number_of_animations: 16
+                       template number_of_animations: 26
                      else
                        {}
                      end

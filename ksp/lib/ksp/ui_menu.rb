@@ -43,8 +43,9 @@ module Ksp
 
     def statements
       statements = super + [
-        "set_control_par(#{name}, $CONTROL_PAR_TEXT_ALIGNMENT, #{@text_alignment})",
-        "set_control_par(#{name}, $CONTROL_PAR_FONT_TYPE, #{@font_type})"
+        "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_TEXTPOS_Y, 0)",
+        "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_TEXT_ALIGNMENT, #{@text_alignment})",
+        "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_FONT_TYPE, #{@font_type})"
       ]
       if @menu_items.count > 0
         @menu_items.map do |item|

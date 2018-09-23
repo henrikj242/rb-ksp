@@ -1,6 +1,6 @@
 class String
   def labelize
-    gsub('_', "\n").upcase
+    gsub('_', (length > 7 ? "\n" : ' ' )).upcase
   end
 end
 
@@ -8,39 +8,48 @@ module Beaotic
   class Wallpaper
     require "mini_magick"
 
-    FONT = 'BebasNeue Bold.ttf'.freeze
-    # TEXT_COLOR = '#E5E5E5'.freeze
-    TEXT_COLOR = '#D6D6D6'.freeze
+    FONT        = 'BebasNeue Bold.ttf'.freeze
+    TEXT_COLOR  = '#D6D6D6'.freeze
+    TITLE_COLOR = '#6E8FD6'.freeze
 
     def initialize(project_name)
-      @project_name = project_name
-      @conf = Beaotic.parse_config("./#{project_name}.yml")
-      @gui_directory = '_gui'
+      @project_name   = project_name
+      @conf           = Beaotic.parse_config("./#{project_name}.yml")
+      @gui_directory  = '_gui/wallpaper_elements'
+      @tmp_prefix     = '__im_beaotic__'
+      @tmp_files      = []
     end
 
     def main_panel(key_group_conf)
-      wallpaper = MiniMagick::Image.new("#{@gui_directory}/wallpaper_main.png")
-      title = MiniMagick::Image.new("#{@gui_directory}/title_#{key_group_conf[:name]}.png")
+      wallpaper = MiniMagick::Image.open("#{@gui_directory}/wallpaper_#{@project_name}_main.png")
+
+      wallpaper = wallpaper.combine_options do |c|
+        c.gravity   'north'
+        c.font      FONT
+        c.kerning   '1'
+        c.pointsize '14'
+        c.fill(TITLE_COLOR)
+        c.draw      "text 0,69 '#{key_group_conf[:title]}'"
+      end
+
       labels = key_group_conf[:knobs].map.with_index do |knob, idx|
         {
           txt:  knob[:name].labelize,
           x:    (knob[:position] ? 5 + (knob[:position][0] * 78) : 5 + (idx * 78)) - 279
         }
       end
-      dividers = key_group_conf[:edit_buttons].map.with_index do |button, idx|
+      dividers = key_group_conf[:edit_buttons].map.with_index do |_button, idx|
         {
-          img:  MiniMagick::Image.new("#{@gui_directory}/img_edit_button_divider.png"),
+          img:  MiniMagick::Image.open("#{@gui_directory}/edit_button_divider.png"),
           x:    65 + (idx * 51)
         }
       end
-      wallpaper = wallpaper.composite(title) do |c|
-        c.compose   "Over"
-        c.geometry  "+83+69"
-      end
+
       labels.each do |e|
         wallpaper = wallpaper.combine_options do |c|
           c.gravity   'south'
           c.font      FONT
+          c.kerning   '1'
           c.pointsize '14'
           c.fill(TEXT_COLOR)
           c.draw      "text #{e[:x]},276 '#{e[:txt]}'"
@@ -53,87 +62,72 @@ module Beaotic
         end
       end
 
-      filename = "#{@gui_directory}/im_wallpaper_main_#{key_group_conf[:name]}.png"
+      filename = "#{@gui_directory}/#{@tmp_prefix}wallpaper_main_#{key_group_conf[:name]}.png"
       wallpaper.write(filename)
+      @tmp_files << filename
       filename
     end
 
     def mix_panel(key_group_conf)
-      wallpaper = MiniMagick::Image.new("#{@gui_directory}/wallpaper_mix.png")
+      wallpaper = MiniMagick::Image.open("#{@gui_directory}/wallpaper_#{@project_name}_mix.png")
 
-      pitch_labels = key_group_conf[:keys].map.with_index do |key, idx|
+      labels = key_group_conf[:keys].map.with_index do |key, idx|
         {
-            txt:  'PITCH',
-            x:    (idx * 78) - 196,
-            y:    310
+          title: {
+              txt:  key[:name].to_s.labelize,
+              x:    (idx * 78) - 195,
+              y:    334
+          } ,
+          pitch: {
+              txt:  'PITCH',
+              x:    (idx * 78) - 196,
+              y:    310
+          },
+          level: {
+              txt:  'LEVEL',
+              x:    (idx * 78) - 214,
+              y:    202
+          },
+          pan: {
+              txt:  'PAN',
+              x:    (idx * 78) - 178,
+              y:    202
+          },
         }
       end
 
       frames = key_group_conf[:keys].map.with_index do |_, idx|
         {
-            img: MiniMagick::Image.new("#{@gui_directory}/frame_channel.png"),
+            img: MiniMagick::Image.open("#{@gui_directory}/frame_channel.png"),
             x: 81 + (idx * 78)
         }
       end
-      titles = key_group_conf[:keys].map.with_index do |key, idx|
-        {
-          img: MiniMagick::Image.new("#{@gui_directory}/title_mix_#{key_group_conf[:name]}_#{key[:name]}.png"),
-          x: 82 + (idx * 78)
-        }
-      end
-      # labels = key_group_conf[:keys].map.with_index do |key, idx|
-      #   [
-      #     {
-      #       img: MiniMagick::Image.new("#{@gui_directory}/label_mix_pitch.png"),
-      #       x: 82 + (idx * 78) + 2,
-      #       y: 90
-      #     },
-      #     {
-      #       img: MiniMagick::Image.new("#{@gui_directory}/label_mix_level.png"),
-      #       x: 82 + (idx * 78) + 8,
-      #       y: 200
-      #     },
-      #     {
-      #       img: MiniMagick::Image.new("#{@gui_directory}/label_mix_pan.png"),
-      #       x: 82 + (idx * 78) + 48,
-      #       y: 200
-      #     }
-      #   ]
-      # end
+
       frames.drop(1).each do |e|
         wallpaper = wallpaper.composite(e[:img]) do |c|
           c.compose   "Over"
           c.geometry  "+#{e[:x]}+96"
         end
       end
-      titles.each do |e|
-        wallpaper = wallpaper.composite(e[:img]) do |c|
-          c.compose   "Over"
-          c.geometry  "+#{e[:x]}+70"
-        end
-      end
-      pitch_labels.each do |e|
+      labels.each do |e|
         wallpaper = wallpaper.combine_options do |c|
           c.gravity   'south'
           c.font      FONT
           c.kerning   '1'
+          c.pointsize '14'
+          c.fill(TITLE_COLOR)
+          c.draw      "text #{e[:title][:x]},#{e[:title][:y]} '#{e[:title][:txt]}'"
           c.pointsize '12'
           c.fill(TEXT_COLOR)
-          c.draw      "text #{e[:x]},#{e[:y]} '#{e[:txt]}'"
+          c.draw      "text #{e[:pitch][:x]},#{e[:pitch][:y]} '#{e[:pitch][:txt]}'"
+          c.draw      "text #{e[:level][:x]},#{e[:level][:y]} '#{e[:level][:txt]}'"
+          c.draw      "text #{e[:pan][:x]},#{e[:pan][:y]} '#{e[:pan][:txt]}'"
         end
       end
 
-      # labels.each do |label_set|
-      #   label_set.each do |e|
-      #     wallpaper = wallpaper.composite(e[:img]) do |c|
-      #       c.compose   "Over"
-      #       c.geometry  "+#{e[:x]}+#{e[:y]}"
-      #     end
-      #   end
-      # end
-
-      filename = "#{@gui_directory}/im_wallpaper_mix_#{key_group_conf[:name]}.png"
+      filename = "#{@gui_directory}/#{@tmp_prefix}wallpaper_mix_#{key_group_conf[:name]}.png"
       wallpaper.write(filename)
+      @tmp_files << filename
       filename
     end
 
@@ -145,10 +139,12 @@ module Beaotic
     end
 
     def instrument
+      i = 0
       @key_groups = []
       @conf[:key_groups].each do |key_group_conf|
+        i += 1
         @key_groups << key_group(key_group_conf)
-        break
+        # break if i == 5
       end
       MiniMagick::Tool::Convert.new do |convert|
         convert.append.-
@@ -158,6 +154,7 @@ module Beaotic
         end
         convert << "#{@gui_directory}/wallpaper_#{@project_name}.png"
       end
+      FileUtils.rm(@tmp_files)
     end
   end
 end

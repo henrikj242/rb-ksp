@@ -96,6 +96,17 @@ module Beaotic
           "call select_group_#{key_group.name}"
         ]
         buttons << b
+        b = Ksp::UiSwitch.new(
+            name: "button_mute_#{key_group.name}",
+            default_value: 0,
+            picture: "button_mute",
+            persistent: true
+        )
+        b.xy(82 + (idx * 36), 265)
+        b.add_callbacks [
+          "call mute_group_#{key_group.name}"
+        ]
+        buttons << b
       end
       buttons
     end
@@ -104,7 +115,7 @@ module Beaotic
       f = Beaotic::Fader.new(
           name: 'accent',
           direction: 'horizontal',
-          length: 50,
+          length: 41,
           min_val: @conf[:accent][:min_val],
           default_val: @conf[:accent][:default_val],
           max_val: @conf[:accent][:max_val],
@@ -122,7 +133,7 @@ module Beaotic
         "set_script_title(\"#{@conf[:global][:project_name]}\")",
         "set_ui_height_px(#{@conf[:global][:perf_view][:height_px]})",
         "set_control_par_str($INST_WALLPAPER_ID, $CONTROL_PAR_PICTURE, \"wallpaper_#{@conf[:global][:project_name]}\")",
-        "set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, \"img_icon_hejo\")",
+        "set_control_par_str($INST_ICON_ID,      $CONTROL_PAR_PICTURE, \"icon\")",
         "declare $selected_group := 0",
         "declare $intensity := 0",
         "declare $i := 0",

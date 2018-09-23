@@ -19,7 +19,7 @@ module Ksp
         args:           args,
         default_value:  default_value
       )
-      @gui_directory = '_gui'
+      @gui_directory = '_gui/gui_elements'
       @visible = visible
       @text = text
       @picture = picture
