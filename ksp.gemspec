@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["henrik242@gmail.com"]
 
   spec.summary       = %q{KSP Code Generator}
-  spec.description   = %q{Will write KSP code for Beotic Kontakt libraries}
+  spec.description   = %q{KSP code generator for Kontakt instruments}
   spec.homepage      = "https://github.com/henrikj242/rb-ksp"
   spec.license       = "MIT"
 
