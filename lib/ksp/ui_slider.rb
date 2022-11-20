@@ -9,6 +9,7 @@ module Ksp
           mouse_behaviour:    1000,
           picture:            nil,
           help_text:          nil,
+          text:               '',
           automatable_as:     nil,
           cc:                 nil
     )
@@ -20,6 +21,7 @@ module Ksp
           visible:            visible,
           picture:            picture,
           help_text:          help_text,
+          text:               text,
           automatable_as:     automatable_as,
           cc:                 cc
       )

@@ -1,6 +1,6 @@
 module Ksp
   class UiControl < Variable
-    attr_accessor :label
+    attr_accessor :label, :x, :y
 
     def initialize(
           type:,
@@ -22,7 +22,8 @@ module Ksp
         args:           args,
         default_value:  default_value
       )
-      @gui_directory = KspConfig::conf[:global][:image_base_dir] + '/gui_elements'
+      # @gui_directory = KspConfig::conf[:global][:image_base_dir] + '/gui_elements'
+      # @gui_directory = Image_base_dir + '/gui_elements'
       @visible = visible
       @text = text
       @picture = picture
@@ -72,6 +73,14 @@ module Ksp
       end
     end
 
+    def set_width(width)
+      @width = width
+    end
+
+    def set_height(height)
+      @height = height
+    end
+
     def width
       "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_WIDTH, #{@width})"
     end
@@ -108,7 +117,7 @@ module Ksp
           cc[:min_val] = @args.first
           cc[:max_val] = @args.last
         end
-        KspConfig.add_cc_listener_conf(cc)
+        # KspConfig.add_cc_listener_conf(cc)
       end
     end
 
@@ -124,14 +133,14 @@ module Ksp
       end
     end
 
-    def automatable
-      [].tap do |statements|
-        if !!@automatable_as && KspConfig::conf[:with_automation]
-          statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_AUTOMATION_NAME, \"#{@automatable_as}\")"
-          statements << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_AUTOMATION_ID, #{AutomationIdCounter.next})"
-        end
-      end
-    end
+    # def automatable
+    #   [].tap do |statements|
+    #     if !!@automatable_as && KspConfig::conf[:with_automation]
+    #       statements << "set_control_par_str(get_ui_id(#{name}), $CONTROL_PAR_AUTOMATION_NAME, \"#{@automatable_as}\")"
+    #       statements << "set_control_par(get_ui_id(#{name}), $CONTROL_PAR_AUTOMATION_ID, #{AutomationIdCounter.next})"
+    #     end
+    #   end
+    # end
 
     def statements
       super +
@@ -144,7 +153,7 @@ module Ksp
           text,
           help_text
         ] +
-        automatable +
+        # automatable +
         (@visible ? [] : [hide])
     end
   end

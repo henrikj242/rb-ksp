@@ -9,10 +9,10 @@ require 'ksp/ui_image'
 require 'ksp/ui_menu'
 require 'ksp/ui_output_selector'
 require 'ksp/ui_slider'
+require 'ksp/instrument'
+require 'ksp/utility'
 
 module Ksp
   # Your code goes here..
-
-
 
 end
