@@ -7,7 +7,6 @@ module Ksp
       @conf = cfg
       @debug_file = File.new("./out/_debug/#{@project_name}.debug", 'w')
       @output_file = File.new("./out/#{project_name}/Resources/scripts/#{@project_name}.txt", 'w')
-
     end
 
     def compile
@@ -42,6 +41,7 @@ module Ksp
     def on_ui_control_callbacks
       []
     end
+    alias_method :on_ui_control_callback, :on_ui_control_callbacks
 
     def print
       statements.each { |statement| @output_file.puts statement }

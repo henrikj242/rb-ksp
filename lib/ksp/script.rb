@@ -24,6 +24,7 @@ module Ksp
     def statements
       on_init +
         @functions.map(&:statements) +
+        # @functions +
         @on_ui_control_callbacks +
         ['on note'] + @on_note_callback + ['end on'] +
         ['on release'] + @on_release_callback + ['end on'] +

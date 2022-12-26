@@ -122,7 +122,7 @@ module Ksp
     end
 
     def label_statements
-      @label&.statements.to_a
+      @label&.on_init.to_a
     end
 
     def help_text
@@ -156,5 +156,6 @@ module Ksp
         # automatable +
         (@visible ? [] : [hide])
     end
+    alias_method :on_init, :statements
   end
 end
