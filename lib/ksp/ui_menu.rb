@@ -56,5 +56,6 @@ module Ksp
       end
       statements
     end
+    alias_method :on_init, :statements
   end
 end
